@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.appdistribution")
 }
 
 android {
@@ -28,10 +30,20 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            firebaseAppDistribution {
+                artifactType = "AAB"
+                serviceCredentialsFile = System.getenv("FIREBASE_SERVICE_ACCOUNT") ?: ""
+                groups = "beta-testers"
+            }
         }
         debug {
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
+            firebaseAppDistribution {
+                artifactType = "APK"
+                serviceCredentialsFile = System.getenv("FIREBASE_SERVICE_ACCOUNT") ?: ""
+                groups = "beta-testers"
+            }
         }
     }
 
@@ -97,6 +109,9 @@ dependencies {
 
     // DataStore (preferences)
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    // Firebase (for App Distribution — no other Firebase services used)
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
 
     // Security (SHA-256 hashing)
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
