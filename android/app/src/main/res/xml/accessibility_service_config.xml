@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Accessibility service configuration for mid-call speech analysis.
+
+    This service listens for phone app UI state changes to detect
+    when a call is in progress, then starts on-device audio analysis
+    for scam-related speech patterns.
+
+    Privacy: Audio buffers are ephemeral — processed and discarded immediately.
+    NEVER recorded, stored, or transmitted.
+
+    Features required:
+    - Observe phone app UI state (call start/end detection)
+    - Retrieve window content (for in-call UI detection)
+-->
+<accessibility-service
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagIncludeNotImportantViews"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/service_audio_analysis_desc"
+    android:notificationTimeout="100"
+    android:packageNames="com.android.dialer|com.google.android.dialer|com.android.incallui|com.google.android.apps.messaging" />

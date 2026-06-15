@@ -1,0 +1,22 @@
+# Build
+build/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# IDE
+.idea/
+*.iml
+.gradle/
+local.properties
+
+# NDK
+.cxx/
+
+# Keystore
+*.keystore
+*.jks
+
+# Env
+.env

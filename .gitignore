@@ -1,0 +1,25 @@
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/captures/
+android/.externalNativeBuild/
+*.iml
+.idea/
+
+# iOS
+ios/*.xcworkspace
+ios/Pods/
+ios/DerivedData/
+
+# Backend
+backend/*.db
+backend/*.db-shm
+backend/*.db-wal
+
+# General
+.DS_Store
+*.log
+.env
+secrets/
