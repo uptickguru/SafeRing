@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>app-store</string>
+    <key>teamID</key>
+    <string>53DRV2V873</string>
+    <key>uploadSymbols</key>
+    <true/>
+    <key>compileBitcode</key>
+    <false/>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>online.db1k.safering.ios</key>
+        <string>Gus - store-SafeRing- app</string>
+        <key>online.db1k.safering.ios.CallDirectoryHandler</key>
+        <string>Gus Call Dire Store</string>
+    </dict>
+</dict>
+</plist>

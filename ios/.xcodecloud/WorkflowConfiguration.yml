@@ -1,0 +1,51 @@
+version: 1
+
+# SafeRing iOS Workflow Configuration
+# Auto-detected by Xcode Cloud when this repo is connected.
+
+workflows:
+  Build:
+    name: Build & Test
+    steps:
+      - action: build
+        scheme: SafeRing
+        destination: generic/platform=iOS
+        configuration: Release
+        sdk: iphoneos
+      - action: archive
+        scheme: SafeRing
+        destination: generic/platform=iOS
+        configuration: Release
+
+  TestFlight:
+    name: TestFlight Internal
+    steps:
+      - action: build
+        scheme: SafeRing
+        destination: generic/platform=iOS
+        configuration: Release
+      - action: archive
+        scheme: SafeRing
+        destination: generic/platform=iOS
+        configuration: Release
+    postActions:
+      - action: distribute
+        type: testflight
+        internal: true
+
+  Tagged-Release:
+    name: Tagged Release
+    triggers:
+      - tag: v*
+    steps:
+      - action: build
+        scheme: SafeRing
+        destination: generic/platform=iOS
+        configuration: Release
+      - action: archive
+        scheme: SafeRing
+        destination: generic/platform=iOS
+        configuration: Release
+    postActions:
+      - action: distribute
+        type: testflight

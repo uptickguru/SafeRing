@@ -1,0 +1,702 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B001 /* SafeRingApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B002; };
+		B003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B004; };
+		B005 /* ScamNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = B006; };
+		B007 /* CallLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008; };
+		B009 /* SmsLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B010; };
+		B011 /* ScamStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B012; };
+		B013 /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B014; };
+		B015 /* CheckResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B016; };
+		B017 /* ReportRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018; };
+		B019 /* PrefixResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020; };
+		B021 /* ScamRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B022; };
+		B023 /* CallRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = B024; };
+		B025 /* SmsRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = B026; };
+		B027 /* CheckCallUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B028; };
+		B029 /* CheckSmsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B030; };
+		B031 /* ReportScamUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B032; };
+		B033 /* SyncScamDataUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = B034; };
+		B035 /* NumberClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B036; };
+		B037 /* SmsClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B038; };
+		B039 /* CallDirectoryHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B040; };
+		B041 /* SmsClassifierService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B042; };
+		B043 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B044; };
+		B045 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046; };
+		B047 /* Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = B048; };
+		B049 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050; };
+		B051 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B052; };
+		B053 /* CallHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B054; };
+		B055 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B056; };
+		B057 /* ReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B058; };
+		B059 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B060; };
+		B061 /* RiskBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B062; };
+		B063 /* ScamAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B064; };
+		B065 /* BigButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B066; };
+		B067 /* CallRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B068; };
+		B069 /* HashUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B070; };
+		B071 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B072; };
+		B073 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B074; };
+		B075 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B076; };
+		B077 /* CallDirectoryHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B078; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B001A /* SafeRing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SafeRing.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B001B /* CallDirectoryHandler.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CallDirectoryHandler.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B002 /* SafeRingApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeRingApp.swift; sourceTree = "<group>"; };
+		B004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B006 /* ScamNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamNumber.swift; sourceTree = "<group>"; };
+		B008 /* CallLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallLog.swift; sourceTree = "<group>"; };
+		B010 /* SmsLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsLog.swift; sourceTree = "<group>"; };
+		B012 /* ScamStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamStore.swift; sourceTree = "<group>"; };
+		B014 /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiClient.swift; sourceTree = "<group>"; };
+		B016 /* CheckResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckResponse.swift; sourceTree = "<group>"; };
+		B018 /* ReportRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportRequest.swift; sourceTree = "<group>"; };
+		B020 /* PrefixResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefixResponse.swift; sourceTree = "<group>"; };
+		B022 /* ScamRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamRepository.swift; sourceTree = "<group>"; };
+		B024 /* CallRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallRisk.swift; sourceTree = "<group>"; };
+		B026 /* SmsRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsRisk.swift; sourceTree = "<group>"; };
+		B028 /* CheckCallUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckCallUseCase.swift; sourceTree = "<group>"; };
+		B030 /* CheckSmsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckSmsUseCase.swift; sourceTree = "<group>"; };
+		B032 /* ReportScamUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportScamUseCase.swift; sourceTree = "<group>"; };
+		B034 /* SyncScamDataUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncScamDataUseCase.swift; sourceTree = "<group>"; };
+		B036 /* NumberClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberClassifier.swift; sourceTree = "<group>"; };
+		B038 /* SmsClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsClassifier.swift; sourceTree = "<group>"; };
+		B040 /* CallDirectoryHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallDirectoryHandler.swift; sourceTree = "<group>"; };
+		B042 /* SmsClassifierService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsClassifierService.swift; sourceTree = "<group>"; };
+		B044 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		B046 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
+		B048 /* Font.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Font.swift; sourceTree = "<group>"; };
+		B050 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		B052 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		B054 /* CallHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallHistoryView.swift; sourceTree = "<group>"; };
+		B056 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B058 /* ReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportView.swift; sourceTree = "<group>"; };
+		B060 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		B062 /* RiskBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiskBadge.swift; sourceTree = "<group>"; };
+		B064 /* ScamAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamAlertView.swift; sourceTree = "<group>"; };
+		B066 /* BigButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BigButton.swift; sourceTree = "<group>"; };
+		B068 /* CallRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallRow.swift; sourceTree = "<group>"; };
+		B070 /* HashUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashUtils.swift; sourceTree = "<group>"; };
+		B072 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		B074 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
+		B076 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B078 /* CallDirectoryHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallDirectoryHandler.swift; sourceTree = "<group>"; };
+		B079 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B080 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B081 /* project.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = project.yml; sourceTree = "<group>"; };
+		B082 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		B083 /* SafeRing.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SafeRing.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B084 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B085 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B086 = {
+			isa = PBXGroup;
+			children = (
+				B082 /* Package.swift */,
+				B081 /* project.yml */,
+				B087 /* SafeRing */,
+				B088 /* CallDirectoryHandler */,
+				B089 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B089 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B001A /* SafeRing.app */,
+				B001B /* CallDirectoryHandler.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B087 /* SafeRing */ = {
+			isa = PBXGroup;
+			children = (
+				B090 /* App */,
+				B091 /* Data */,
+				B092 /* Domain */,
+				B093 /* Extension */,
+				B094 /* UI */,
+				B095 /* Util */,
+				B076 /* Assets.xcassets */,
+				B079 /* Info.plist */,
+				B083 /* SafeRing.entitlements */,
+			);
+			path = SafeRing;
+			sourceTree = "<group>";
+		};
+		B090 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B002 /* SafeRingApp.swift */,
+				B004 /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		B091 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				B096 /* Local */,
+				B097 /* Remote */,
+				B098 /* Repository */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		B096 /* Local */ = {
+			isa = PBXGroup;
+			children = (
+				B099 /* Models */,
+				B012 /* ScamStore.swift */,
+			);
+			path = Local;
+			sourceTree = "<group>";
+		};
+		B099 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B006 /* ScamNumber.swift */,
+				B008 /* CallLog.swift */,
+				B010 /* SmsLog.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B097 /* Remote */ = {
+			isa = PBXGroup;
+			children = (
+				B014 /* ApiClient.swift */,
+				B100 /* Models */,
+			);
+			path = Remote;
+			sourceTree = "<group>";
+		};
+		B100 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B016 /* CheckResponse.swift */,
+				B018 /* ReportRequest.swift */,
+				B020 /* PrefixResponse.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B098 /* Repository */ = {
+			isa = PBXGroup;
+			children = (
+				B022 /* ScamRepository.swift */,
+			);
+			path = Repository;
+			sourceTree = "<group>";
+		};
+		B092 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				B101 /* Models */,
+				B102 /* UseCases */,
+				B103 /* ML */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		B101 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B024 /* CallRisk.swift */,
+				B026 /* SmsRisk.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B102 /* UseCases */ = {
+			isa = PBXGroup;
+			children = (
+				B028 /* CheckCallUseCase.swift */,
+				B030 /* CheckSmsUseCase.swift */,
+				B032 /* ReportScamUseCase.swift */,
+				B034 /* SyncScamDataUseCase.swift */,
+			);
+			path = UseCases;
+			sourceTree = "<group>";
+		};
+		B103 /* ML */ = {
+			isa = PBXGroup;
+			children = (
+				B036 /* NumberClassifier.swift */,
+				B038 /* SmsClassifier.swift */,
+			);
+			path = ML;
+			sourceTree = "<group>";
+		};
+		B093 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				B040 /* CallDirectoryHandler.swift */,
+				B042 /* SmsClassifierService.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
+		B094 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				B104 /* Theme */,
+				B105 /* Screens */,
+				B106 /* Components */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		B104 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				B044 /* AppTheme.swift */,
+				B046 /* Color.swift */,
+				B048 /* Font.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		B105 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				B107 /* Home */,
+				B108 /* CallHistory */,
+				B109 /* Settings */,
+				B110 /* Report */,
+				B111 /* Onboarding */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		B107 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				B050 /* HomeView.swift */,
+				B052 /* HomeViewModel.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		B108 /* CallHistory */ = {
+			isa = PBXGroup;
+			children = (
+				B054 /* CallHistoryView.swift */,
+			);
+			path = CallHistory;
+			sourceTree = "<group>";
+		};
+		B109 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				B056 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		B110 /* Report */ = {
+			isa = PBXGroup;
+			children = (
+				B058 /* ReportView.swift */,
+			);
+			path = Report;
+			sourceTree = "<group>";
+		};
+		B111 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				B060 /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		B106 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				B062 /* RiskBadge.swift */,
+				B064 /* ScamAlertView.swift */,
+				B066 /* BigButton.swift */,
+				B068 /* CallRow.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		B095 /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				B070 /* HashUtils.swift */,
+				B072 /* Logger.swift */,
+				B074 /* AppConfig.swift */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
+		B088 /* CallDirectoryHandler */ = {
+			isa = PBXGroup;
+			children = (
+				B078 /* CallDirectoryHandler.swift */,
+				B080 /* Info.plist */,
+			);
+			path = CallDirectoryHandler;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B112 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B113;
+			buildPhases = (
+				B114 /* Sources */,
+				B084 /* Frameworks */,
+				B115 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B116 /* PBXTargetDependency */,
+			);
+			name = SafeRing;
+			productName = SafeRing;
+			productReference = B001A;
+			productType = "com.apple.product-type.application";
+		};
+		B117 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B118;
+			buildPhases = (
+				B119 /* Sources */,
+				B085 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CallDirectoryHandler;
+			productName = CallDirectoryHandler;
+			productReference = B001B;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B120 = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1530;
+				LastUpgradeCheck = 1530;
+				TargetAttributes = {
+					B112 = {
+						CreatedOnToolsVersion = 15.3;
+					};
+					B117 = {
+						CreatedOnToolsVersion = 15.3;
+					};
+				};
+			};
+			buildConfigurationList = B121;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B086;
+			productRefGroup = B089;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B112 /* SafeRing */,
+				B117 /* CallDirectoryHandler */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B115 = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B075 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B114 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B001 /* SafeRingApp.swift in Sources */,
+				B003 /* ContentView.swift in Sources */,
+				B005 /* ScamNumber.swift in Sources */,
+				B007 /* CallLog.swift in Sources */,
+				B009 /* SmsLog.swift in Sources */,
+				B011 /* ScamStore.swift in Sources */,
+				B013 /* ApiClient.swift in Sources */,
+				B015 /* CheckResponse.swift in Sources */,
+				B017 /* ReportRequest.swift in Sources */,
+				B019 /* PrefixResponse.swift in Sources */,
+				B021 /* ScamRepository.swift in Sources */,
+				B023 /* CallRisk.swift in Sources */,
+				B025 /* SmsRisk.swift in Sources */,
+				B027 /* CheckCallUseCase.swift in Sources */,
+				B029 /* CheckSmsUseCase.swift in Sources */,
+				B031 /* ReportScamUseCase.swift in Sources */,
+				B033 /* SyncScamDataUseCase.swift in Sources */,
+				B035 /* NumberClassifier.swift in Sources */,
+				B037 /* SmsClassifier.swift in Sources */,
+				B039 /* CallDirectoryHandler.swift in Sources */,
+				B041 /* SmsClassifierService.swift in Sources */,
+				B043 /* AppTheme.swift in Sources */,
+				B045 /* Color.swift in Sources */,
+				B047 /* Font.swift in Sources */,
+				B049 /* HomeView.swift in Sources */,
+				B051 /* HomeViewModel.swift in Sources */,
+				B053 /* CallHistoryView.swift in Sources */,
+				B055 /* SettingsView.swift in Sources */,
+				B057 /* ReportView.swift in Sources */,
+				B059 /* OnboardingView.swift in Sources */,
+				B061 /* RiskBadge.swift in Sources */,
+				B063 /* ScamAlertView.swift in Sources */,
+				B065 /* BigButton.swift in Sources */,
+				B067 /* CallRow.swift in Sources */,
+				B069 /* HashUtils.swift in Sources */,
+				B071 /* Logger.swift in Sources */,
+				B073 /* AppConfig.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B119 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B077 /* CallDirectoryHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B116 = {
+			isa = PBXTargetDependency;
+			target = B117 /* CallDirectoryHandler */;
+			targetProxy = B122;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXContainerItemProxy section */
+		B122 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B120;
+			proxyType = 1;
+			remoteGlobalIDString = B117;
+			remoteInfo = CallDirectoryHandler;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin XCBuildConfiguration section */
+		B123 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B124 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B125 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SafeRing/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SafeRing;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios;
+				PRODUCT_NAME = SafeRing;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		B126 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SafeRing/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SafeRing;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios;
+				PRODUCT_NAME = SafeRing;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		B127 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 5;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CallDirectoryHandler/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios.CallDirectoryHandler;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		B128 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 5;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CallDirectoryHandler/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios.CallDirectoryHandler;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B113 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B125 /* Debug */,
+				B126 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B118 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B127 /* Debug */,
+				B128 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B121 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B123 /* Debug */,
+				B124 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = B120;
+}

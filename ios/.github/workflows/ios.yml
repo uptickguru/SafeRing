@@ -1,0 +1,79 @@
+name: SafeRing iOS
+on:
+  push: { branches: [ main ] }
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo xcode-select -s /Applications/Xcode_26.3.app/Contents/Developer
+      - name: Bump build version
+        run: |
+          sed -i "" "s/CURRENT_PROJECT_VERSION = 1;/CURRENT_PROJECT_VERSION = 5;/g" SafeRing.xcodeproj/project.pbxproj
+
+      - name: Install cert
+        run: |
+          echo "${{ secrets.IOS_DIST_CERT_BASE64 }}" | base64 --decode > /tmp/d.p12
+          security create-keychain -p t k
+          security default-keychain -s k
+          security unlock-keychain -p t k
+          security import /tmp/d.p12 -k k -P "${{ secrets.IOS_DIST_CERT_PASSWORD }}" -A
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k t k
+
+      - name: Install main app profile
+        run: |
+          echo "${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > /tmp/p.mobileprovision
+          UUID=$(security cms -D -i /tmp/p.mobileprovision 2>/dev/null | xmllint --xpath '//key[.="UUID"]/following-sibling::string[1]/text()' - 2>/dev/null)
+          NAME=$(security cms -D -i /tmp/p.mobileprovision 2>/dev/null | xmllint --xpath '//key[.="Name"]/following-sibling::string[1]/text()' - 2>/dev/null)
+          echo "Main profile: $NAME ($UUID)"
+          echo "MAIN_PROFILE_SPECIFIER=$NAME" >> $GITHUB_ENV
+          echo "MAIN_PROFILE_UUID=$UUID" >> $GITHUB_ENV
+          # Flip IsXcodeManaged to false for Manual signing compatibility
+          plutil -replace IsXcodeManaged -bool NO /tmp/p.mobileprovision 2>/dev/null || true
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp /tmp/p.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/"$UUID.mobileprovision"
+
+      - name: Install extension profile
+        run: |
+          echo "${{ secrets.IOS_EXTENSION_PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > /tmp/e.mobileprovision
+          UUID=$(security cms -D -i /tmp/e.mobileprovision 2>/dev/null | xmllint --xpath '//key[.="UUID"]/following-sibling::string[1]/text()' - 2>/dev/null)
+          NAME=$(security cms -D -i /tmp/e.mobileprovision 2>/dev/null | xmllint --xpath '//key[.="Name"]/following-sibling::string[1]/text()' - 2>/dev/null)
+          echo "Extension profile: $NAME ($UUID)"
+          echo "EXTENSION_PROFILE_SPECIFIER=$NAME" >> $GITHUB_ENV
+          echo "EXTENSION_PROFILE_UUID=$UUID" >> $GITHUB_ENV
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp /tmp/e.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/"$UUID.mobileprovision"
+
+      - name: Archive
+        run: |
+          # Patch pbxproj with actual profile specifiers for both targets
+          sed -i '' 's/PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios;/PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios; PROVISIONING_PROFILE_SPECIFIER = "'"$MAIN_PROFILE_SPECIFIER"'";/' SafeRing.xcodeproj/project.pbxproj
+          sed -i '' 's/PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios.CallDirectoryHandler;/PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios.CallDirectoryHandler; PROVISIONING_PROFILE_SPECIFIER = "'"$EXTENSION_PROFILE_SPECIFIER"'";/' SafeRing.xcodeproj/project.pbxproj
+          xcodebuild -project SafeRing.xcodeproj -scheme SafeRing \
+            -sdk iphoneos -configuration Release -destination generic/platform=iOS \
+            -archivePath build.xcarchive archive \
+            DEVELOPMENT_TEAM=53DRV2V873 CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            SWIFT_STRICT_CONCURRENCY=legacy 2>&1
+
+      - name: Export IPA
+        run: |
+          mkdir -p out
+          xcodebuild -exportArchive -archivePath build.xcarchive -exportPath out \
+            -exportOptionsPlist exportOptions.plist
+
+      - name: Upload
+        run: |
+          mkdir -p ~/private_keys
+          echo "${{ secrets.ASC_API_KEY_BASE64 }}" | base64 --decode > ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
+          xcrun altool --upload-app -f out/SafeRing.ipa --type ios \
+            --apiKey ${{ secrets.ASC_KEY_ID }} \
+            --apiIssuer ${{ secrets.ASC_ISSUER_ID }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SafeRing.ipa
+          path: out/SafeRing.ipa
+

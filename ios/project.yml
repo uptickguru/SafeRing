@@ -1,0 +1,87 @@
+## Configuration
+name: SafeRing
+options:
+  bundleIdPrefix: com.safering
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "15.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "5"
+    DEVELOPMENT_TEAM: "ZS9TKMU2Q4"
+    INFOPLIST_FILE: SafeRing/Info.plist
+    PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios
+    PRODUCT_NAME: SafeRing
+
+targets:
+  SafeRing:
+    type: application
+    platform: iOS
+    sources:
+      - SafeRing
+    settings:
+      base:
+        INFOPLIST_FILE: SafeRing/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS: "NO"
+        TARGETED_DEVICE_FAMILY: 1
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+        ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+    info:
+      path: SafeRing/Info.plist
+    entitlements:
+      path: SafeRing/SafeRing.entitlements
+    dependencies:
+      - framework: CallKit.framework
+        weak: false
+      - framework: CoreML.framework
+        weak: false
+      - framework: BackgroundTasks.framework
+        weak: false
+
+  CallDirectoryHandler:
+    type: app-extension
+    platform: iOS
+    sources:
+      - CallDirectoryHandler
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios.CallDirectoryHandler
+        INFOPLIST_FILE: CallDirectoryHandler/Info.plist
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    dependencies:
+      - framework: CallKit.framework
+        weak: false
+
+  SafeRingWatch:
+    type: watch2-app
+    platform: watchOS
+    sources:
+      - SafeRingWatch
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios.watchkitapp
+        INFOPLIST_FILE: SafeRingWatch/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: 4
+        WATCHOS_DEPLOYMENT_TARGET: "9.0"
+    dependencies:
+      - target: SafeRingWatchExtension
+
+  SafeRingWatchExtension:
+    type: watch2-extension
+    platform: watchOS
+    sources:
+      - WatchExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios.watchkitapp.watchkitextension
+        INFOPLIST_FILE: WatchExtension/Info.plist
+        WATCHOS_DEPLOYMENT_TARGET: "9.0"
+    dependencies:
+      - framework: WatchKit.framework
+      - framework: WatchConnectivity.framework
