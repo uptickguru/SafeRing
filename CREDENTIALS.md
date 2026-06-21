@@ -142,5 +142,5 @@ The iOS app uses version `1.0.0`. You need to **bump the build number** before e
 |-------|-------|
 | File | `ios/SafeRing_Distribution.p12` (gitignored — use GitHub secret) |
 | Password | `kailey99` |
-| Identity | `Apple Distribution: Kevin Asbury (3935NLG9N2)` |
+| Identity | `Apple Distribution: Kevin Asbury (53DRV2V873)` |
 | In CI | Set as `IOS_DIST_CERT_BASE64` + `IOS_DIST_CERT_PASSWORD` secrets |
