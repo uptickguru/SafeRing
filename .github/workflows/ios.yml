@@ -91,6 +91,7 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution: Kevin Asbury (53DRV2V873)" \
             PROVISIONING_PROFILE_SPECIFIER="Gus - store-SafeRing- app" \
+            -allowProvisioningUpdates \
             SWIFT_STRICT_CONCURRENCY=legacy
 
       - name: Export IPA
