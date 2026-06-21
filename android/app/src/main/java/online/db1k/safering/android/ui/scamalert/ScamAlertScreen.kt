@@ -70,7 +70,7 @@ fun ScamAlertOverlay(
 
             // Risk score bar
             LinearProgressIndicator(
-                progress = { riskScore.toFloat() },
+                progress = riskScore.toFloat(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(12.dp),
