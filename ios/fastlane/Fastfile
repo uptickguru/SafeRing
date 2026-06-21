@@ -1,0 +1,39 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    setup_ci
+
+    # Configure App Store Connect API key for all subsequent actions
+    app_store_connect_api_key(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key_filepath: "~/.fastlane/AppStoreConnect.p8",
+      is_key_content_base64: false
+    )
+
+    # Build and export IPA with automatic signing
+    build_app(
+      scheme: "SafeRing",
+      project: "SafeRing.xcodeproj",
+      configuration: "Release",
+      export_method: "app-store",
+      team_id: "53DRV2V873",
+      use_system_scm: true,
+      xcargs: [
+        "DEVELOPMENT_TEAM=53DRV2V873",
+        "CODE_SIGN_STYLE=Automatic",
+        "-allowProvisioningUpdates"
+      ].join(" "),
+      include_bitcode: false,
+      clean: false
+    )
+
+    # Upload to TestFlight
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      ipa: "SafeRing.ipa"
+    )
+  end
+end
