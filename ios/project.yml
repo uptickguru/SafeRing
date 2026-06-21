@@ -58,7 +58,7 @@ targets:
         weak: false
 
   SafeRingWatch:
-    type: watch2-app
+    type: application
     platform: watchOS
     sources:
       - SafeRingWatch
