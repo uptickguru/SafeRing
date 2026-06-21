@@ -42,12 +42,20 @@ jobs:
           base64 --decode <<< "$ASC_KEY_B64" > ~/private_keys/AuthKey_392Z3XJZQS.p8
           echo "ASC key: $(wc -c < ~/private_keys/AuthKey_392Z3XJZQS.p8) bytes"
 
-      - name: Register API key with Xcode
+      - name: Install provisioning profiles
         run: |
-          defaults write com.apple.dt.Xcode DVTDeveloperAccountManager-APIAuthTokens -dict-add 392Z3XJZQS "$(base64 < ~/private_keys/AuthKey_392Z3XJZQS.p8)"
-          echo "API key registered with Xcode"
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          for p in *.mobileprovision; do
+            if [ -f "$p" ]; then
+              cp "$p" ~/Library/MobileDevice/Provisioning\ Profiles/
+              echo "Installed: $p"
+            fi
+          done
 
       - name: Archive app
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           xcodebuild \
             -project SafeRing.xcodeproj \
@@ -56,6 +64,9 @@ jobs:
             -configuration Release \
             -destination generic/platform=iOS \
             -archivePath /tmp/SafeRing.xcarchive \
+            -authenticationKeyPath ~/private_keys/AuthKey_${ASC_KEY_ID}.p8 \
+            -authenticationKeyID ${ASC_KEY_ID} \
+            -authenticationKeyIssuerID ${ASC_ISSUER_ID} \
             archive \
             DEVELOPMENT_TEAM=53DRV2V873 \
             CODE_SIGN_STYLE=Automatic \
@@ -64,12 +75,18 @@ jobs:
 
       - name: Export IPA
         working-directory: .
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           xcodebuild \
             -exportArchive \
             -archivePath /tmp/SafeRing.xcarchive \
             -exportOptionsPlist ios/exportOptions.plist \
             -exportPath /tmp/SafeRingIPA \
+            -authenticationKeyPath ~/private_keys/AuthKey_${ASC_KEY_ID}.p8 \
+            -authenticationKeyID ${ASC_KEY_ID} \
+            -authenticationKeyIssuerID ${ASC_ISSUER_ID} \
             -allowProvisioningUpdates
 
       - name: Upload IPA artifact
