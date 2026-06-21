@@ -84,9 +84,13 @@ All are **Distribution** profiles (get-task-allow: false), valid until June 2027
 
 | Field | Status |
 |-------|--------|
-| Project | **Not set up** — need a Firebase project |
-| google-services.json | **Missing** — download from Firebase Console |
-| FIREBASE_SERVICE_ACCOUNT | **Missing** — generate service account key |
+| Project | `gmg-safering-android` (Spark plan) |
+| Project ID | `gmg-safering-android` |
+| google-services.json | ✅ Committed at `android/app/google-services.json` |
+| Fireabse Admin SDK Email | `firebase-adminsdk-fbsvc@gmg-safering-android.iam.gserviceaccount.com` |
+| Service Account Key | ✅ Set as GitHub Secret `FIREBASE_SERVICE_ACCOUNT` (2026-06-21) |
+| Local Backup | `android/firebase-service-account.json` (**DO NOT COMMIT**) |
+| Org Policy | `db1k.online` org — manually overrode `Disable service account key creation` to NOT ENFORCED to allow key generation |
 
 ---
 
@@ -132,3 +136,11 @@ The iOS app uses version `1.0.0`. You need to **bump the build number** before e
 | `.github/workflows/ios.yml` | iOS CI/CD — builds + TestFlight |
 | `.github/workflows/android.yml` | Android CI/CD — builds + Firebase |
 | `ios/project.yml` | XcodeGen project spec |
+
+### Distribution Certificate .p12
+| Field | Value |
+|-------|-------|
+| File | `ios/SafeRing_Distribution.p12` (gitignored — use GitHub secret) |
+| Password | `kailey99` |
+| Identity | `Apple Distribution: Kevin Asbury (3935NLG9N2)` |
+| In CI | Set as `IOS_DIST_CERT_BASE64` + `IOS_DIST_CERT_PASSWORD` secrets |
