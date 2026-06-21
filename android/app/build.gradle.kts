@@ -31,7 +31,7 @@ android {
                 "proguard-rules.pro"
             )
             firebaseAppDistribution {
-                artifactType = "AAB"
+                artifactType = "APK"
                 serviceCredentialsFile = System.getenv("FIREBASE_SERVICE_ACCOUNT") ?: ""
                 groups = "beta-testers"
             }
