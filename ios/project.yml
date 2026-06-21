@@ -22,7 +22,8 @@ targets:
     sources:
       - path: SafeRing
         excludes:
-          - "Extension/*.swift"
+          - "Extension/CallDirectoryHandler.swift"
+          - "Extension/SmsClassifierService.swift"
     settings:
       base:
         INFOPLIST_FILE: SafeRing/Info.plist
