@@ -106,11 +106,13 @@ jobs:
             echo "SKIP: No IPA"
             exit 0
           fi
-          # altool looks for AuthKey_*.p8 in specific paths. Ensure it's in ~/private_keys/
-          ls -la ~/private_keys/AuthKey_*.p8 2>/dev/null || echo "Key not in ~/private_keys"
+          echo "=== Checking key file ==="
+          ls -la ~/private_keys/
+          file ~/private_keys/AuthKey_392Z3XJZQS.p8
+          echo "=== Uploading ==="
           xcrun altool --upload-app \
             -f /tmp/SafeRingIPA/SafeRing.ipa \
             --type ios \
-            --apiKey "***" \
+            --apiKey 392Z3XJZQS \
             --apiIssuer "$ASC_ISSUER_ID" \
             --verbose
