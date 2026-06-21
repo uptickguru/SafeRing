@@ -1,143 +1,17 @@
-# SafeRing — iOS CI/CD
-# Builds the iOS app and uploads to TestFlight via App Store Connect API.
-#
-# Trigger:
-#   - push to main
-#
-# Secrets required (set in GitHub repo settings):
-#   ASC_API_KEY_BASE64       — Base64-encoded AuthKey_392Z3XJZQS.p8 private key
-#   ASC_KEY_ID               — API key ID: 392Z3XJZQS
-#   ASC_ISSUER_ID            — Issuer ID: 69a6de75-f335-47e3-e053-5b8c7c11a4d1
-#   IOS_PROVISIONING_PROFILE_BASE64
-#                            — Base64-encoded provisioning profile (.mobileprovision)
-#   KEYCHAIN_PASSWORD        — Password for the temporary keychain (set any value)
-#
-# Note: This workflow must run on macOS because iOS builds require Xcode.
-
 name: iOS Build & TestFlight Upload
 
 on:
   push:
     branches: [main]
 
-concurrency:
-  group: ios-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   build-and-upload:
     name: Build & Upload to TestFlight
-    runs-on: macos-14
+    runs-on: macos-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Select Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-
-      - name: Install xcodegen
-        run: brew install xcodegen
-
-      - name: Generate Xcode project from project.yml
-        run: |
-          cd ios
-          xcodegen generate
-
-      - name: Decode and install provisioning profile (skip if not configured)
-        if: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 != '' }}
-        env:
-          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
-        run: |
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode \
-            > ~/Library/MobileDevice/Provisioning\ Profiles/safering_store.mobileprovision
-
-      - name: Decode and install ASC API key (skip if not configured)
-        if: ${{ secrets.ASC_API_KEY_BASE64 != '' }}
-        env:
-          ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
-        run: |
-          mkdir -p ~/private_keys
-          echo "$ASC_API_KEY_BASE64" | base64 --decode \
-            > ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
-
-      - name: Create temporary keychain
-        env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain || true
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security set-keychain-settings -t 3600 -u build.keychain
-
-      - name: Decode and install ASC API key from local file (CI fallback)
-        if: ${{ secrets.ASC_API_KEY_BASE64 == '' }}
-        run: |
-          mkdir -p ~/private_keys
-          if [ -f ios/ci_keys/AuthKey_392Z3XJZQS.p8 ]; then
-            cp ios/ci_keys/AuthKey_392Z3XJZQS.p8 ~/private_keys/AuthKey_392Z3XJZQS.p8
-            echo "Installed ASC key from local repo"
-          fi
-
-# Code signing on CI: Xcode automatic signing handles this when the ASC
-# API key is available. The .p12 cert import below is only needed for
-# manual signing workflows; skip it unless you have a specific reason.
-
-      - name: Import distribution certificate (optional — uncomment when ready)
-        if: ${{ secrets.IOS_DIST_CERT_BASE64 != '' }}
-        env:
-          IOS_DIST_CERT_BASE64: ${{ secrets.IOS_DIST_CERT_BASE64 }}
-          IOS_DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          echo "$IOS_DIST_CERT_BASE64" | base64 --decode > /tmp/dist.p12
-          security import /tmp/dist.p12 \
-            -k build.keychain \
-            -P "$IOS_DIST_CERT_PASSWORD" \
-            -T /usr/bin/codesign
-          rm -f /tmp/dist.p12
-
-      - name: Archive the app
-        run: |
-          cd ios
-          xcodebuild \
-            -project SafeRing.xcodeproj \
-            -scheme SafeRing \
-            -sdk iphoneos \
-            -configuration Release \
-            -destination generic/platform=iOS \
-            -archivePath /tmp/SafeRing.xcarchive \
-            archive \
-            DEVELOPMENT_TEAM=53DRV2V873 \
-            CODE_SIGN_STYLE=Automatic \
-            -allowProvisioningUpdates \
-            SWIFT_STRICT_CONCURRENCY=legacy
-
-      - name: Export IPA
-        run: |
-          xcodebuild \
-            -exportArchive \
-            -archivePath /tmp/SafeRing.xcarchive \
-            -exportOptionsPlist ios/exportOptions.plist \
-            -exportPath /tmp/SafeRingIPA \
-            -allowProvisioningUpdates
-
-      - name: Upload IPA as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: SafeRing-ipa
-          path: /tmp/SafeRingIPA/SafeRing.ipa
-          retention-days: 14
-
-      - name: Upload to TestFlight via App Store Connect API
-        env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-        run: |
-          xcrun altool --upload-app \
-            -f /tmp/SafeRingIPA/SafeRing.ipa \
-            --type ios \
-            --apiKey "$ASC_KEY_ID" \
-            --apiIssuer "$ASC_ISSUER_ID" \
-            --verbose
+      - name: Test
+        run: echo "iOS workflow is alive" && sw_vers
