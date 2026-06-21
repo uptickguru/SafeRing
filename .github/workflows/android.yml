@@ -59,14 +59,15 @@ jobs:
             -keypass kailey99 \
             -dname "CN=SafeRing, OU=SafeRing, O=GMG, L=NYC, S=NY, C=US" \
             -noprompt
-          echo "Keystore generated at: $(ls -la android/safering-keystore.jks | awk '{print $5}')"
+          echo "Keystore generated"
 
       - name: Build release APK
         env:
-          ANDROID_KEYSTORE_PATH: ../safering-keystore.jks
+          ANDROID_KEYSTORE_PATH: safering-keystore.jks
           KEYSTORE_PASSWORD: kailey99
         run: |
           cd android
+          ls -la safering-keystore.jks
           ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Upload APK as artifact
