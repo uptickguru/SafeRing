@@ -57,12 +57,14 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
+          rm -rf ~/Library/Developer/Xcode/DerivedData/SafeRing-*
           xcodebuild \
             -project SafeRing.xcodeproj \
             -scheme SafeRing \
             -sdk iphoneos \
             -configuration Release \
             -destination generic/platform=iOS \
+            -derivedDataPath /tmp/SafeRingDD \
             -archivePath /tmp/SafeRing.xcarchive \
             -authenticationKeyPath ~/private_keys/AuthKey_${ASC_KEY_ID}.p8 \
             -authenticationKeyID ${ASC_KEY_ID} \
