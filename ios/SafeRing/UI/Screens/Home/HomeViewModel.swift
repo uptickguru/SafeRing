@@ -33,6 +33,9 @@ final class HomeViewModel: ObservableObject {
     /// Whether to show any error state.
     @Published var showError: Bool = false
     @Published var errorMessage: String = ""
+    
+    /// Whether to show sync success feedback
+    @Published var didJustSync: Bool = false
 
     /// Recent call activity (last 5 entries).
     @Published var recentCalls: [CallLog] = []
@@ -88,7 +91,15 @@ final class HomeViewModel: ObservableObject {
             try await syncUseCase.execute()
             lastSyncDate = Date()
             await refreshStats()
+            didJustSync = true
+            await checkProtectionStatus()
             Logger.shared.info("Dashboard data refreshed successfully", category: .ui)
+            
+            // Clear the success indicator after 2 seconds
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                didJustSync = false
+            }
         } catch {
             showError = true
             errorMessage = "Unable to update: \(error.localizedDescription)"

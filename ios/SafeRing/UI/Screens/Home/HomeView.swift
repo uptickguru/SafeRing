@@ -156,11 +156,25 @@ struct HomeView: View {
 
     private var syncStatusBar: some View {
         HStack {
-            Image(systemName: "icloud.fill")
-                .foregroundColor(Color("secondaryText"))
-            Text(syncStatusText)
-                .font(.captionText)
-                .foregroundColor(Color("secondaryText"))
+            if viewModel.didJustSync {
+                Image(systemName: "checkmark.icloud.fill")
+                    .foregroundColor(Color("safeGreen"))
+                Text("Synced")
+                    .font(.captionText)
+                    .foregroundColor(Color("safeGreen"))
+            } else if viewModel.isSyncing {
+                Image(systemName: "arrow.triangle.2.circlepath.icloud")
+                    .foregroundColor(Color("secondaryText"))
+                Text("Updating...")
+                    .font(.captionText)
+                    .foregroundColor(Color("secondaryText"))
+            } else {
+                Image(systemName: viewModel.lastSyncDate != nil ? "icloud.fill" : "icloud.slash.fill")
+                    .foregroundColor(viewModel.lastSyncDate != nil ? Color("safeGreen") : Color("secondaryText"))
+                Text(syncStatusText)
+                    .font(.captionText)
+                    .foregroundColor(viewModel.lastSyncDate != nil ? Color("safeGreen") : Color("secondaryText"))
+            }
             Spacer()
         }
         .padding(.vertical, AppTheme.spacingXS)

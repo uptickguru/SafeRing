@@ -73,4 +73,17 @@ func (h *CheckHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, resp)
+
+	// Log the check for analytics
+	if sn != nil {
+		h.logger.Info("number check: scam found",
+			zap.String("hash_prefix", hash[:8]),
+			zap.Float64("risk", resp.RiskScore),
+			zap.String("scam_type", resp.ScamType),
+		)
+	} else {
+		h.logger.Info("number check: no match",
+			zap.String("hash_prefix", hash[:8]),
+		)
+	}
 }

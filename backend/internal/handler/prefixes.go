@@ -33,6 +33,12 @@ func (h *PrefixesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.logger.Info("prefix sync: device fetching scam prefixes",
+		zap.Int("count", len(prefixes)),
+		zap.String("remote_ip", r.RemoteAddr),
+		zap.String("user_agent", r.UserAgent()),
+	)
+
 	// Build response with iOS-compatible fields
 	respPrefixes := make([]struct {
 		Prefix      string   `json:"prefix"`
