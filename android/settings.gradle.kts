@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "SafeRing"
 include(":app")
-include(":wear")
+//include(":wear")  // Excluded for now — needs Wear OS dependency fixes
