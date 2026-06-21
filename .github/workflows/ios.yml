@@ -24,8 +24,12 @@ jobs:
           echo "Xcode: $XCODE"
           sudo xcode-select -s "$XCODE/Contents/Developer"
 
-      - name: Install xcodegen
-        run: brew install xcodegen
+      - name: Install xcodegen v2.45.4
+        run: |
+          curl -sL "https://github.com/yonaskolb/XcodeGen/releases/download/2.45.4/xcodegen.zip" -o /tmp/xcodegen.zip
+          unzip -q /tmp/xcodegen.zip -d /tmp/xcodegen
+          sudo cp /tmp/xcodegen/xcodegen /usr/local/bin/xcodegen
+          xcodegen --version
 
       - name: Generate Xcode project
         run: xcodegen generate
