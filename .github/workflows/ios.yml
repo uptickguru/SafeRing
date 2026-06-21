@@ -89,7 +89,7 @@ jobs:
             archive \
             DEVELOPMENT_TEAM=53DRV2V873 \
             CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Apple Distribution: Kevin Asbury (3935NLG9N2)" \
+            CODE_SIGN_IDENTITY="Apple Distribution: Kevin Asbury (53DRV2V873)" \
             PROVISIONING_PROFILE_SPECIFIER="Gus - store-SafeRing- app" \
             SWIFT_STRICT_CONCURRENCY=legacy
 
