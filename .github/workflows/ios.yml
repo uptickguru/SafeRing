@@ -5,6 +5,11 @@ on:
   push:
     branches: [main]
 
+env:
+  APP_STORE_CONNECT_API_KEY_PATH: ~/private_keys/AuthKey_392Z3XJZQS.p8
+  APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+  APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+
 jobs:
   build-and-upload:
     name: Build & Upload to TestFlight
@@ -34,23 +39,19 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
 
-      - name: Install ASC API key from secret
+      - name: Install ASC API key
         env:
           ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
         run: |
           mkdir -p ~/private_keys
-          if [ -n "$ASC_API_KEY_BASE64" ]; then
-            echo "$ASC_API_KEY_BASE64" | base64 --decode > ~/private_keys/AuthKey_${ASC_KEY_ID}.p8
-            echo "ASC API key installed"
-          else
-            echo "WARNING: ASC_API_KEY_BASE64 secret not set"
-          fi
+          base64 --decode <<< "$ASC_API_KEY_BASE64" > ~/private_keys/AuthKey_392Z3XJZQS.p8
+          echo "ASC key: $(wc -c < ~/private_keys/AuthKey_392Z3XJZQS.p8) bytes"
+
+      - name: Register API key with Xcode
+        run: |
+          defaults write com.apple.dt.Xcode DVTDeveloperAccountManager-APIAuthTokens -dict-add 392Z3XJZQS "$(cat ~/private_keys/AuthKey_392Z3XJZQS.p8 | base64)"
 
       - name: Archive app
-        env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           xcodebuild \
             -project SafeRing.xcodeproj \
@@ -59,9 +60,6 @@ jobs:
             -configuration Release \
             -destination generic/platform=iOS \
             -archivePath /tmp/SafeRing.xcarchive \
-            -authenticationKeyPath ~/private_keys/AuthKey_${ASC_KEY_ID}.p8 \
-            -authenticationKeyID ${ASC_KEY_ID} \
-            -authenticationKeyIssuerID ${ASC_ISSUER_ID} \
             archive \
             DEVELOPMENT_TEAM=53DRV2V873 \
             CODE_SIGN_STYLE=Automatic \
@@ -70,18 +68,12 @@ jobs:
 
       - name: Export IPA
         working-directory: .
-        env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           xcodebuild \
             -exportArchive \
             -archivePath /tmp/SafeRing.xcarchive \
             -exportOptionsPlist ios/exportOptions.plist \
             -exportPath /tmp/SafeRingIPA \
-            -authenticationKeyPath ~/private_keys/AuthKey_${ASC_KEY_ID}.p8 \
-            -authenticationKeyID ${ASC_KEY_ID} \
-            -authenticationKeyIssuerID ${ASC_ISSUER_ID} \
             -allowProvisioningUpdates
 
       - name: Upload IPA artifact
