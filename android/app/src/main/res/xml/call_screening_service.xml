@@ -11,4 +11,4 @@
     Privacy: Phone numbers are SHA-256 hashed before any network lookup.
 -->
 <call-screening-service
-    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android="http://schemas.android.com/apk/res/android" />
