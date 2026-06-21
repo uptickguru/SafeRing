@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -55,7 +54,7 @@ fun SettingsScreen() {
                     checked = autoBlock,
                     onCheckedChange = { autoBlock = it }
                 )
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
                 SettingToggle(
                     title = "Show Scam Alert Notifications",
                     subtitle = "Display notifications for suspected scam calls",
@@ -105,7 +104,7 @@ fun SettingsScreen() {
                     subtitle = "Required to detect and block scam calls in real-time",
                     onClick = { openCallScreeningSettings(context) }
                 )
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
                 PermissionButton(
                     title = "Phone Permission",
                     subtitle = "Required to read incoming call details",
@@ -203,7 +202,7 @@ private fun InfoRow(label: String, value: String) {
 
 private fun openCallScreeningSettings(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS).apply {
+        val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS).apply {
             // On most devices, this opens the default apps settings
             // Users need to navigate to Call Screening > SafeRing
         }
