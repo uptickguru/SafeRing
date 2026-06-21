@@ -30,3 +30,5 @@ backend/**/*.db-shm
 backend/**/*.db-wal
 ios/SafeRing_Distribution.p12
 ios/*.p12
+android/safering-keystore.jks
+android/*.jks
