@@ -1,0 +1,75 @@
+# SafeRing Backend — Docker Compose
+#
+# Quick start:
+#   docker compose up -d
+#
+# This runs the API with SQLite storage. For production,
+# switch to PostgreSQL and add Redis for distributed rate limiting.
+
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: safering-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8080
+      - SERVER_TIMEOUT=30s
+      - DATABASE_URL=/app/data/safering.db
+      - LOG_LEVEL=info
+      - LOG_FORMAT=json
+      - RATE_LIMIT_PER_IP=100
+      - RATE_LIMIT_WINDOW=1m
+      - SCRAPER_INTERVAL=6h
+      - SCRAPER_FTC_ENABLED=true
+      - SCRAPER_FTC_API_KEY=DEMO_KEY
+      - SCRAPER_BBB_ENABLED=true
+      - SCRAPER_REDDIT_ENABLED=true
+      - ML_MODEL_DIR=/app/data/models
+      - ML_TRAIN_INTERVAL=24h
+    volumes:
+      - safering-data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Uncomment for production PostgreSQL deployment:
+  # db:
+  #   image: postgres:16-alpine
+  #   container_name: safering-db
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_DB=safering
+  #     - POSTGRES_USER=safering
+  #     - POSTGRES_PASSWORD=${DB_PASSWORD}
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U safering"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  # Uncomment for Redis rate limiting:
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: safering-redis
+  #   restart: unless-stopped
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis-data:/data
+
+volumes:
+  safering-data:
+  # pgdata:
+  # redis-data:

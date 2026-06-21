@@ -23,3 +23,8 @@ backend/*.db-wal
 *.log
 .env
 secrets/
+
+# Deep database files
+backend/**/*.db
+backend/**/*.db-shm
+backend/**/*.db-wal

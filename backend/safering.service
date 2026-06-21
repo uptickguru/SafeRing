@@ -1,0 +1,23 @@
+[Unit]
+Description=SafeRing Backend API Server + Scraper Coordinator
+Documentation=https://github.com/safering/backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/home/kevin/.openclaw/workspace/SafeRing/backend/safering-server
+WorkingDirectory=/home/kevin/.openclaw/workspace/SafeRing/backend
+Restart=always
+RestartSec=10
+StartLimitBurst=5
+
+# Environment
+Environment=SERVER_PORT=8080
+Environment=LOG_LEVEL=info
+Environment=LOG_FORMAT=console
+Environment=DATABASE_URL=/home/kevin/.openclaw/workspace/SafeRing/backend/safering.db
+Environment=ML_MODEL_DIR=/home/kevin/.openclaw/workspace/SafeRing/backend/data/models
+
+[Install]
+WantedBy=default.target

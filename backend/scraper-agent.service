@@ -1,0 +1,26 @@
+[Unit]
+Description=SafeRing Scraper Agent (load-aware distributed scraper)
+Documentation=https://github.com/safering/backend
+After=network-online.target safering-backend.service
+Wants=network-online.target
+BindsTo=safering-backend.service
+
+[Service]
+Type=simple
+ExecStart=/home/kevin/.openclaw/workspace/SafeRing/backend/scraper-agent \
+  --coordinator http://localhost:9093 \
+  --agent-id "web-hosting-portal-01" \
+  --socks5-proxy "127.0.0.1:9050"
+WorkingDirectory=/home/kevin/.openclaw/workspace/SafeRing/backend
+Restart=always
+RestartSec=30
+StartLimitBurst=3
+
+# Environment
+Environment=SOCKS5_PROXY=127.0.0.1:9050
+Environment=HTTP_PROXY=
+Environment=HTTPS_PROXY=
+Environment=NO_PROXY=localhost,127.0.0.1
+
+[Install]
+WantedBy=default.target

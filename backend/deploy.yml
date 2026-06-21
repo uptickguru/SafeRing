@@ -1,0 +1,200 @@
+# SafeRing Backend — Kubernetes Deployment
+#
+# This is a reference deployment for production environments.
+# Adjust resource limits, replicas, and environment variables as needed.
+#
+# Apply:
+#   kubectl apply -f deploy.yml
+#
+# For development, use docker-compose.yml instead.
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: safering
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safering-api
+  namespace: safering
+  labels:
+    app: safering
+    component: api
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: safering
+      component: api
+  template:
+    metadata:
+      labels:
+        app: safering
+        component: api
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: api
+          image: safering/backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SERVER_HOST
+              value: "0.0.0.0"
+            - name: SERVER_PORT
+              value: "8080"
+            - name: SERVER_TIMEOUT
+              value: "30s"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: safering-db
+                  key: url
+            - name: LOG_LEVEL
+              value: "info"
+            - name: LOG_FORMAT
+              value: "json"
+            - name: RATE_LIMIT_PER_IP
+              value: "100"
+            - name: RATE_LIMIT_WINDOW
+              value: "1m"
+            - name: SCRAPER_INTERVAL
+              value: "6h"
+            - name: SCRAPER_FTC_ENABLED
+              value: "true"
+            - name: SCRAPER_FTC_API_KEY
+              value: "DEMO_KEY"
+            - name: SCRAPER_BBB_ENABLED
+              value: "true"
+            - name: SCRAPER_REDDIT_ENABLED
+              value: "true"
+            - name: ML_MODEL_DIR
+              value: "/app/data/models"
+            - name: ML_TRAIN_INTERVAL
+              value: "24h"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: safering-data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: safering-api
+  namespace: safering
+  labels:
+    app: safering
+    component: api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: safering
+    component: api
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: safering-data
+  namespace: safering
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: safering-api
+  namespace: safering
+  annotations:
+    nginx.ingress.kubernetes.io/rate-limit: "100/s"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - api.safering.app
+      secretName: safering-api-tls
+  rules:
+    - host: api.safering.app
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: safering-api
+                port:
+                  number: 8080
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: safering-api
+  namespace: safering
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: safering-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

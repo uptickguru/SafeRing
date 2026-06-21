@@ -73,7 +73,7 @@ targets:
       - target: SafeRingWatchExtension
 
   SafeRingWatchExtension:
-    type: watch2-extension
+    type: watchkit2-extension
     platform: watchOS
     sources:
       - WatchExtension
