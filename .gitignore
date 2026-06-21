@@ -28,3 +28,5 @@ secrets/
 backend/**/*.db
 backend/**/*.db-shm
 backend/**/*.db-wal
+ios/SafeRing_Distribution.p12
+ios/*.p12
