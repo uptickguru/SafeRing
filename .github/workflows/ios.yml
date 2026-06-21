@@ -34,17 +34,6 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
 
-      - name: Install provisioning profiles
-        run: |
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          for p in *.mobileprovision; do
-            if [ -f "$p" ]; then
-              cp "$p" ~/Library/MobileDevice/Provisioning\ Profiles/
-              echo "Installed: $p"
-            fi
-          done
-          echo "Profiles installed: $(ls ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision 2>/dev/null | wc -l)"
-
       - name: Install ASC API key
         env:
           ASC_KEY_B64: ${{ secrets.ASC_API_KEY_BASE64 }}
@@ -52,6 +41,11 @@ jobs:
           mkdir -p ~/private_keys
           base64 --decode <<< "$ASC_KEY_B64" > ~/private_keys/AuthKey_392Z3XJZQS.p8
           echo "ASC key: $(wc -c < ~/private_keys/AuthKey_392Z3XJZQS.p8) bytes"
+
+      - name: Register API key with Xcode
+        run: |
+          defaults write com.apple.dt.Xcode DVTDeveloperAccountManager-APIAuthTokens -dict-add 392Z3XJZQS "$(base64 < ~/private_keys/AuthKey_392Z3XJZQS.p8)"
+          echo "API key registered with Xcode"
 
       - name: Archive app
         run: |
@@ -64,8 +58,7 @@ jobs:
             -archivePath /tmp/SafeRing.xcarchive \
             archive \
             DEVELOPMENT_TEAM=53DRV2V873 \
-            CODE_SIGN_STYLE=Manual \
-            PROVISIONING_PROFILE_SPECIFIER="Gus - store-SafeRing- app" \
+            CODE_SIGN_STYLE=Automatic \
             -allowProvisioningUpdates \
             SWIFT_STRICT_CONCURRENCY=legacy
 
@@ -88,13 +81,12 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload to TestFlight
-        working-directory: .
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           if [ ! -f /tmp/SafeRingIPA/SafeRing.ipa ]; then
-            echo "SKIP: No IPA to upload"
+            echo "SKIP: No IPA"
             exit 0
           fi
           xcrun altool --upload-app \
