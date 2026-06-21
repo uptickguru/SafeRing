@@ -1,8 +1,13 @@
+# SafeRing iOS CI/CD — Builds & uploads to TestFlight
 name: iOS Build & TestFlight Upload
 
 on:
   push:
     branches: [main]
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-upload:
@@ -13,5 +18,76 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Test
-        run: echo "iOS workflow is alive" && sw_vers
+      - name: Select Xcode version
+        run: |
+          ls /Applications/Xcode*.app/Contents/Developer | head -5
+          XCODE=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          echo "Using Xcode: $XCODE"
+          sudo xcode-select -s "$XCODE/Contents/Developer"
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: Install ASC API key
+        env:
+          ASC_KEY_B64: ${{ secrets.ASC_API_KEY_BASE64 }}
+        run: |
+          mkdir -p ~/private_keys
+          if [ -n "$ASC_KEY_B64" ]; then
+            echo "$ASC_KEY_B64" | base64 --decode > ~/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
+            echo "ASC key installed from secrets"
+          elif [ -f ios/ci_keys/AuthKey_392Z3XJZQS.p8 ]; then
+            cp ios/ci_keys/AuthKey_392Z3XJZQS.p8 ~/private_keys/AuthKey_392Z3XJZQS.p8
+            echo "ASC key installed from repo"
+          else
+            echo "WARNING: No ASC API key found. Upload will fail."
+          fi
+
+      - name: Archive app
+        working-directory: ios
+        run: |
+          xcodebuild \
+            -project SafeRing.xcodeproj \
+            -scheme SafeRing \
+            -sdk iphoneos \
+            -configuration Release \
+            -destination generic/platform=iOS \
+            -archivePath /tmp/SafeRing.xcarchive \
+            archive \
+            DEVELOPMENT_TEAM=53DRV2V873 \
+            CODE_SIGN_STYLE=Automatic \
+            -allowProvisioningUpdates \
+            SWIFT_STRICT_CONCURRENCY=legacy
+
+      - name: Export IPA
+        run: |
+          xcodebuild \
+            -exportArchive \
+            -archivePath /tmp/SafeRing.xcarchive \
+            -exportOptionsPlist ios/exportOptions.plist \
+            -exportPath /tmp/SafeRingIPA \
+            -allowProvisioningUpdates
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SafeRing-ipa
+          path: /tmp/SafeRingIPA/SafeRing.ipa
+          retention-days: 14
+
+      - name: Upload to TestFlight
+        if: ${{ secrets.ASC_KEY_ID != '' }}
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcrun altool --upload-app \
+            -f /tmp/SafeRingIPA/SafeRing.ipa \
+            --type ios \
+            --apiKey "$ASC_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID" \
+            --verbose
