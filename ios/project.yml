@@ -20,7 +20,9 @@ targets:
     type: application
     platform: iOS
     sources:
-      - SafeRing
+      - path: SafeRing
+        excludes:
+          - "Extension/*.swift"
     settings:
       base:
         INFOPLIST_FILE: SafeRing/Info.plist
