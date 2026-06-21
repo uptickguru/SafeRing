@@ -10,6 +10,10 @@ jobs:
     name: Build & Upload to TestFlight
     runs-on: macos-latest
 
+    defaults:
+      run:
+        working-directory: ios
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,32 +32,74 @@ jobs:
           xcodegen --version
 
       - name: Generate Xcode project
-        working-directory: ios
         run: xcodegen generate
+
+      - name: Install provisioning profiles
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          for p in *.mobileprovision; do
+            if [ -f "$p" ]; then
+              cp "$p" ~/Library/MobileDevice/Provisioning\ Profiles/
+              echo "Installed: $p"
+            fi
+          done
+          echo "Profiles installed: $(ls ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision 2>/dev/null | wc -l)"
 
       - name: Install ASC API key
         env:
-          ASC_API_KEY_BASE64: ${{ secrets.ASC_API_KEY_BASE64 }}
+          ASC_KEY_B64: ${{ secrets.ASC_API_KEY_BASE64 }}
         run: |
-          mkdir -p ~/.fastlane
-          base64 --decode <<< "$ASC_API_KEY_BASE64" > ~/.fastlane/AppStoreConnect.p8
-          echo "ASC key: $(wc -c < ~/.fastlane/AppStoreConnect.p8) bytes"
+          mkdir -p ~/private_keys
+          base64 --decode <<< "$ASC_KEY_B64" > ~/private_keys/AuthKey_392Z3XJZQS.p8
+          echo "ASC key: $(wc -c < ~/private_keys/AuthKey_392Z3XJZQS.p8) bytes"
 
-      - name: Install Fastlane
-        run: brew install fastlane
+      - name: Archive app
+        run: |
+          xcodebuild \
+            -project SafeRing.xcodeproj \
+            -scheme SafeRing \
+            -sdk iphoneos \
+            -configuration Release \
+            -destination generic/platform=iOS \
+            -archivePath /tmp/SafeRing.xcarchive \
+            archive \
+            DEVELOPMENT_TEAM=53DRV2V873 \
+            CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER="Gus - store-SafeRing- app" \
+            -allowProvisioningUpdates \
+            SWIFT_STRICT_CONCURRENCY=legacy
 
-      - name: Build & Upload to TestFlight via Fastlane
-        env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-        working-directory: ios
-        run: fastlane beta
+      - name: Export IPA
+        working-directory: .
+        run: |
+          xcodebuild \
+            -exportArchive \
+            -archivePath /tmp/SafeRing.xcarchive \
+            -exportOptionsPlist ios/exportOptions.plist \
+            -exportPath /tmp/SafeRingIPA \
+            -allowProvisioningUpdates
 
-      - name: Upload IPA artifact (fallback)
-        if: always()
+      - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: SafeRing-ipa
-          path: ios/SafeRing.ipa
+          path: /tmp/SafeRingIPA/SafeRing.ipa
           retention-days: 14
           if-no-files-found: ignore
+
+      - name: Upload to TestFlight
+        working-directory: .
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          if [ ! -f /tmp/SafeRingIPA/SafeRing.ipa ]; then
+            echo "SKIP: No IPA to upload"
+            exit 0
+          fi
+          xcrun altool --upload-app \
+            -f /tmp/SafeRingIPA/SafeRing.ipa \
+            --type ios \
+            --apiKey "***" \
+            --apiIssuer "$ASC_ISSUER_ID" \
+            --verbose
