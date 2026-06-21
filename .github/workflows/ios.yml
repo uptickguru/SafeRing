@@ -76,7 +76,6 @@ jobs:
 
       - name: Archive app
         run: |
-          rm -rf ~/Library/Developer/Xcode/DerivedData/SafeRing-*
           rm -rf /tmp/SafeRingDD
           xcodebuild \
             -project SafeRing.xcodeproj \
