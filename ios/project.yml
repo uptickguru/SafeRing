@@ -39,12 +39,9 @@ targets:
     entitlements:
       path: SafeRing/SafeRing.entitlements
     dependencies:
-      - framework: CallKit.framework
-        weak: false
-      - framework: CoreML.framework
-        weak: false
-      - framework: BackgroundTasks.framework
-        weak: false
+      - sdk: CallKit.framework
+      - sdk: CoreML.framework
+      - sdk: BackgroundTasks.framework
 
   CallDirectoryHandler:
     type: app-extension
@@ -57,8 +54,7 @@ targets:
         INFOPLIST_FILE: CallDirectoryHandler/Info.plist
         IPHONEOS_DEPLOYMENT_TARGET: "17.0"
     dependencies:
-      - framework: CallKit.framework
-        weak: false
+      - sdk: CallKit.framework
 
   SafeRingWatch:
     type: application
@@ -86,5 +82,5 @@ targets:
         INFOPLIST_FILE: WatchExtension/Info.plist
         WATCHOS_DEPLOYMENT_TARGET: "9.0"
     dependencies:
-      - framework: WatchKit.framework
-      - framework: WatchConnectivity.framework
+      - sdk: WatchKit.framework
+      - sdk: WatchConnectivity.framework
