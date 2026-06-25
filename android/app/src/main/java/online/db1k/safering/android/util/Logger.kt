@@ -95,8 +95,10 @@ object Logger {
     // -- Breadcrumb helper (for Crashlytics UserAction tracking) --
 
     fun breadcrumb(name: String, attributes: Map<String, String> = emptyMap()) {
-        crashlytics?.setCustomKeys(attributes)
-        crashlytics?.log("Breadcrumb: $name $attributes")
+        crashlytics?.apply {
+            attributes.forEach { (key, value) -> setCustomKey(key, value) }
+            log("Breadcrumb: $name $attributes")
+        }
         debug("Breadcrumb: $name $attributes", Category.UI)
     }
 }
