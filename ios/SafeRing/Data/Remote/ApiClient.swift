@@ -143,6 +143,34 @@ final class ApiClient {
         }
     }
 
+    /// Posts a device action event for server-side operational visibility.
+    /// Fire-and-forget: failures are logged and swallowed.
+    /// - Parameter event: The device event to report.
+    func postEvent(_ event: DeviceEvent) async {
+        let url = baseURL.appendingPathComponent("v1/event")
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.timeoutInterval = 5
+
+        do {
+            request.httpBody = try encoder.encode(event)
+            let (_, response) = try await session.data(for: request)
+            if let httpResponse = response as? HTTPURLResponse {
+                Logger.shared.debug(
+                    "Event sent: \(event.action) \(event.eventType) -> \(httpResponse.statusCode)",
+                    category: .network
+                )
+            }
+        } catch {
+            Logger.shared.debug(
+                "Event send failed (non-critical): \(error.localizedDescription)",
+                category: .network
+            )
+        }
+    }
+
     /// Fetches anonymous aggregate stats about detected scams.
     /// - Returns: Stats dictionary.
     /// - Throws: ApiError.

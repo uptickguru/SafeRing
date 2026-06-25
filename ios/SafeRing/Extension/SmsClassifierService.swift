@@ -9,10 +9,13 @@ import CoreML
 /// 2. On-device ML model inference (when model is loaded)
 /// 3. Local cache lookup for known scam senders
 ///
+/// Reports every classification to POST /v1/event so the server
+/// has full operational visibility into what's being detected.
+///
 /// # Zero PII
 /// - SMS message bodies are processed entirely on-device.
 /// - The raw text NEVER leaves the device.
-/// - Sender phone numbers are hashed before any lookup.
+/// - Only an 8-char hash prefix is sent with events.
 ///
 final class SmsClassifierService {
 
@@ -20,6 +23,7 @@ final class SmsClassifierService {
 
     private let smsClassifier: SmsClassifier
     private let repository: ScamRepository?
+    private let apiClient: ApiClient?
 
     // MARK: - Initializer
 
@@ -27,12 +31,15 @@ final class SmsClassifierService {
     /// - Parameters:
     ///   - smsClassifier: The on-device CoreML/NL classifier.
     ///   - repository: Optional repository for sender number lookups.
+    ///   - apiClient: Optional API client for event reporting (fire-and-forget).
     init(
         smsClassifier: SmsClassifier,
-        repository: ScamRepository? = nil
+        repository: ScamRepository? = nil,
+        apiClient: ApiClient? = nil
     ) {
         self.smsClassifier = smsClassifier
         self.repository = repository
+        self.apiClient = apiClient
     }
 
     // MARK: - Public API
@@ -51,9 +58,10 @@ final class SmsClassifierService {
     ) async -> SmsLog {
         let normalized = normalizePhoneNumber(senderRawNumber)
         let hash = HashUtils.sha256(normalized)
+        let hashPrefix = String(hash.prefix(8))
 
         Logger.shared.info(
-            "Scanning SMS from hash: \(hash.prefix(8))...",
+            "Scanning SMS from hash: \(hashPrefix)...",
             category: .sms
         )
 
@@ -85,6 +93,31 @@ final class SmsClassifierService {
 
         // Check if we should auto-filter
         let shouldAutoFilter = classification == .scam && confidence > 0.8
+
+        // Map classification to action for device event
+        let action: String
+        switch classification {
+        case .scam:
+            action = shouldAutoFilter ? "block" : "warn"
+        case .spam:
+            action = "warn"
+        case .legitimate, .unknown:
+            action = "monitor"
+        }
+
+        // Fire-and-forget device event
+        let event = DeviceEvent(
+            platform: "ios",
+            action: action,
+            eventType: "sms",
+            hashPrefix: hashPrefix,
+            riskScore: confidence,
+            scamType: scamLabel,
+            source: "ml"
+        )
+        if let apiClient = apiClient {
+            Task { await apiClient.postEvent(event) }
+        }
 
         return SmsLog(
             hashedSenderNumber: hash,
