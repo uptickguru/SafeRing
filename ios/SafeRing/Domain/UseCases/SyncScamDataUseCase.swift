@@ -8,6 +8,7 @@ import Foundation
 /// 2. For each high-priority prefix, check recent known scam numbers.
 /// 3. Update local SwiftData cache with fresh data.
 /// 4. Update CallKit CallDirectory extension with newly blocked numbers.
+/// 5. Report sync event to server for operational visibility.
 ///
 /// Called by the background task scheduler every 6 hours.
 ///
@@ -17,11 +18,13 @@ final class SyncScamDataUseCase {
     // MARK: - Properties
 
     private let repository: ScamRepository
+    private let apiClient: ApiClient
 
     // MARK: - Initializer
 
-    init(repository: ScamRepository) {
+    init(repository: ScamRepository, apiClient: ApiClient = ApiClient()) {
         self.repository = repository
+        self.apiClient = apiClient
     }
 
     // MARK: - Execution
@@ -47,10 +50,22 @@ final class SyncScamDataUseCase {
 
         // 3. Trigger CallDirectory reload so blocked numbers take effect
         // This is done via the CXCallDirectoryManager API.
-        await reloadCallDirectory()
+        let reloaded = await reloadCallDirectory()
+
+        // 4. Report sync to server for operational visibility
+        let event = DeviceEvent(
+            platform: "ios",
+            action: reloaded ? "monitor" : "check",
+            eventType: "call",
+            hashPrefix: nil,
+            riskScore: nil,
+            scamType: "call_directory_sync:\(cachedCount)_cached",
+            source: "api"
+        )
+        await apiClient.postEvent(event)
 
         Logger.shared.info(
-            "Scam data sync completed successfully",
+            "Scam data sync completed successfully: \(cachedCount) cached, reloaded=\(reloaded)",
             category: .background
         )
     }
@@ -64,18 +79,21 @@ final class SyncScamDataUseCase {
 
     /// Requests a reload of the CallKit CallDirectory extension.
     /// This ensures newly blocked numbers take effect for incoming calls.
-    private func reloadCallDirectory() async {
+    /// - Returns: True if the reload succeeded.
+    private func reloadCallDirectory() async -> Bool {
         let manager = CXCallDirectoryManager.sharedInstance
         do {
             try await manager.reloadExtension(
                 withIdentifier: "online.db1k.safering.ios.CallDirectoryHandler"
             )
             Logger.shared.info("CallDirectory extension reloaded", category: .background)
+            return true
         } catch {
             Logger.shared.warning(
                 "Failed to reload CallDirectory: \(error.localizedDescription)",
                 category: .background
             )
+            return false
         }
     }
 }

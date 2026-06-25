@@ -119,6 +119,7 @@ func main() {
 	modelHandler := handler.NewModelHandler(mlPipeline, logger)
 	reportHandler := handler.NewReportHandler(reportStore, logger)
 	statsHandler := handler.NewStatsHandler(reportStore, numberStore, prefixStore, aggregator, logger)
+	eventHandler := handler.NewEventHandler(logger)
 
 	// Build router
 	r := chi.NewRouter()
@@ -173,6 +174,10 @@ func main() {
 		// Rate limit: 10/min per IP
 		r.With(handler.RateLimiter(handler.LowRateLimit, cfg.Rate.Window)).
 			Get("/stats", statsHandler.ServeHTTP)
+
+		// POST /v1/event — Device action telemetry (block/warn/monitor)
+		// No rate limit — essential for operational visibility
+		r.Post("/event", eventHandler.ServeHTTP)
 
 		// Agent coordination endpoints (for distributed scraper agents)
 		// No rate limiting — agents are internal (Tailscale)

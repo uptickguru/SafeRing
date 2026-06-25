@@ -3,6 +3,8 @@ package online.db1k.safering.android.data.remote
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import online.db1k.safering.android.data.remote.models.CheckResponse
+import online.db1k.safering.android.data.remote.models.EventRequest
+import online.db1k.safering.android.data.remote.models.EventResponse
 import online.db1k.safering.android.data.remote.models.PrefixResponse
 import online.db1k.safering.android.data.remote.models.ReportRequest
 import online.db1k.safering.android.data.remote.models.ReportResponse
@@ -35,6 +37,9 @@ interface SafeRingApi {
 
     @GET("v1/stats")
     suspend fun fetchStats(): Map<String, Any>
+
+    @POST("v1/event")
+    suspend fun postEvent(@Body event: EventRequest): EventResponse
 
     companion object {
         fun create(baseUrl: String = AppConfig.DEFAULT_BASE_URL): SafeRingApi {
