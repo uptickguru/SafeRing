@@ -79,9 +79,12 @@ jobs:
           agvtool new-version -all ${{ github.run_number }}
           agvtool what-version
 
-      - name: Archive app
-        env:
-          APPLE_OCSP_ENABLED: "0"
+      - name: Disable OCSP for codesign
+        run: |
+          sudo defaults write /Library/Preferences/com.apple.security.revocation OCSPSettings -dict Enabled 0
+          echo "OCSP disabled"
+
+      - name: Build app (unsigned, then sign manually)
         run: |
           rm -rf /tmp/SafeRingDD
           xcodebuild \
@@ -97,13 +100,27 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution: Kevin Asbury (53DRV2V873)" \
             PROVISIONING_PROFILE_SPECIFIER="Gus - store-SafeRing- app" \
-            -allowProvisioningUpdates \
             SWIFT_STRICT_CONCURRENCY=legacy \
-            OTHER_CODE_SIGN_FLAGS="--timestamp=none"
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Sign app
+        run: |
+          PROFILE=$(ls ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision 2>/dev/null | head -1)
+          echo "Using profile: $PROFILE"
+          echo "Signing app..."
+          APP_PATH=$(find /tmp/SafeRing.xcarchive -name "*.app" -type d | head -1)
+          echo "App: $APP_PATH"
+          /usr/bin/codesign -f -s "Apple Distribution: Kevin Asbury (53DRV2V873)" \
+            --keychain build.keychain \
+            --entitlements ios/SafeRing/SafeRing.entitlements \
+            "$APP_PATH"
+          echo "Signed: $APP_PATH"
+
+      - name: Recreate archive (signed)
+        run: |
+          echo "Archive ready at: /tmp/SafeRing.xcarchive"
 
       - name: Export IPA
-        env:
-          APPLE_OCSP_ENABLED: "0"
         working-directory: .
         run: |
           xcodebuild \
