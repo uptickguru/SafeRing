@@ -129,6 +129,6 @@ jobs:
           xcrun altool --upload-app \
             -f /tmp/SafeRingIPA/SafeRing.ipa \
             --type ios \
-            --apiKey *** \
+            --apiKey 392Z3XJZQS \
             --apiIssuer "$ASC_ISSUER_ID" \
             --verbose
