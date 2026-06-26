@@ -82,6 +82,37 @@ struct SettingsView: View {
                     .font(.sectionTitle)
             }
 
+            // MARK: - Permissions Status
+            Section {
+                PermissionRow(
+                    icon: "bell.badge.fill",
+                    color: Color("warningYellow"),
+                    title: "Notifications",
+                    description: "Alerts for scam calls and SMS",
+                    settingsURL: UIApplication.openSettingsURLString
+                )
+                PermissionRow(
+                    icon: "phone.badge.waveform.fill",
+                    color: Color("safeGreen"),
+                    title: "Call Directory Extension",
+                    description: callDirectoryStatus,
+                    action: openCallDirectorySettings
+                )
+                PermissionRow(
+                    icon: "message.badge.fill",
+                    color: Color("warningYellow"),
+                    title: "SMS Access",
+                    description: "Scan messages for scam content",
+                    settingsURL: UIApplication.openSettingsURLString
+                )
+            } header: {
+                Text("Permissions")
+                    .font(.sectionTitle)
+            } footer: {
+                Text("SafeRing needs these permissions to protect you. If any were denied during setup, tap Learn More to enable them in Settings.")
+                    .font(.captionText)
+            }
+
             // MARK: - Extension Status
             Section {
                 HStack {
@@ -284,6 +315,50 @@ struct SettingsView: View {
 
     private func resetApp() {
         UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
+    }
+}
+
+// MARK: - Permission Row Component
+
+private struct PermissionRow: View {
+    let icon: String
+    let color: Color
+    let title: String
+    let description: String
+    var settingsURL: String?
+    var action: (() -> Void)?
+
+    var body: some View {
+        HStack {
+            Label {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.bodyText)
+                    Text(description)
+                        .font(.captionText)
+                        .foregroundColor(Color("secondaryText"))
+                }
+            } icon: {
+                Image(systemName: icon)
+                    .foregroundColor(color)
+            }
+
+            Spacer()
+
+            if let action = action {
+                Button("Settings") {
+                    action()
+                }
+                .font(.buttonLabel)
+                .foregroundColor(AppTheme.accentColor)
+            } else if let url = settingsURL {
+                Link(destination: URL(string: url)!) {
+                    Label("Learn More", systemImage: "arrow.up.right")
+                        .font(.captionText)
+                }
+                .foregroundColor(AppTheme.accentColor)
+            }
+        }
     }
 }
 

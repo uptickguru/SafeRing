@@ -29,15 +29,24 @@ struct HomeView: View {
                 statsGrid
                     .padding(.horizontal)
 
-                // Scam Alert Preview
+                // Scam Alert Preview or Empty State
                 if !viewModel.recentCalls.isEmpty {
                     recentActivitySection
                         .padding(.horizontal)
+                } else {
+                    emptyHomeState
+                        .padding(.horizontal)
                 }
 
-                // Sync Status
+                // Sync Status + Offline Warning
                 syncStatusBar
                     .padding(.horizontal)
+
+                if let lastSync = viewModel.lastSyncDate,
+                   Date().timeIntervalSince(lastSync) > 24 * 3600 {
+                    staleDataBanner
+                        .padding(.horizontal)
+                }
 
                 // Refresh Button
                 BigButton(
@@ -138,6 +147,44 @@ struct HomeView: View {
         }
     }
 
+    // MARK: - Empty Home State
+
+    private var emptyHomeState: some View {
+        VStack(spacing: AppTheme.spacingMD) {
+            Image(systemName: "shield.checkered")
+                .font(.system(size: 48))
+                .foregroundColor(Color("safeGreen"))
+
+            Text("Your Protection Is Active")
+                .font(.sectionTitle)
+                .foregroundColor(Color("primaryText"))
+
+            Text("SafeRing is monitoring your calls and messages. When a scam is detected, it will appear here.")
+                .font(.bodyText)
+                .foregroundColor(Color("secondaryText"))
+                .multilineTextAlignment(.center)
+
+            if let lastSync = viewModel.lastSyncDate {
+                Text("Scam database updated \(lastSync.formatted(date: .abbreviated, time: .shortened))")
+                    .font(.captionText)
+                    .foregroundColor(Color("safeGreen"))
+            }
+
+            HStack(spacing: AppTheme.spacingSM) {
+                Image(systemName: "hand.raised.fill")
+                    .foregroundColor(Color("safeGreen"))
+                Text("No calls blocked yet — that\'s a good day!")
+                    .font(.badgeLabel)
+                    .foregroundColor(Color("secondaryText"))
+            }
+            .padding(.vertical, AppTheme.spacingXS)
+        }
+        .padding(AppTheme.spacingLG)
+        .frame(maxWidth: .infinity)
+        .background(Color("cardBackground"))
+        .cornerRadius(AppTheme.cornerRadius)
+    }
+
     // MARK: - Recent Activity
 
     private var recentActivitySection: some View {
@@ -150,6 +197,23 @@ struct HomeView: View {
                 CallRow(callLog: call)
             }
         }
+    }
+
+    // MARK: - Stale Data Banner
+
+    private var staleDataBanner: some View {
+        HStack(spacing: AppTheme.spacingSM) {
+            Image(systemName: "exclamationmark.icloud.fill")
+                .foregroundColor(Color("warningYellow"))
+            Text("Scam database hasn't been updated in 24+ hours. Connect to the internet and tap refresh to get the latest protection.")
+                .font(.badgeLabel)
+                .foregroundColor(Color("secondaryText"))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(AppTheme.spacingMD)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color("warningYellow").opacity(0.1))
+        .cornerRadius(AppTheme.smallCornerRadius)
     }
 
     // MARK: - Sync Status
