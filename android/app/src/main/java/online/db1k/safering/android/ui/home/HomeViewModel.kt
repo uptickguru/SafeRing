@@ -8,17 +8,21 @@ import kotlinx.coroutines.launch
 import online.db1k.safering.android.data.local.AppDatabase
 import online.db1k.safering.android.data.repository.ScamRepository
 import online.db1k.safering.android.data.remote.SafeRingApi
+import online.db1k.safering.android.util.AppConfig
 
 data class HomeUiState(
     val protectedNumbers: Int = 0,
     val blockedToday: Int = 0,
     val scamCount: Int = 0,
     val isLoading: Boolean = false,
-    val isExtensionActive: Boolean = false
+    val isExtensionActive: Boolean = false,
+    val isDataStale: Boolean = false,
+    val lastSyncTime: Long? = null
 )
 
 class HomeViewModel(
-    private val repository: ScamRepository
+    private val repository: ScamRepository,
+    private val db: AppDatabase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -33,25 +37,46 @@ class HomeViewModel(
             _uiState.update { it.copy(isLoading = true) }
             try {
                 val scamCount = repository.getAllScamNumbers().first().size
+                val callLogCount = db.callLogDao().getRecentCount(
+                    System.currentTimeMillis() - 24 * 60 * 60 * 1000
+                )
+
+                // Check if data is stale (last sync > 24 hours ago)
+                var isStale = false
+                var lastSync: Long? = null
+                runCatching {
+                    val lastSyncPref = db.callLogDao().getLastSyncTime()
+                    if (lastSyncPref != null) {
+                        lastSync = lastSyncPref
+                        isStale = (System.currentTimeMillis() - lastSyncPref) > 24 * 3600 * 1000
+                    } else {
+                        isStale = true
+                    }
+                }
+
                 _uiState.update {
                     it.copy(
                         protectedNumbers = scamCount,
                         scamCount = scamCount,
-                        isLoading = false
+                        blockedToday = callLogCount.toInt(),
+                        isLoading = false,
+                        isDataStale = isStale,
+                        lastSyncTime = lastSync
                     )
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false) }
+                _uiState.update { it.copy(isLoading = false, isDataStale = true) }
             }
         }
     }
 
     class Factory(
-        private val repository: ScamRepository
+        private val repository: ScamRepository,
+        private val db: AppDatabase
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return HomeViewModel(repository) as T
+            return HomeViewModel(repository, db) as T
         }
     }
 }

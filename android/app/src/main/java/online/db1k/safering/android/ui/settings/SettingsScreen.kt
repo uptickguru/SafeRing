@@ -110,6 +110,18 @@ fun SettingsScreen() {
                     subtitle = "Required to read incoming call details",
                     onClick = { openAppSettings(context) }
                 )
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                PermissionButton(
+                    title = "SMS Permission",
+                    subtitle = "Required to scan text messages for scams",
+                    onClick = { openAppSettings(context) }
+                )
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                PermissionButton(
+                    title = "Notifications",
+                    subtitle = "Alerts for detected scam calls and messages",
+                    onClick = { openAppSettings(context) }
+                )
             }
         }
 

@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val app = application as SafeRingApp
-        val homeViewModel = HomeViewModel(app.repository)
+        val homeViewModel = HomeViewModel(app.repository, app.database)
 
         setContent {
             SafeRingTheme {

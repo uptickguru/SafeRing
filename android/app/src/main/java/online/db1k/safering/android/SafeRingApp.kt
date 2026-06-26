@@ -8,6 +8,7 @@ import online.db1k.safering.android.data.remote.SafeRingApi
 import online.db1k.safering.android.data.repository.ScamRepository
 import online.db1k.safering.android.service.BackgroundSyncWorker
 import online.db1k.safering.android.ui.report.reportContext
+import online.db1k.safering.android.util.WeeklySummaryWorker
 import online.db1k.safering.android.util.Logger
 
 class SafeRingApp : Application() {
@@ -39,5 +40,6 @@ class SafeRingApp : Application() {
 
         // Schedule background sync
         BackgroundSyncWorker.schedule(this)
+        WeeklySummaryWorker.schedule(this)
     }
 }
