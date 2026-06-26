@@ -16,6 +16,9 @@ jobs:
     runs-on: macos-self-hosted
     timeout-minutes: 30
 
+    env:
+      PATH: /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
     defaults:
       run:
         working-directory: ios
@@ -26,16 +29,15 @@ jobs:
 
       - name: Select Xcode
         run: |
-          XCODE=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
-          echo "Xcode: $XCODE"
-          xcode-select -s "$XCODE/Contents/Developer" 2>&1 || true
-          xcode-select -p
+          echo "Xcode: $(xcode-select -p)"
+          xcodebuild -version
 
       - name: Install xcodegen v2.45.4
         run: |
           curl -sL "https://github.com/yonaskolb/XcodeGen/releases/download/2.45.4/xcodegen.zip" -o /tmp/xcodegen.zip
-          unzip -q /tmp/xcodegen.zip -d /tmp/xcgen
-          cd /tmp/xcgen/xcodegen && bash install.sh
+          unzip -q -o /tmp/xcodegen.zip -d /tmp/xcgen
+          cp /tmp/xcgen/xcodegen/bin/xcodegen /usr/local/bin/xcodegen
+          chmod +x /usr/local/bin/xcodegen
           xcodegen --version
 
       - name: Generate Xcode project
