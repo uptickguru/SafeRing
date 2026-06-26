@@ -12,7 +12,7 @@ concurrency:
 jobs:
   build-and-upload:
     name: Build & Upload to TestFlight
-    runs-on: macos-latest
+    runs-on: macos-13
     timeout-minutes: 30
 
     defaults:
@@ -72,11 +72,6 @@ jobs:
           agvtool new-version -all ${{ github.run_number }}
           agvtool what-version
 
-      - name: Block OCSP to prevent codesign hangs
-        run: |
-          echo "0.0.0.0 ocsp.apple.com" | sudo tee -a /etc/hosts
-          echo "0.0.0.0 ocsp2.apple.com" | sudo tee -a /etc/hosts
-          echo "Blocked Apple OCSP servers to force fast failure"
 
       - name: Archive app (signing on Azure runners hangs on OCSP)
         run: |
@@ -95,7 +90,7 @@ jobs:
             CODE_SIGN_IDENTITY="Apple Distribution: Kevin Asbury (53DRV2V873)" \
             PROVISIONING_PROFILE_SPECIFIER="Gus - store-SafeRing- app" \
             -allowProvisioningUpdates \
-            SWIFT_STRICT_CONCURRENCY=legacy CODE_SIGN_GENERATE_DER_ENTITLEMENTS=NO
+            SWIFT_STRICT_CONCURRENCY=legacy
 
       - name: Export IPA
         working-directory: .
