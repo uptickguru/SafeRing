@@ -59,6 +59,10 @@ struct SafeRingApp: App {
 
     init() {
         registerBackgroundTasks()
+        // Schedule weekly retention summary if user completed onboarding
+        if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+            WeeklySummaryManager.schedule()
+        }
     }
 
     // MARK: - Body
