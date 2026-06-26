@@ -1,4 +1,5 @@
 # SafeRing iOS CI/CD — Builds & uploads to TestFlight
+# Uses manual signing with distribution cert + provisioning profiles (no cert limit issues)
 name: iOS Build & TestFlight Upload
 
 on:
@@ -12,7 +13,7 @@ concurrency:
 jobs:
   build-and-upload:
     name: Build & Upload to TestFlight
-    runs-on: macos-13
+    runs-on: macos-latest
     timeout-minutes: 30
 
     defaults:
@@ -57,7 +58,9 @@ jobs:
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           for p in *.mobileprovision; do
-            [ -f "$p" ] && cp "$p" ~/Library/MobileDevice/Provisioning\ Profiles/
+            if [ -f "$p" ]; then
+              cp "$p" ~/Library/MobileDevice/Provisioning\ Profiles/
+            fi
           done
 
       - name: Install ASC API key (for TestFlight upload)
@@ -72,8 +75,7 @@ jobs:
           agvtool new-version -all ${{ github.run_number }}
           agvtool what-version
 
-
-      - name: Archive app (signing on Azure runners hangs on OCSP)
+      - name: Archive app
         run: |
           rm -rf /tmp/SafeRingDD
           xcodebuild \
@@ -121,6 +123,6 @@ jobs:
           xcrun altool --upload-app \
             -f /tmp/SafeRingIPA/SafeRing.ipa \
             --type ios \
-            --apiKey 392Z3XJZQS \
+            --apiKey *** \
             --apiIssuer "$ASC_ISSUER_ID" \
             --verbose
