@@ -53,8 +53,8 @@ enum WeeklySummaryManager {
     /// Call after any scam detection event to keep the notification relevant.
     static func updateStats(blocked: Int, filtered: Int) {
         let center = UNUserNotificationCenter.current()
-        center.getPendingNotificationRequests(withIdentifier: notificationId) { requests in
-            guard let request = requests.first else { return }
+        center.getPendingNotificationRequests { requests in
+            guard let request = requests.first(where: { $0.identifier == notificationId }) else { return }
 
             let content = request.content.mutableCopy() as! UNMutableNotificationContent
             content.body = "\(blocked) calls blocked · \(filtered) SMS filtered this week."
