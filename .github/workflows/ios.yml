@@ -25,9 +25,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Select Xcode
+      - name: Select Xcode 26.3
         run: |
-          echo "Xcode: $(xcode-select -p)"
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
           xcodebuild -version
 
       - name: Install xcodegen v2.45.4
@@ -58,21 +58,14 @@ jobs:
           IOS_DIST_CERT_B64: ${{ secrets.IOS_DIST_CERT_BASE64 }}
           IOS_DIST_CERT_PASS: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
         run: |
-          # Use login keychain
           KEYCHAIN=~/Library/Keychains/login.keychain-db
           security unlock-keychain -p "kailey99" "$KEYCHAIN"
           security set-keychain-settings -t 7200 -u "$KEYCHAIN"
           security default-keychain -s "$KEYCHAIN"
           security list-keychains -s "$KEYCHAIN" /Library/Keychains/System.keychain
-          # Import certs
           echo "$IOS_DIST_CERT_B64" | base64 --decode > /tmp/cert.p12
           security import /tmp/cert.p12 -P "$IOS_DIST_CERT_PASS" -k "$KEYCHAIN" -T /usr/bin/codesign -T /usr/bin/xcodebuild -A
           rm /tmp/cert.p12
-          # Ensure WWDR cert
-          curl -sL "https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer" -o /tmp/wwdr.cer
-          security import /tmp/wwdr.cer -k "$KEYCHAIN" 2>/dev/null || true
-          rm /tmp/wwdr.cer
-          # Set partition list for automatic access
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "kailey99" "$KEYCHAIN"
 
       - name: Set build number
@@ -82,8 +75,8 @@ jobs:
 
       - name: Archive app
         run: |
-          rm -rf /tmp/SafeRingDD
-          xcodebuild \
+          rm -rf /tmp/SafeRingDD /tmp/SafeRing.xcarchive
+          xcodebuild archive \
             -project SafeRing.xcodeproj \
             -scheme SafeRing \
             -sdk iphoneos \
@@ -91,7 +84,6 @@ jobs:
             -destination generic/platform=iOS \
             -derivedDataPath /tmp/SafeRingDD \
             -archivePath /tmp/SafeRing.xcarchive \
-            archive \
             DEVELOPMENT_TEAM=53DRV2V873 \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution: Kevin Asbury (53DRV2V873)" \
@@ -103,8 +95,7 @@ jobs:
       - name: Export IPA
         working-directory: .
         run: |
-          xcodebuild \
-            -exportArchive \
+          xcodebuild -exportArchive \
             -archivePath /tmp/SafeRing.xcarchive \
             -exportOptionsPlist ios/exportOptions.plist \
             -exportPath /tmp/SafeRingIPA \
