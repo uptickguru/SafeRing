@@ -80,6 +80,8 @@ jobs:
           agvtool what-version
 
       - name: Archive app
+        env:
+          APPLE_OCSP_ENABLED: "0"
         run: |
           rm -rf /tmp/SafeRingDD
           xcodebuild \
@@ -95,9 +97,13 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution: Kevin Asbury (53DRV2V873)" \
             PROVISIONING_PROFILE_SPECIFIER="Gus - store-SafeRing- app" \
-            SWIFT_STRICT_CONCURRENCY=legacy
+            -allowProvisioningUpdates \
+            SWIFT_STRICT_CONCURRENCY=legacy \
+            OTHER_CODE_SIGN_FLAGS="--timestamp=none"
 
       - name: Export IPA
+        env:
+          APPLE_OCSP_ENABLED: "0"
         working-directory: .
         run: |
           xcodebuild \
