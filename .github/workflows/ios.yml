@@ -58,18 +58,22 @@ jobs:
           IOS_DIST_CERT_B64: ${{ secrets.IOS_DIST_CERT_BASE64 }}
           IOS_DIST_CERT_PASS: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
         run: |
-          # Remove old custom keychains
-          security delete-keychain build.keychain 2>/dev/null || true
-          # Unlock login keychain
-          security unlock-keychain -p "kailey99" ~/Library/Keychains/login.keychain-db
-          security set-keychain-settings -t 7200 -u ~/Library/Keychains/login.keychain-db
-          # Import cert
+          # Use login keychain
+          KEYCHAIN=~/Library/Keychains/login.keychain-db
+          security unlock-keychain -p "kailey99" "$KEYCHAIN"
+          security set-keychain-settings -t 7200 -u "$KEYCHAIN"
+          security default-keychain -s "$KEYCHAIN"
+          security list-keychains -s "$KEYCHAIN" /Library/Keychains/System.keychain
+          # Import certs
           echo "$IOS_DIST_CERT_B64" | base64 --decode > /tmp/cert.p12
-          security import /tmp/cert.p12 -P "$IOS_DIST_CERT_PASS" -k ~/Library/Keychains/login.keychain-db -T /usr/bin/codesign -T /usr/bin/xcodebuild -A
+          security import /tmp/cert.p12 -P "$IOS_DIST_CERT_PASS" -k "$KEYCHAIN" -T /usr/bin/codesign -T /usr/bin/xcodebuild -A
           rm /tmp/cert.p12
+          # Ensure WWDR cert
+          curl -sL "https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer" -o /tmp/wwdr.cer
+          security import /tmp/wwdr.cer -k "$KEYCHAIN" 2>/dev/null || true
+          rm /tmp/wwdr.cer
           # Set partition list for automatic access
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "kailey99" ~/Library/Keychains/login.keychain-db
-          security list-keychains -s ~/Library/Keychains/login.keychain-db /Library/Keychains/System.keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "kailey99" "$KEYCHAIN"
 
       - name: Set build number
         run: |
@@ -93,7 +97,8 @@ jobs:
             CODE_SIGN_IDENTITY="Apple Distribution: Kevin Asbury (53DRV2V873)" \
             PROVISIONING_PROFILE_SPECIFIER="Gus - store-SafeRing- app" \
             -allowProvisioningUpdates \
-            SWIFT_STRICT_CONCURRENCY=legacy
+            SWIFT_STRICT_CONCURRENCY=legacy \
+            OTHER_CODE_SIGN_FLAGS="--keychain  --keychain ~/Library/Keychains/login.keychain-db"
 
       - name: Export IPA
         working-directory: .
