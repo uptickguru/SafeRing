@@ -51,7 +51,7 @@ jobs:
           ASC_KEY_B64: ${{ secrets.ASC_API_KEY_BASE64 }}
         run: |
           mkdir -p ~/private_keys
-          base64 --decode <<< "$ASC_KEY_B64" > ~/private_keys/AuthKey_392Z3XJZQS.p8
+          base64 --decode <<< "$ASC_KEY_B64" > $HOME/private_keys/AuthKey_392Z3XJZQS.p8
 
       - name: Import certificate
         env:
@@ -92,7 +92,7 @@ jobs:
             -exportOptionsPlist ios/exportOptions.plist \
             -exportPath /tmp/SafeRingIPA \
             -allowProvisioningUpdates 
-          -authenticationKeyPath ~/private_keys/AuthKey_392Z3XJZQS.p8 
+          -authenticationKeyPath $HOME/private_keys/AuthKey_392Z3XJZQS.p8 
           -authenticationKeyID 392Z3XJZQS 
           -authenticationKeyIssuerID "${{ secrets.ASC_ISSUER_ID }}"
 
