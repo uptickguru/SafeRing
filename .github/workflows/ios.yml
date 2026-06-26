@@ -98,7 +98,7 @@ jobs:
             PROVISIONING_PROFILE_SPECIFIER="Gus - store-SafeRing- app" \
             -allowProvisioningUpdates \
             SWIFT_STRICT_CONCURRENCY=legacy \
-            OTHER_CODE_SIGN_FLAGS="--keychain  --keychain ~/Library/Keychains/login.keychain-db"
+            OTHER_CODE_SIGN_FLAGS="--keychain /Users/kevinasbury/Library/Keychains/login.keychain-db"
 
       - name: Export IPA
         working-directory: .
