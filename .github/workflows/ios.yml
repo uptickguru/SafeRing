@@ -87,7 +87,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             SWIFT_STRICT_CONCURRENCY=legacy
 
-      - name: Export IPA (signs during export)
+      - name: Export IPA
         working-directory: .
         run: |
           xcodebuild \
@@ -95,7 +95,11 @@ jobs:
             -archivePath /tmp/SafeRing.xcarchive \
             -exportOptionsPlist ios/exportOptions.plist \
             -exportPath /tmp/SafeRingIPA \
-            -allowProvisioningUpdates
+            -allowProvisioningUpdates \
+            DEVELOPMENT_TEAM=53DRV2V873 \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution: Kevin Asbury (53DRV2V873)" \
+            PROVISIONING_PROFILE_SPECIFIER="Gus - store-SafeRing- app"
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
