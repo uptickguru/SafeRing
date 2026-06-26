@@ -48,6 +48,7 @@ jobs:
           IOS_DIST_CERT_B64: ${{ secrets.IOS_DIST_CERT_BASE64 }}
           IOS_DIST_CERT_PASS: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
         run: |
+          security delete-keychain build.keychain 2>/dev/null || true
           security create-keychain -p "tempchain" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "tempchain" build.keychain
