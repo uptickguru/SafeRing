@@ -54,15 +54,18 @@ jobs:
           mkdir -p ~/private_keys
           base64 --decode <<< "$ASC_KEY_B64" > ~/private_keys/AuthKey_392Z3XJZQS.p8
 
-      - name: Import certificate to login keychain
+      - name: Import certificate and configure keychain
         env:
           IOS_DIST_CERT_B64: ${{ secrets.IOS_DIST_CERT_BASE64 }}
           IOS_DIST_CERT_PASS: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
         run: |
+          KEYCHAIN=~/Library/Keychains/login.keychain-db
+          security unlock-keychain -p "kailey99" "$KEYCHAIN"
+          security set-keychain-settings -t 7200 -u "$KEYCHAIN"
           echo "$IOS_DIST_CERT_B64" | base64 --decode > /tmp/cert.p12
-          security unlock-keychain -p "kailey99" ~/Library/Keychains/login.keychain-db
-          security import /tmp/cert.p12 -P "$IOS_DIST_CERT_PASS" -k ~/Library/Keychains/login.keychain-db -T /usr/bin/codesign -T /usr/bin/xcodebuild
+          security import /tmp/cert.p12 -P "$IOS_DIST_CERT_PASS" -k "$KEYCHAIN" -T /usr/bin/codesign -T /usr/bin/xcodebuild -A
           rm /tmp/cert.p12
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "kailey99" "$KEYCHAIN"
 
       - name: Set build number
         run: |
