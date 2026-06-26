@@ -69,6 +69,7 @@ jobs:
           rm /tmp/cert.p12
           # Set partition list for automatic access
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "kailey99" ~/Library/Keychains/login.keychain-db
+          security list-keychains -s ~/Library/Keychains/login.keychain-db /Library/Keychains/System.keychain
 
       - name: Set build number
         run: |
