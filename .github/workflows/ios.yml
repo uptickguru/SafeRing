@@ -91,7 +91,10 @@ jobs:
             -archivePath /tmp/SafeRing.xcarchive \
             -exportOptionsPlist ios/exportOptions.plist \
             -exportPath /tmp/SafeRingIPA \
-            -allowProvisioningUpdates
+            -allowProvisioningUpdates 
+          -authenticationKeyPath ~/private_keys/AuthKey_392Z3XJZQS.p8 
+          -authenticationKeyID 392Z3XJZQS 
+          -authenticationKeyIssuerID "${{ secrets.ASC_ISSUER_ID }}"
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
