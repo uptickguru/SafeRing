@@ -1,5 +1,4 @@
 # SafeRing iOS CI/CD — Builds & uploads to TestFlight
-# Uses manual signing with distribution cert + provisioning profiles (no cert limit issues)
 name: iOS Build & TestFlight Upload
 
 on:
@@ -53,18 +52,13 @@ jobs:
           security import /tmp/cert.p12 -P "$IOS_DIST_CERT_PASS" -k build.keychain -T /usr/bin/codesign -T /usr/bin/xcodebuild
           rm /tmp/cert.p12
           security list-keychains -d user -s build.keychain
-          echo "Distribution cert installed"
 
       - name: Install provisioning profiles
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           for p in *.mobileprovision; do
-            if [ -f "$p" ]; then
-              cp "$p" ~/Library/MobileDevice/Provisioning\ Profiles/
-              echo "Installed: $p"
-            fi
+            [ -f "$p" ] && cp "$p" ~/Library/MobileDevice/Provisioning\ Profiles/
           done
-          echo "Profiles: $(ls ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision 2>/dev/null | wc -l)"
 
       - name: Install ASC API key (for TestFlight upload)
         env:
@@ -72,19 +66,13 @@ jobs:
         run: |
           mkdir -p ~/private_keys
           base64 --decode <<< "$ASC_KEY_B64" > ~/private_keys/AuthKey_392Z3XJZQS.p8
-          echo "ASC key: $(wc -c < ~/private_keys/AuthKey_392Z3XJZQS.p8) bytes"
 
       - name: Set build number
         run: |
           agvtool new-version -all ${{ github.run_number }}
           agvtool what-version
 
-      - name: Disable OCSP for codesign
-        run: |
-          sudo defaults write /Library/Preferences/com.apple.security.revocation OCSPSettings -dict Enabled 0
-          echo "OCSP disabled"
-
-      - name: Build app (unsigned, then sign manually)
+      - name: Archive app (unsigned)
         run: |
           rm -rf /tmp/SafeRingDD
           xcodebuild \
@@ -96,32 +84,10 @@ jobs:
             -derivedDataPath /tmp/SafeRingDD \
             -archivePath /tmp/SafeRing.xcarchive \
             archive \
-            DEVELOPMENT_TEAM=53DRV2V873 \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Apple Distribution: Kevin Asbury (53DRV2V873)" \
-            PROVISIONING_PROFILE_SPECIFIER="Gus - store-SafeRing- app" \
-            SWIFT_STRICT_CONCURRENCY=legacy \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            SWIFT_STRICT_CONCURRENCY=legacy
 
-      - name: Sign app
-        run: |
-          PROFILE=$(ls ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision 2>/dev/null | head -1)
-          echo "Using profile: $PROFILE"
-          echo "Signing app..."
-          APP_PATH=$(find /tmp/SafeRing.xcarchive -name "*.app" -type d | head -1)
-          echo "App: $APP_PATH"
-          /usr/bin/codesign -f -s "Apple Distribution: Kevin Asbury (53DRV2V873)" \
-            --keychain build.keychain \
-            --entitlements SafeRing/SafeRing.entitlements \
-            --no-strict --no-revoke-check --timestamp=none \
-            "$APP_PATH"
-          echo "Signed: $APP_PATH"
-
-      - name: Recreate archive (signed)
-        run: |
-          echo "Archive ready at: /tmp/SafeRing.xcarchive"
-
-      - name: Export IPA
+      - name: Export IPA (signs during export)
         working-directory: .
         run: |
           xcodebuild \
