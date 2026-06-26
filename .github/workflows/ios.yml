@@ -13,7 +13,7 @@ concurrency:
 jobs:
   build-and-upload:
     name: Build & Upload to TestFlight
-    runs-on: macos-25
+    runs-on: macos-latest
     timeout-minutes: 30
 
     defaults:
@@ -24,14 +24,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Select Xcode 16.1
+      - name: Select Xcode
         run: |
-          XCODE="/Applications/Xcode_16.1.app"
-          if [ ! -d "$XCODE" ]; then
-            echo "Xcode 16.1 not found, trying alternatives..."
-            ls -d /Applications/Xcode*.app 2>/dev/null | sort -V
-            XCODE=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
-          fi
+          XCODE=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
           echo "Xcode: $XCODE"
           sudo xcode-select -s "$XCODE/Contents/Developer"
 
