@@ -112,7 +112,7 @@ jobs:
           echo "App: $APP_PATH"
           /usr/bin/codesign -f -s "Apple Distribution: Kevin Asbury (53DRV2V873)" \
             --keychain build.keychain \
-            --entitlements ios/SafeRing/SafeRing.entitlements \
+            --entitlements SafeRing/SafeRing.entitlements \
             "$APP_PATH"
           echo "Signed: $APP_PATH"
 
