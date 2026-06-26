@@ -28,7 +28,8 @@ jobs:
         run: |
           XCODE=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
           echo "Xcode: $XCODE"
-          sudo xcode-select -s "$XCODE/Contents/Developer"
+          xcode-select -s "$XCODE/Contents/Developer" 2>&1 || true
+          xcode-select -p
 
       - name: Install xcodegen v2.45.4
         run: |
