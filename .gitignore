@@ -1,34 +1,37 @@
+
 # Android
-android/.gradle/
-android/build/
-android/app/build/
-android/local.properties
-android/captures/
-android/.externalNativeBuild/
-*.iml
-.idea/
-
-# iOS
-ios/*.xcworkspace
-ios/Pods/
-ios/DerivedData/
-
 # Backend
-backend/*.db
-backend/*.db-shm
-backend/*.db-wal
-
-# General
-.DS_Store
-*.log
-.env
-secrets/
-
 # Deep database files
+# General
+# iOS
+*.cer
+*.iml
+*.log
+*.xcresult/
+.DS_Store
+.env
+.idea/
+android/*.jks
+android/.externalNativeBuild/
+android/.gradle/
+android/app/build/
+android/build/
+android/captures/
+android/local.properties
+android/safering-keystore.jks
 backend/**/*.db
 backend/**/*.db-shm
 backend/**/*.db-wal
-ios/SafeRing_Distribution.p12
+backend/*.db
+backend/*.db-shm
+backend/*.db-wal
 ios/*.p12
-android/safering-keystore.jks
-android/*.jks
+ios/*.xcworkspace
+ios/DerivedData/
+ios/Pods/
+ios/SafeRing_Distribution.p12
+ios/build/
+node_modules/
+package-lock.json
+package.json
+secrets/

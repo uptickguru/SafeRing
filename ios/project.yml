@@ -15,6 +15,22 @@ settings:
     PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios
     PRODUCT_NAME: SafeRing
 
+schemes:
+  SafeRing:
+    build:
+      targets:
+        SafeRing: [run, test, profile, analyze, archive]
+    test:
+      targets:
+        - SafeRingUITests
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+
 targets:
   SafeRing:
     type: application
@@ -84,3 +100,20 @@ targets:
     dependencies:
       - sdk: WatchKit.framework
       - sdk: WatchConnectivity.framework
+
+  SafeRingUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - SafeRingUITests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios.uitests
+        INFOPLIST_FILE: SafeRingUITests/Info.plist
+        TEST_TARGET_NAME: SafeRing
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+        DEFINES_MODULE: "NO"
+        SWIFT_INSTALL_OBJC_HEADER: "NO"
+        BUILD_LIBRARY_FOR_DISTRIBUTION: "NO"
+    dependencies:
+      - target: SafeRing
