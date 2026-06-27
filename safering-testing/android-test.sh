@@ -51,10 +51,12 @@ tap_text() {
     sleep 2
 }
 
-tap_home()    { $ADB shell input tap 126 2216 2>/dev/null; sleep 2; }
-tap_history() { $ADB shell input tap 401 2216 2>/dev/null; sleep 2; }
-tap_report()  { $ADB shell input tap 677 2216 2>/dev/null; sleep 2; }
-tap_settings(){ $ADB shell input tap 953 2216 2>/dev/null; sleep 2; }
+tap_home()    { $ADB shell uiautomator click "Home" 2>/dev/null; $ADB shell input tap 126 2216 2>/dev/null; sleep 2; }
+tap_history() { $ADB shell uiautomator click "History" 2>/dev/null; $ADB shell input tap 401 2216 2>/dev/null; sleep 2; }
+tap_report()  { $ADB shell uiautomator click "Report" 2>/dev/null; $ADB shell input tap 677 2216 2>/dev/null; sleep 2; }
+tap_settings(){ $ADB shell uiautomator click "Settings" 2>/dev/null; $ADB shell input tap 953 2216 2>/dev/null; sleep 2; }
+
+# Phase 3: Interaction Tests
 
 # ─────────────────────────────────────────────
 # Phase 1: Home Screen
@@ -116,10 +118,37 @@ tap_home
 check_text "Back on Home" "SafeRing" 3
 
 # ─────────────────────────────────────────────
+# Phase 3: Interaction Tests
+# ─────────────────────────────────────────────
+
+echo ""
+echo "=========================================="
+echo "  PHASE 3: Interaction Tests"
+echo "=========================================="
+
+echo ""
+echo "--- TEST 7: Settings Toggle Elements ---"
+tap_settings
+check_text "'Auto-Block Scam Calls' label" "Auto-Block Scam Calls" 3
+check_text "'Show Scam Alert Notifications' label" "Show Scam Alert Notifications" 3
+check_text "'Store SMS Body' label" "Store SMS Body" 3
+tap_home
+check_text "Back on Home" "SafeRing" 3
+
+echo ""
+echo "--- TEST 8: Report Form Elements ---"
+tap_report
+check_text "'Submit Report' button" "Submit Report" 3
+check_text "'Phone Number' label" "Phone Number" 3
+# Scam type picker labels checked via the title and scam options above
+tap_home
+check_text "Back on Home" "SafeRing" 3
+
+# ─────────────────────────────────────────────
 # Results
 # ─────────────────────────────────────────────
 
 echo ""
 echo "=========================================="
-echo "  ALL 9 CHECKS PASSING ✅"
+echo "  ALL TESTS PASSING ✅"
 echo "=========================================="
