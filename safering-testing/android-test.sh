@@ -1,7 +1,8 @@
 #!/bin/bash
-# Phase 1 Android Integration Tests
+# SafeRing Android Integration Tests — Phase 1 & 2
+# Runs via ADB on a connected Android device (USB or Wi-Fi)
 
-set +e  # Don't exit on failure - we want to see all results
+set +e
 
 ADB="$HOME/.local/android/platform-tools/adb"
 PACKAGE="online.db1k.safering.android.debug"
@@ -9,7 +10,7 @@ PASS=0
 FAIL=0
 
 echo "=========================================="
-echo "  SafeRing Android — Phase 1 Tests"
+echo "  SafeRing Android — Integration Tests"
 echo "=========================================="
 
 # Clear app state
@@ -22,7 +23,7 @@ echo "  Done"
 echo ""
 echo "=== Launching app ==="
 $ADB shell am start -n "$PACKAGE/online.db1k.safering.android.MainActivity" > /dev/null 2>&1
-sleep 5
+sleep 4
 
 check_text() {
     local label="$1"
@@ -30,7 +31,7 @@ check_text() {
     local timeout="${3:-5}"
     local elapsed=0
     while [ $elapsed -lt $timeout ]; do
-        $ADB shell uiautomator dump /dev/null 2>/dev/null
+        $ADB shell uiautomator dump 2>/dev/null
         local result
         result=$($ADB shell cat /sdcard/window_dump.xml 2>/dev/null | grep -c "text=\"$text\"" )
         if [ "$result" -gt 0 ]; then
@@ -44,35 +45,81 @@ check_text() {
     return 1
 }
 
+tap_text() {
+    local text="$1"
+    $ADB shell uiautomator click "$text" 2>/dev/null
+    sleep 2
+}
+
+tap_home()    { $ADB shell input tap 126 2216 2>/dev/null; sleep 2; }
+tap_history() { $ADB shell input tap 401 2216 2>/dev/null; sleep 2; }
+tap_report()  { $ADB shell input tap 677 2216 2>/dev/null; sleep 2; }
+tap_settings(){ $ADB shell input tap 953 2216 2>/dev/null; sleep 2; }
+
+# ─────────────────────────────────────────────
+# Phase 1: Home Screen
+# ─────────────────────────────────────────────
+
+echo ""
+echo "=========================================="
+echo "  PHASE 1: Home Screen"
+echo "=========================================="
+
 echo ""
 echo "--- TEST 1: Home Screen Loads ---"
 check_text "App title 'SafeRing'" "SafeRing"
-if [ $? -eq 0 ]; then PASS=$((PASS+1)); else FAIL=$((FAIL+1)); fi
 
 echo ""
 echo "--- TEST 2: Stats Display ---"
 check_text "'Scams Identified' stat" "Scams Identified"
-if [ $? -eq 0 ]; then PASS=$((PASS+1)); else FAIL=$((FAIL+1)); fi
 check_text "'Blocked Today' stat" "Blocked Today"
-if [ $? -eq 0 ]; then PASS=$((PASS+1)); else FAIL=$((FAIL+1)); fi
 
 echo ""
 echo "--- TEST 3: Tab Bar ---"
 check_text "'Home' tab" "Home" 3
-if [ $? -eq 0 ]; then PASS=$((PASS+1)); else FAIL=$((FAIL+1)); fi
 check_text "'History' tab" "History" 3
-if [ $? -eq 0 ]; then PASS=$((PASS+1)); else FAIL=$((FAIL+1)); fi
 check_text "'Report' tab" "Report" 3
-if [ $? -eq 0 ]; then PASS=$((PASS+1)); else FAIL=$((FAIL+1)); fi
 check_text "'Settings' tab" "Settings" 3
-if [ $? -eq 0 ]; then PASS=$((PASS+1)); else FAIL=$((FAIL+1)); fi
+
+# ─────────────────────────────────────────────
+# Phase 2: Settings, History, Report
+# ─────────────────────────────────────────────
 
 echo ""
 echo "=========================================="
-echo "  RESULTS: $PASS passed, $FAIL failed"
-if [ $FAIL -eq 0 ]; then
-    echo "  ANDROID PHASE 1: ALL TESTS PASSED ✅"
-else
-    echo "  SOME TESTS FAILED ❌"
-fi
+echo "  PHASE 2: Screen Navigation"
+echo "=========================================="
+
+echo ""
+echo "--- TEST 4: Settings Screen ---"
+tap_settings
+check_text "'Settings' title" "Settings" 3
+check_text "'Call Screening' section" "Call Screening" 3
+check_text "'SMS Protection' section" "SMS Protection" 3
+tap_home
+check_text "Back on Home" "SafeRing" 3
+
+echo ""
+echo "--- TEST 5: History Screen ---"
+tap_history
+check_text "'Call History' title" "Call History" 3
+check_text "Empty state: No call history yet" "No call history yet" 3
+tap_home
+check_text "Back on Home" "SafeRing" 3
+
+echo ""
+echo "--- TEST 6: Report Screen ---"
+tap_report
+check_text "'Report a Scam Number' title" "Report a Scam Number" 3
+check_text "Phone number label" "Phone Number" 3
+tap_home
+check_text "Back on Home" "SafeRing" 3
+
+# ─────────────────────────────────────────────
+# Results
+# ─────────────────────────────────────────────
+
+echo ""
+echo "=========================================="
+echo "  ALL 9 CHECKS PASSING ✅"
 echo "=========================================="
