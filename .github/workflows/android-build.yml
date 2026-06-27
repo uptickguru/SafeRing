@@ -1,4 +1,4 @@
-name: Android Build
+name: Android Build & Test
 
 on:
   push:
@@ -41,14 +41,38 @@ jobs:
           name: app-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
-  # Optional: Run on emulator (requires KVM)
-  # emulator-test:
-  #   name: Instrumented Tests
-  #   runs-on: macos-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: reactivecircus/android-emulator-runner@v2
-  #       with:
-  #         api-level: 35
-  #         target: google_apis
-  #         script: cd android && ./gradlew connectedCheck
+  emulator-test:
+    name: Android Emulator Tests
+    needs: build
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: app-debug
+
+      - name: Run Emulator + Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          avd-name: pixel_6_pro_api_35
+          emulator-options: -no-window -no-audio -gpu swiftshader_indirect -memory 2048
+          script: |
+            adb install app-debug.apk
+            adb shell pm grant online.db1k.safering.android.debug \
+              android.permission.READ_PHONE_STATE \
+              android.permission.POST_NOTIFICATIONS \
+              android.permission.READ_SMS \
+              android.permission.RECEIVE_SMS
+            adb shell am start -n \
+              online.db1k.safering.android.debug/online.db1k.safering.android.MainActivity
+            sleep 5
+            adb shell uiautomator dump
+            adb shell cat /sdcard/window_dump.xml | grep -c "SafeRing"
+            echo "=== Android smoke test complete ==="
