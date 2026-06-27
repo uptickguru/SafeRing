@@ -1,0 +1,92 @@
+name: iOS Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ios/**'
+      - '.github/workflows/ios-tests.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ios/**'
+      - '.github/workflows/ios-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  xcuitest:
+    name: XCUITest (8 tests)
+    runs-on: self-hosted
+    # Uses kevins-macbook-pro — macOS 15.7.8, Xcode 26.3
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Xcode
+        run: |
+          xcodebuild -version
+          xcrun simctl list devices booted || echo "No booted sim"
+
+      - name: Generate Xcode Project
+        working-directory: ios
+        run: |
+          /usr/local/bin/xcodegen generate --spec project.yml
+
+      - name: Patch Test Module Name
+        working-directory: ios
+        run: |
+          python3 -c "
+          import uuid
+          path = 'SafeRing.xcodeproj/project.pbxproj'
+          with open(path) as f: content = f.read()
+          # Add PRODUCT_MODULE_NAME to test target
+          search = 'PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios.uitests;'
+          inserts = 0
+          idx = 0
+          while True:
+              idx = content.find(search, idx)
+              if idx == -1: break
+              eol = content.find(chr(10), idx)
+              block = content[eol:eol+200]
+              if 'PRODUCT_MODULE_NAME' not in block:
+                  content = content[:eol+1] + chr(9)*4 + 'PRODUCT_MODULE_NAME = SafeRingUITests;' + chr(10) + content[eol+1:]
+                  inserts += 1
+              idx += len(search)
+          with open(path, 'w') as f: f.write(content)
+          print(f'Patched {inserts} build configs')
+          "
+
+      - name: Build for Testing
+        working-directory: ios
+        run: |
+          xcodebuild build-for-testing \
+            -project SafeRing.xcodeproj \
+            -scheme SafeRing \
+            -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=26.3" \
+            -derivedDataPath Build
+
+      - name: Run Tests
+        working-directory: ios
+        run: |
+          xcodebuild test-without-building \
+            -xctestrun Build/Build/Products/SafeRing_iphonesimulator*.xctestrun \
+            -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=26.3" \
+            -resultBundlePath Results.xcresult
+
+      - name: Upload Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-test-results
+          path: ios/Results.xcresult
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "## iOS Test Results" >> $GITHUB_STEP_SUMMARY
+          python3 -c "
+          import plistlib, glob
+          for path in glob.glob('ios/Results.xcresult/**/Info.plist', recursive=True):
+              print(f'Results: {path}')
+          " 2>/dev/null || echo "See artifacts for detailed results"
