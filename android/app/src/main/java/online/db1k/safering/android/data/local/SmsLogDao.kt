@@ -11,6 +11,9 @@ interface SmsLogDao {
     @Query("SELECT * FROM sms_logs ORDER BY timestamp DESC LIMIT :limit")
     fun getRecentSmsLogs(limit: Int = 500): Flow<List<SmsLogEntity>>
 
+    @Query("SELECT COUNT(*) FROM sms_logs WHERE timestamp >= :since")
+    suspend fun getRecentCount(since: Long): Int
+
     @Insert
     suspend fun insert(log: SmsLogEntity)
 

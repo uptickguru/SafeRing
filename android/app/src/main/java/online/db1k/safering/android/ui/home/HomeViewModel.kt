@@ -38,17 +38,17 @@ class HomeViewModel(
             try {
                 val scamCount = repository.getAllScamNumbers().first().size
                 val callLogCount = db.callLogDao().getRecentCount(
-                    System.currentTimeMillis() - 24 * 60 * 60 * 1000
+                    System.currentTimeMillis() - 24L * 60 * 60 * 1000
                 )
 
                 // Check if data is stale (last sync > 24 hours ago)
                 var isStale = false
                 var lastSync: Long? = null
                 runCatching {
-                    val lastSyncPref = db.callLogDao().getLastSyncTime()
-                    if (lastSyncPref != null) {
-                        lastSync = lastSyncPref
-                        isStale = (System.currentTimeMillis() - lastSyncPref) > 24 * 3600 * 1000
+                    val lastSyncVal = db.scamNumberDao().getLastUpdateTime()
+                    if (lastSyncVal != null) {
+                        lastSync = lastSyncVal
+                        isStale = (System.currentTimeMillis() - lastSyncVal) > 24L * 3600 * 1000
                     } else {
                         isStale = true
                     }
