@@ -44,7 +44,7 @@ jobs:
   emulator-test:
     name: Android Emulator Tests
     needs: build
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
