@@ -11,6 +11,12 @@ interface CallLogDao {
     @Query("SELECT * FROM call_logs ORDER BY timestamp DESC LIMIT :limit")
     fun getRecentCallLogs(limit: Int = 500): Flow<List<CallLogEntity>>
 
+    @Query("SELECT COUNT(*) FROM call_logs WHERE timestamp >= :since")
+    suspend fun getRecentCount(since: Long): Int
+
+    @Query("SELECT COUNT(*) FROM call_logs WHERE timestamp >= :since AND wasBlocked = 1")
+    suspend fun getBlockedCount(since: Long): Int
+
     @Insert
     suspend fun insert(log: CallLogEntity)
 
