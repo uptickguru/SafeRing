@@ -211,6 +211,7 @@ python3 seed_data.py
 | `DATABASE_URL` | `safering.db` | SQLite path or Postgres DSN |
 | `SCRAPER_INTERVAL` | `6h` | Scraper poll interval |
 | `SCRAPER_FTC_ENABLED` | `true` | FTC scraper on/off |
+| `SCRAPER_FTC_API_KEY` | `DEMO_KEY` | FTC API key (api.data.gov/signup) |
 | `SCRAPER_BBB_ENABLED` | `true` | BBB scraper on/off |
 | `SCRAPER_REDDIT_ENABLED` | `true` | Reddit scraper on/off |
 | `LOG_LEVEL` | `info` | debug/info/warn/error |
@@ -308,21 +309,7 @@ cd SafeRing/android
 | Cert Hash (SHA-1) | `4F09D517D71DA730C64E13150E4458B5C3C98152` |
 | Store Profile UUID | `a2d731cf-520d-4611-84be-c223ea4da498` |
 
-### GitHub Actions Workflow
 
-The file at `.github/workflows/ios.yml` pushes to TestFlight on every `main` push.  
-**Still needs GitHub secrets set up** (see below).
-
-#### Required GitHub Secrets
-
-| Secret | Description |
-|---|---|
-| `ASC_API_KEY_BASE64` | Base64 of `AuthKey_392Z3XJZQS.p8` |
-| `ASC_KEY_ID` | `392Z3XJZQS` |
-| `ASC_ISSUER_ID` | `69a6de75-f335-47e3-e053-5b8c7c11a4d1` |
-| `IOS_DIST_CERT_BASE64` | Base64 of the `.p12` (password: `p12pass123`) |
-| `IOS_DIST_CERT_PASSWORD` | `p12pass123` |
-| `IOS_PROVISIONING_PROFILE_BASE64` | Base64 of the provisioning profile |
 
 ### Manual Build on Mac (SSH)
 
@@ -359,7 +346,66 @@ xcrun altool --upload-app -f /tmp/SafeRing.ipa --type ios \
 
 ---
 
-## 8. Scrapers — Current State & Fixes Needed
+## 8. GitHub Actions CI/CD
+
+Two workflow files were created on **2026-06-19** under `.github/workflows/`.
+
+### android.yml — Build & Firebase App Distribution
+
+| Property | Value |
+|---|---|
+| Trigger | Push to `main`, PRs to `main` |
+| Runner | `ubuntu-latest` |
+| Java | 17 (Temurin) |
+| Build | `./gradlew assembleRelease` |
+| Artifact | `app-release-aab` (retention: 14 days) |
+| Distribution | Firebase App Distribution via `appDistributionUploadRelease` (main only) |
+
+**Required secrets:**
+
+| Secret | Description |
+|---|---|
+| `FIREBASE_SERVICE_ACCOUNT` | Firebase service account JSON key |
+
+The Firebase App Distribution Gradle plugin (`com.google.firebase.appdistribution` v4.0.1) is already configured in `android/app/build.gradle.kts`. The workflow writes the service account JSON to a temp file and sets `FIREBASE_SERVICE_ACCOUNT` env var so the plugin picks it up automatically.
+
+---
+
+### ios.yml — Build & TestFlight Upload
+
+| Property | Value |
+|---|---|
+| Trigger | Push to `main` |
+| Runner | `macos-14` |
+| Xcode | 16.2 |
+| Project gen | `xcodegen generate` from `project.yml` |
+| Archive | `xcodebuild archive` → `SafeRing.xcarchive` |
+| Export | `xcodebuild -exportArchive` with `exportOptions.plist` |
+| Artifact | `SafeRing-ipa` (retention: 14 days) |
+| Upload | `xcrun altool --upload-app` with API key |
+
+**Required secrets:**
+
+| Secret | Description |
+|---|---|
+| `ASC_API_KEY_BASE64` | Base64 of `AuthKey_392Z3XJZQS.p8` |
+| `ASC_KEY_ID` | `392Z3XJZQS` |
+| `ASC_ISSUER_ID` | `69a6de75-f335-47e3-e053-5b8c7c11a4d1` |
+| `IOS_PROVISIONING_PROFILE_BASE64` | Base64 of the provisioning profile (`.mobileprovision`) |
+| `KEYCHAIN_PASSWORD` | Password for the ephemeral build keychain |
+
+**Optional secrets** (uncomment the cert import step in the workflow when ready):
+
+| Secret | Description |
+|---|---|
+| `IOS_DIST_CERT_BASE64` | Base64 of the distribution `.p12` |
+| `IOS_DIST_CERT_PASSWORD` | Password for the `.p12` (`p12pass123`) |
+
+The workflow builds with `-allowProvisioningUpdates` so Xcode can auto-manage signing when the provisioning profile is installed. The ASC API key `.p8` file is decoded into `~/private_keys/` where `xcrun altool` expects it.
+
+---
+
+## 9. Scrapers — Current State & Fixes Needed
 
 All three scrapers are currently broken due to source URL/API changes.
 
@@ -402,7 +448,7 @@ The DB has 47 seed scam numbers and 12 known scam prefixes via `seed_data.py`. T
 
 ---
 
-## 9. Current Live State (June 2026)
+## 10. Current Live State (June 2026)
 
 | Area | Status | Details |
 |---|---|---|
@@ -411,7 +457,7 @@ The DB has 47 seed scam numbers and 12 known scam prefixes via `seed_data.py`. T
 | Scrapers | ❌ Broken | FTC/BBD/Reddit need URL fixes |
 | iOS Build | ✅ Compiled | Signed + uploaded to TestFlight (Build 2) |
 | TestFlight | ✅ Uploaded | App ID: 6778584210 |
-| GitHub Actions | ⚠️ Needs secrets | 6 secrets need to be added to repo |
+| GitHub Actions | ⚠️ Needs secrets | 7 secrets need to be added to repo (see §8) |
 | CallDirectory Ext | ⚠️ Needs profile | Distribution profile not yet created |
 | Apple Watch | ❌ Not built | Bundle IDs exist, no profiles yet |
 | safering.dbat.com | ⚠️ DNS pending | A record set, waiting propagation |
