@@ -486,7 +486,6 @@ final class ApiClient {
             throw ApiError.unexpectedStatusCode(httpResponse.statusCode)
         }
     }
-}
 
     // MARK: - Rate Limiting
 
