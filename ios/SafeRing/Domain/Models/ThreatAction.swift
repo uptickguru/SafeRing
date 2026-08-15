@@ -16,20 +16,20 @@ import Foundation
 enum ThreatAction: String, Codable, CaseIterable {
     /// Call the saved contact instead of the suspicious caller.
     /// The dial action targets the SAVED number only, never the incoming/suspect number.
-    case callSavedContact(SavedContact)
+    case callSavedContact = "CALL_SAVED_CONTACT"
 
     /// Prompt to ask the caller for your family password.
     /// No field that transmits the password — see M6.
-    case askFamilyPassword
+    case askFamilyPassword = "ASK_FAMILY_PASSWORD"
 
     /// Alert the trusted contact (M5).
-    case loopTrustedContact
+    case loopTrustedContact = "LOOP_TRUSTED_CONTACT"
 
     /// Don't respond to this message. It could be a scam attempt.
-    case doNotReply
+    case doNotReply = "DO_NOT_REPLY"
 
     /// This is NOT a guarantee of safety. Keeps "Verify with trusted contact" visible.
-    case looksOkStillVerify
+    case looksOkStillVerify = "LOOKS_OK_STILL_VERIFY"
 }
 
 // MARK: - Saved Contact
@@ -49,17 +49,4 @@ struct SavedContact: Identifiable, Codable, Equatable {
     /// The real, saved phone number to dial.
     /// This is NEVER the incoming/suspect number.
     let savedNumber: String
-}
-
-// MARK: - Preview
-
-#Preview {
-    ThreatActionView(
-        recommendedAction: .callSavedContact(.init(id: .uuid(), displayName: "Mom", savedNumber: "+1234567890")),
-        callerLabel: "Unknown",
-        savedContact: .init(id: .uuid(), displayName: "Mom", savedNumber: "+1234567890"),
-        userOptedIn: true,
-        numberHash: "abc123",
-        wasBlocked: false
-    )
 }

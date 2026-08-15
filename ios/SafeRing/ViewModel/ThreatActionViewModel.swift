@@ -115,8 +115,4 @@ class ThreatActionViewModel {
     }
 }
 
-// MARK: - Preview
 
-#Preview {
-    ThreatActionViewModel()
-}
