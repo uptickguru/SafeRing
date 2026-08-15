@@ -284,8 +284,14 @@ final class CircleRepository {
                 }
                 return CircleContact(
                     id: invitation.invitationId,
-                    displayName: "Contact",
-                    isAccepted: invitation.isAccepted
+                    inviterName: "User",
+                    inviterPhoneHash: "",
+                    inviterPhonePrefix: "+1",
+                    inviterDisplayName: "User",
+                    isAccepted: invitation.isAccepted,
+                    createdAt: invitation.acceptedAt ?? Date().timeIntervalSince1970,
+                    acceptedAt: invitation.acceptedAt,
+                    revokedAt: invitation.revokedAt
                 )
             }
     }
