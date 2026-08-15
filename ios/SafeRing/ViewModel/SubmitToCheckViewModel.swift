@@ -74,6 +74,7 @@ class SubmitToCheckViewModel {
 
         isCheckingEmail = true
         emailError = nil
+        defer { isCheckingEmail = false }
 
         do {
             let response = try await apiClient.checkEmail(
@@ -84,8 +85,6 @@ class SubmitToCheckViewModel {
         } catch {
             emailError = error.localizedDescription
             throw error
-        } finally {
-            isCheckingEmail = false
         }
     }
 
@@ -112,6 +111,7 @@ class SubmitToCheckViewModel {
 
         isScanningAttachment = true
         attachmentError = nil
+        defer { isScanningAttachment = false }
 
         do {
             // Strip EXIF/location metadata client-side before upload
@@ -128,8 +128,6 @@ class SubmitToCheckViewModel {
         } catch {
             attachmentError = error.localizedDescription
             throw error
-        } finally {
-            isScanningAttachment = false
         }
     }
 
@@ -181,6 +179,7 @@ class SubmitToCheckViewModel {
 
         isCheckingTranscript = true
         transcriptError = nil
+        defer { isCheckingTranscript = false }
 
         do {
             let response = try await apiClient.checkTranscript(
@@ -191,8 +190,6 @@ class SubmitToCheckViewModel {
         } catch {
             transcriptError = error.localizedDescription
             throw error
-        } finally {
-            isCheckingTranscript = false
         }
     }
 }

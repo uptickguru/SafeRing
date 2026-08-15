@@ -247,7 +247,7 @@ final class CircleRepository {
     }
 
     /// Updates an invitation in local storage.
-    func updateInvInvitationData {
+    func updateInvInvitationData(_ invitation: CircleInvitation) {
         storage.set(invitation, forKey: "circle_invitation_\(invitation.invitationId)")
     }
 

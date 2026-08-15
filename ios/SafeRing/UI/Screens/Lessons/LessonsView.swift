@@ -223,4 +223,4 @@ struct LessonsView: View {
         )
     }
 
-    private func neverGiveItem(icon: String, title: String, body: String) -> some
+    private func neverGiveItem(icon: String, title: String, body: String) -> some View {
