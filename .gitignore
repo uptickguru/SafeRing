@@ -26,6 +26,7 @@ backend/*.db
 backend/*.db-shm
 backend/*.db-wal
 ios/*.p12
+<<<<<<< ours
 ios/*.xcworkspace
 ios/DerivedData/
 ios/Pods/
@@ -35,3 +36,20 @@ node_modules/
 package-lock.json
 package.json
 secrets/
+=======
+android/safering-keystore.jks
+android/*.jks
+
+# Release keystore at repo root (Gus/local builds)
+safering-keystore.jks
+keystore.jks
+*.jks
+
+keystore.properties
+node_modules/
+ios/build/
+*.bak
+android/keystore.properties
+android/.release-env.sh
+.release-env.sh
+>>>>>>> theirs

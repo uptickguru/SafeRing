@@ -1,0 +1,10 @@
+# Full Regression Suite — All flows
+appId: online.db1k.safering.ios
+---
+- runFlow: ../flows/onboarding.yaml
+- runFlow: ../flows/home-screen.yaml
+- runFlow: ../flows/incoming-call.yaml
+- runFlow: ../flows/incoming-sms.yaml
+- runFlow: ../flows/scam-report.yaml
+- runFlow: ../flows/call-history.yaml
+- runFlow: ../flows/settings.yaml

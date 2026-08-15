@@ -26,11 +26,37 @@ android {
 
     signingConfigs {
         create("release") {
-            val ksPath = System.getenv("ANDROID_KEYSTORE_PATH") ?: "../safering-keystore.jks"
-            storeFile = rootProject.file(ksPath)
-            storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: System.getenv("KEYSTORE_PASSWORD") ?: ""
-            keyAlias = System.getenv("ANDROID_KEY_ALIAS") ?: "safering"
-            keyPassword = System.getenv("ANDROID_KEY_PASSWORD") ?: System.getenv("KEYSTORE_PASSWORD") ?: ""
+            // env → keystore.properties → CI defaults
+            val propFile = rootProject.file("keystore.properties")
+            val props = mutableMapOf<String, String>()
+            if (propFile.exists()) {
+                propFile.readLines().forEach { line ->
+                    val trimmed = line.trim()
+                    if (trimmed.isEmpty() || trimmed.startsWith("#")) return@forEach
+                    val idx = trimmed.indexOf('=')
+                    if (idx > 0) {
+                        props[trimmed.substring(0, idx).trim()] = trimmed.substring(idx + 1).trim()
+                    }
+                }
+            }
+            fun fromEnv(name: String): String? = System.getenv(name)?.takeIf { v -> v.isNotBlank() }
+            val ksPath = fromEnv("ANDROID_KEYSTORE_PATH")
+                ?: props["storeFile"]
+                ?: "safering-keystore.jks"
+            val candidate = rootProject.file(ksPath)
+            val sibling = rootProject.file("../${ksPath}")
+            storeFile = if (candidate.exists()) candidate else if (sibling.exists()) sibling else candidate
+            storePassword = fromEnv("ANDROID_KEYSTORE_PASSWORD")
+                ?: fromEnv("KEYSTORE_PASSWORD")
+                ?: props["storePassword"]
+                ?: "kailey99"
+            keyAlias = fromEnv("ANDROID_KEY_ALIAS")
+                ?: props["keyAlias"]
+                ?: "safering"
+            keyPassword = fromEnv("ANDROID_KEY_PASSWORD")
+                ?: fromEnv("KEYSTORE_PASSWORD")
+                ?: props["keyPassword"]
+                ?: "kailey99"
         }
     }
 
@@ -50,7 +76,7 @@ android {
         }
         debug {
             isMinifyEnabled = false
-            applicationIdSuffix = ".debug"
+            // applicationIdSuffix removed so debug matches google-services.json package
             firebaseAppDistribution {
                 artifactType = "APK"
                 serviceCredentialsFile = System.getenv("FIREBASE_SERVICE_ACCOUNT") ?: ""

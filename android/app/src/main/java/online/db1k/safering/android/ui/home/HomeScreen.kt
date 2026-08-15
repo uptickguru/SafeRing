@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.ui.platform.testTag
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
@@ -41,12 +42,14 @@ fun HomeScreen(viewModel: HomeViewModel) {
 
         Text(
             text = "SafeRing",
+            modifier = Modifier.testTag("home_title"),
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold
         )
 
         Text(
             text = "Scam Call Protection",
+            modifier = Modifier.testTag("home_subtitle"),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

@@ -1,0 +1,27 @@
+{
+  "name": "safering",
+  "version": "1.0.0",
+  "description": "**AI-powered scam call & SMS detection for seniors.**",
+  "main": "index.js",
+  "scripts": {
+    "test": "detox test",
+    "build:ios": "detox build --configuration ios.sim.debug",
+    "build:android": "detox build --configuration android.emu.debug"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uptickguru/SafeRing.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uptickguru/SafeRing/issues"
+  },
+  "homepage": "https://github.com/uptickguru/SafeRing#readme",
+  "devDependencies": {
+    "@jest/globals": "^30.4.1",
+    "detox": "^20.51.4",
+    "jest": "^30.4.2"
+  }
+}

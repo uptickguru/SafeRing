@@ -20,3 +20,8 @@ local.properties
 
 # Env
 .env
+
+keystore.properties
+safering-keystore.jks
+*.jks
+.release-env.sh

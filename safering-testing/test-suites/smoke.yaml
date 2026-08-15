@@ -1,0 +1,6 @@
+# Smoke Test Suite — Quick verification
+# Run after every build to ensure core functionality works
+appId: online.db1k.safering.ios
+---
+- runFlow: ../flows/onboarding.yaml
+- runFlow: ../flows/home-screen.yaml

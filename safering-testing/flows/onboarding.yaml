@@ -1,0 +1,27 @@
+appId: online.db1k.safering.ios
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: "always"
+      phone: "always"
+
+# Step 1: Welcome
+- assertVisible: "Meet SafeRing"
+- assertVisible: "AI-powered protection against phone scams"
+- tapOn: "Get Started"
+
+# Step 2: Call Protection
+- assertVisible: "Call Protection"
+- assertVisible: "Stop scams before they ring"
+- tapOn: "Enable Call Screening"
+
+# Step 3: All Set
+- assertVisible: "You're All Set!"
+- assertVisible: "Nothing else to configure"
+- tapOn: "Start Protection"
+
+# Home screen should be visible
+- assertVisible: "SafeRing"
+- assertVisible: "Active"
+- assertVisible: "1.0"

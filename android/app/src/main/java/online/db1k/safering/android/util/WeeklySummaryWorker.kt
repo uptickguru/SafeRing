@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.work.*
+import androidx.work.CoroutineWorker
 import online.db1k.safering.android.data.local.AppDatabase
 import java.util.concurrent.TimeUnit
 
@@ -21,7 +22,11 @@ class WeeklySummaryWorker(
         val context = applicationContext
         val db = AppDatabase.getInstance(context)
 
+<<<<<<< ours
         val weekAgo = System.currentTimeMillis() - 7L * 24 * 60 * 60 * 1000
+=======
+        val weekAgo = System.currentTimeMillis() - 7L * 24L * 60L * 60L * 1000L
+>>>>>>> theirs
         val blockedCalls = db.callLogDao().getRecentCount(weekAgo)
         val filteredSms = db.smsLogDao().getRecentCount(weekAgo)
         val blockedCount = db.callLogDao().getBlockedCount(weekAgo)

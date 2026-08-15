@@ -25,4 +25,10 @@ interface CallLogDao {
 
     @Query("DELETE FROM call_logs")
     suspend fun deleteAll()
+
+    @Query("SELECT COUNT(*) FROM call_logs WHERE timestamp >= :since")
+    suspend fun getRecentCount(since: Long): Int
+
+    @Query("SELECT COUNT(*) FROM call_logs WHERE timestamp >= :since AND wasBlocked = 1")
+    suspend fun getBlockedCount(since: Long): Int
 }

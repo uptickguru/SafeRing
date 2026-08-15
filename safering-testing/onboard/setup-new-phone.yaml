@@ -1,0 +1,99 @@
+appId: online.db1k.safering.ios
+---
+# ============================================================
+# User Onboarding Wizard — Setup someone's phone for them
+# Run this on a connected phone via `maestro test onboard/setup-new-phone.yaml`
+# Perfect for helping older/non-technical family members configure SafeRing
+# ============================================================
+
+# --- Step 1: Install (user should have installed from App/Play Store) ---
+- launchApp:
+    clearState: true
+
+# --- Step 2: Walk through permissions ---
+- assertVisible: "Welcome to SafeRing"
+- tapOn: "Get Started"
+
+# --- Notifications ---
+- assertVisible: "Allow Notifications?"
+- assertVisible: "SafeRing will alert you to scam calls and messages"
+- tapOn: "Allow"
+- extendedWaitUntil:
+    notVisible: "Allow Notifications?"
+    timeout: 10000
+
+# --- Phone Access ---
+- assertVisible: "Phone Access Required"
+- assertVisible: "To detect and block unwanted calls"
+- tapOn: "Enable"
+- tapOn: "Allow"  # System dialog
+- waitFor: 2
+
+# --- SMS Access ---
+- assertVisible: "SMS Access Required"
+- tapOn: "Enable"
+- tapOn: "Allow"  # System dialog
+- waitFor: 2
+
+# --- Call Directory (iOS) ---
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - assertVisible: "Enable Call Blocking"
+      - tapOn: "Open Settings"
+      - tapOn: "Phone"
+      - tapOn: "Call Blocking & Identification"
+      - tapOn:
+          text: "SafeRing"
+          index: 0
+      - tapOn:
+          text: "SafeRing"
+          index: 1
+      - pressKey: "Home"
+      - launchApp: online.db1k.safering.ios
+
+# --- Call Screening (Android) ---
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - assertVisible: "Enable Call Screening"
+      - tapOn: "Open Settings"
+      - tapOn: "Call Screen"
+      - tapOn:
+          text: "SafeRing"
+      - tapOn: "Allow"
+      - pressKey: "Back"
+      - launchApp: online.db1k.safering.ios
+
+# --- Emergency Contact ---
+- assertVisible: "Emergency Contact"
+- assertVisible: "Who should we notify in case of emergency?"
+- tapOn: "Contact Field"
+- inputText: "+1"
+# Pause for user to type their emergency contact manually
+# or pre-fill if known
+
+# --- Verification ---
+- tapOn: "Continue"
+- assertVisible: "Setup Complete"
+- assertVisible: "SafeRing is active and protecting you"
+
+# --- Final verification checks ---
+- tapOn: "Go to Home"
+- assertVisible: "Protection Active"
+- assertVisible: "SafeRing"
+
+# --- Run a test call to verify ---
+- runScript: |
+    #!/bin/bash
+    echo "Verification: SafeRing is active."
+    echo "To test, send a call from another number."
+    echo "From this terminal, you can run:"
+    echo "  iOS: xcrun simctl openurl booted 'tel:15551234567'"
+    echo "  ADB: adb emu gsm call 5551234567"
+
+- output:
+    result: "SUCCESS"
+    message: "SafeRing configured and active on device"

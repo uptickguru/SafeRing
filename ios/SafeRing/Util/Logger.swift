@@ -93,3 +93,4 @@ final class Logger {
         os_log(.fault, log: category.osLog, "💥 %{public}@", message)
     }
 }
+

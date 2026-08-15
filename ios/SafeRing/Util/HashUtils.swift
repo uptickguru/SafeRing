@@ -1,3 +1,4 @@
+import UIKit
 import Foundation
 import CryptoKit
 
@@ -65,3 +66,4 @@ extension String {
         HashUtils.sha256(self)
     }
 }
+

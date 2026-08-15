@@ -37,5 +37,9 @@ interface ScamNumberDao {
     suspend fun getBlockedNumbersOnce(): List<ScamNumberEntity>
 
     @Query("SELECT MAX(updatedAt) FROM scam_numbers")
+<<<<<<< ours
     suspend fun getLastUpdateTime(): Long?
+=======
+    suspend fun getLastUpdatedAt(): Long?
+>>>>>>> theirs
 }

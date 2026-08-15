@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import online.db1k.safering.android.data.local.AppDatabase
 import online.db1k.safering.android.data.remote.SafeRingApi
 import online.db1k.safering.android.data.repository.ScamRepository
+import androidx.compose.ui.platform.testTag
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +42,7 @@ fun ReportScreen() {
         ) {
             Text(
                 text = "Report a Scam Number",
+                modifier = Modifier.testTag("report_title"),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -50,7 +52,7 @@ fun ReportScreen() {
             OutlinedTextField(
                 value = phoneNumber,
                 onValueChange = { phoneNumber = it },
-                label = { Text("Phone Number") },
+                label = { Text("Phone Number", modifier = Modifier.testTag("phone_field")) },
                 placeholder = { Text("+1 (555) 123-4567") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 modifier = Modifier.fillMaxWidth(),
@@ -116,7 +118,7 @@ fun ReportScreen() {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Text("Submit Report")
+                Text("Submit Report", modifier = Modifier.testTag("submit_button"))
             }
 
             result?.let {

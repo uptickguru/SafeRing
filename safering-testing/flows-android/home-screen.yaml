@@ -1,0 +1,26 @@
+appId: online.db1k.safering.android
+---
+- launchApp:
+    clearState: false
+
+# Home screen smoke check
+- assertVisible: "SafeRing"
+- assertVisible: "Calls Blocked"
+- assertVisible: "SMS Filtered"
+- assertVisible: "Scam # Known"
+
+# Tab navigation
+- assertVisible: "Home"
+- assertVisible: "History"
+- assertVisible: "Report"  
+- assertVisible: "Settings"
+
+# Navigate to settings
+- tapOn: "Settings"
+- assertVisible: "Call Protection"
+- assertVisible: "SMS Scanning"
+- assertVisible: "Auto-Block Known Scams"
+- assertVisible: "Permissions"
+
+# Back to home
+- tapOn: "Home"

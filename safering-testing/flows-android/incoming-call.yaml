@@ -1,0 +1,53 @@
+appId: online.db1k.safering.android
+---
+# ============================================================
+# Incoming Call Simulation — Test call detection + blocking
+# ============================================================
+
+- launchApp:
+    clearState: false
+
+# --- Backend: Inject incoming call ---
+- runScript: |
+    #!/bin/bash
+    PLATFORM=${MAESTRO_PLATFORM:-ios}
+    if [ "$PLATFORM" = "android" ]; then
+      adb emu gsm call 5551234567
+    else
+      xcrun simctl openurl booted "tel:15551234567"
+    fi
+
+# --- Wait for incoming call notification ---
+- assertVisible: "Incoming Call"
+- assertVisible:
+    text: "555-123-4567"
+
+# --- Check if SafeRing shows scam warning ---
+- runFlow:
+    when:
+      visible: "Scam Likely"
+    commands:
+      - assertVisible: "Scam Likely"
+      - assertVisible: "Block"
+      - assertVisible: "Report"
+      - tapOn: "Block"
+      - assertVisible: "Call Blocked"
+      - assertVisible: "Blocked & Reported"
+
+# --- If no scam warning, it should be a safe number ---
+- runFlow:
+    when:
+      notVisible: "Scam Likely"
+    commands:
+      - assertVisible:
+          id: "safeCallIndicator"
+      - tapOn: "Answer"
+
+# --- After call ends ---
+- assertVisible: "Call History Updated"
+- assertVisible:
+    id: "callHistoryList"
+- tapOn:
+    id: "lastCallEntry"
+- assertVisible: "555-123-4567"
+- assertVisible: "Duration"

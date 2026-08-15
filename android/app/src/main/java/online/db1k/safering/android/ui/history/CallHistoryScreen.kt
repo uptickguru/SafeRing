@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.testTag
 
 @Composable
 fun CallHistoryScreen() {
@@ -19,6 +20,7 @@ fun CallHistoryScreen() {
     ) {
         Text(
             text = "Call History",
+            modifier = Modifier.testTag("history_title"),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
@@ -38,6 +40,7 @@ fun CallHistoryScreen() {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "No call history yet",
+                    modifier = Modifier.testTag("history_empty"),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -1,0 +1,57 @@
+appId: online.db1k.safering.ios
+---
+# ============================================================
+# Incoming SMS Simulation — Test SMS detection + scam analysis
+# ============================================================
+
+- launchApp:
+    clearState: false
+
+# --- Inject SMS via ADB/simctl ---
+- runScript: |
+    #!/bin/bash
+    PHONE="555-123-4567"
+    MESSAGE="URGENT: Your account has been compromised. Click here to secure: http://bit.ly/scam-xyz"
+    
+    if [ "$MAESTRO_PLATFORM" = "android" ]; then
+      adb emu sms send "$PHONE" "$MESSAGE"
+    else
+      # Push notification simulating SMS
+      xcrun simctl push booted online.db1k.safering.ios alert.apns \
+        '{"aps":{"alert":{"title":"SMS from '"$PHONE"'","body":"'"$MESSAGE"'"},"sound":"default"},"sms":{"sender":"'"$PHONE"'","message":"'"$MESSAGE"'"}}'
+    fi
+
+# --- Notification arrives ---
+- assertVisible: "SMS Received"
+- assertVisible: "555-123-4567"
+
+# --- Open SafeRing notification ---
+- tapOn:
+    text: "Open in SafeRing"
+- assertVisible: "Message Analysis"
+- assertVisible: "Scam Detected"
+
+# --- Verify scam analysis ---
+- assertVisible:
+    text: "Contains suspicious link"
+- assertVisible:
+    text: "Urgency language detected"
+- assertVisible:
+    text: "Unknown sender"
+
+# --- Options ---
+- assertVisible: "Block Sender"
+- assertVisible: "Report as Scam"
+- assertVisible: "Delete Message"
+
+# --- Report and block ---
+- tapOn: "Report as Scam"
+- assertVisible: "Reported Successfully"
+- tapOn: "Block Sender"
+- assertVisible: "Sender Blocked"
+
+# --- Verify in history ---
+- tapOn: "Back to Home"
+- assertVisible: "Recent Activity"
+- assertVisible:
+    text: "SMS Blocked"

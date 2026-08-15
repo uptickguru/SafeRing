@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.testTag
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +32,7 @@ fun SettingsScreen() {
     ) {
         Text(
             text = "Settings",
+            modifier = Modifier.testTag("settings_title"),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
@@ -40,6 +42,7 @@ fun SettingsScreen() {
         // ─── Call Screening Section ──────────────────────────────
         Text(
             text = "Call Screening",
+            modifier = Modifier.testTag("call_screening_section"),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -69,6 +72,7 @@ fun SettingsScreen() {
         // ─── SMS Section ─────────────────────────────────────────
         Text(
             text = "SMS Protection",
+            modifier = Modifier.testTag("sms_protection_section"),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )

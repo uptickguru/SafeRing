@@ -3,12 +3,14 @@ package online.db1k.safering.android.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import online.db1k.safering.android.data.local.AppDatabase
 import online.db1k.safering.android.data.repository.ScamRepository
-import online.db1k.safering.android.data.remote.SafeRingApi
-import online.db1k.safering.android.util.AppConfig
 
 data class HomeUiState(
     val protectedNumbers: Int = 0,
@@ -36,19 +38,32 @@ class HomeViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
+                val dayMs = 24L * 60L * 60L * 1000L
                 val scamCount = repository.getAllScamNumbers().first().size
                 val callLogCount = db.callLogDao().getRecentCount(
+<<<<<<< ours
                     System.currentTimeMillis() - 24L * 60 * 60 * 1000
+=======
+                    System.currentTimeMillis() - dayMs
+>>>>>>> theirs
                 )
 
-                // Check if data is stale (last sync > 24 hours ago)
+                // Proxy last sync from newest local scam row update
                 var isStale = false
                 var lastSync: Long? = null
                 runCatching {
+<<<<<<< ours
                     val lastSyncVal = db.scamNumberDao().getLastUpdateTime()
                     if (lastSyncVal != null) {
                         lastSync = lastSyncVal
                         isStale = (System.currentTimeMillis() - lastSyncVal) > 24L * 3600 * 1000
+=======
+                    val lastSyncPref: Long? = db.scamNumberDao().getLastUpdatedAt()
+                    if (lastSyncPref != null) {
+                        lastSync = lastSyncPref
+                        val ageMs: Long = System.currentTimeMillis() - lastSyncPref
+                        isStale = ageMs > dayMs
+>>>>>>> theirs
                     } else {
                         isStale = true
                     }
@@ -58,7 +73,7 @@ class HomeViewModel(
                     it.copy(
                         protectedNumbers = scamCount,
                         scamCount = scamCount,
-                        blockedToday = callLogCount.toInt(),
+                        blockedToday = callLogCount,
                         isLoading = false,
                         isDataStale = isStale,
                         lastSyncTime = lastSync
