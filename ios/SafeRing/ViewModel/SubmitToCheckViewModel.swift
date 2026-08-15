@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 /// ViewModel for the submit-to-check features.
 ///
@@ -14,7 +15,8 @@ import Foundation
 /// makes it trivially reversible. HMAC-SHA256 with a secret key provides
 /// pseudonymization, making it computationally infeasible to recover the
 /// original number from the hash.
-class SubmitToCheckViewModel {
+@MainActor
+class SubmitToCheckViewModel: ObservableObject {
 
     // MARK: - Properties
 

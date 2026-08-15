@@ -69,7 +69,7 @@ final class LiveCallerIDLookupService {
         }
 
         // 2. Check cached list first
-        let cached = try? repository.fetchScamNumber(byHash: hash)
+        let cached = repository.getAllCachedScamNumbers(minRisk: 0.0).first(where: { $0.numberHash == hash })
         if let cached = cached {
             return CallerIDResult(
                 phoneNumber: normalized,
