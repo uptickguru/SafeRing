@@ -266,6 +266,7 @@ struct ThreatActionView: View {
         )
         .accessibilityLabel("Don't respond to this message")
         .accessibilityHint("This will mark this message as do-not-reply and log it as a potential scam")
+    }
 
     /// LOOKS_OK_STILL_VERIFY: Explicitly states this is NOT a guarantee.
     private var looksOkStillVerifyButton: some View {
