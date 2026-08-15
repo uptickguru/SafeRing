@@ -69,7 +69,7 @@ final class LiveCallerIDLookupService {
         }
 
         // 2. Check cached list first
-        let cached = repository.getAllCachedScamNumbers(minRisk: 0.0).first(where: { $0.numberHash == hash })
+        let cached = await repository.getAllCachedScamNumbers(minRisk: 0.0).first(where: { $0.numberHash == hash })
         if let cached = cached {
             return CallerIDResult(
                 phoneNumber: normalized,
@@ -139,7 +139,7 @@ final class LiveCallerIDLookupService {
             return false // No entitlement check available, use cached list
         }
 
-        return await entitlementChecker.isEntitled()
+        return (try? await entitlementChecker.isEntitled()) ?? false
     }
 
     // MARK: - Token Generation
