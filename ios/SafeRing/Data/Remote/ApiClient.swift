@@ -4,14 +4,24 @@ import Foundation
 ///
 /// # Security
 /// - All network calls use HTTPS only.
-/// - Phone numbers are **never** sent in plain text — only SHA-256 hashes.
+/// - Phone numbers are hashed with **HMAC-SHA256** (not plain SHA-256) before sending.
+///   HMAC uses a per-install secret key provisioned at enrollment, making the hash
+///   computationally infeasible to reverse.
 /// - No authentication tokens, no device identifiers, no cookies.
 /// - Rate limiting is handled client-side with local caching.
+///
+/// # Threat Model
+/// Plain SHA-256(number) is NOT anonymization — the search space (~10^10)
+/// makes it trivially reversible. HMAC-SHA256 with a secret key provides
+/// pseudonymization, making it computationally infeasible to recover the
+/// original number from the hash.
 ///
 /// # Rate Limiting
 /// - /check: 100 requests/min (cached aggressively)
 /// - /prefixes: 10 requests/min
 /// - /report: 20 requests/min
+/// - /circle/invite: 5 requests/min
+/// - /circle/alert: 5 requests/min
 ///
 final class ApiClient {
 
@@ -45,7 +55,7 @@ final class ApiClient {
     // MARK: - API Methods
 
     /// Looks up a hashed phone number against the scam database.
-    /// - Parameter hash: SHA-256 hash (hex string) of the phone number.
+    /// - Parameter hash: HMAC-SHA256 hash (hex string) of the phone number.
     /// - Returns: CheckResponse with risk assessment.
     /// - Throws: ApiError if the request fails or rate limit is exceeded.
     func checkNumber(hash: String) async throws -> CheckResponse {
@@ -196,6 +206,287 @@ final class ApiClient {
 
         return json
     }
+
+    // MARK: - Circle APIs
+
+    /// Invites a contact to the trusted circle.
+    /// - Parameter invite: The CircleInviteRequest containing the hashed phone number.
+    ///   The phoneHash is HMAC-SHA256 — NEVER store or send plaintext numbers.
+    /// - Returns: CircleInviteResponse with the invitation ID.
+    /// - Throws: ApiError if the invitation fails.
+    func inviteCircleContact(_ invite: CircleInviteRequest) async throws -> CircleInviteResponse {
+        let url = baseURL.appendingPathComponent("v1/circle/invite")
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.timeoutInterval = 15
+        request.httpBody = try encoder.encode(invite)
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ApiError.invalidResponse
+        }
+
+        switch httpResponse.statusCode {
+        case 200, 201:
+            return try decoder.decode(CircleInviteResponse.self, from: data)
+        case 429:
+            throw ApiError.rateLimitExceeded
+        case 403:
+            throw CircleError.contactLimitReached
+        case 404:
+            throw CircleError.invitationFailed("Contact not found")
+        case 500...599:
+            throw CircleError.invitationFailed("Server error (HTTP \(httpResponse.statusCode))")
+        default:
+            throw CircleError.invitationFailed("Unexpected response (HTTP \(httpResponse.statusCode))")
+        }
+    }
+
+    /// Accepts an invitation to the trusted circle.
+    /// - Parameter accept: The CircleAcceptRequest containing the invitation ID.
+    /// - Returns: CircleAcceptResponse confirming acceptance.
+    /// - Throws: ApiError if the acceptance fails.
+    func acceptCircleContact(_ accept: CircleAcceptRequest) async throws -> CircleAcceptResponse {
+        let url = baseURL.appendingPathComponent("v1/circle/accept")
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.timeoutInterval = 15
+        request.httpBody = try encoder.encode(accept)
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ApiError.invalidResponse
+        }
+
+        switch httpResponse.statusCode {
+        case 200, 201:
+            return try decoder.decode(CircleAcceptResponse.self, from: data)
+        case 429:
+            throw ApiError.rateLimitExceeded
+        case 404:
+            throw CircleError.acceptanceFailed("Invitation not found")
+        case 500...599:
+            throw CircleError.acceptanceFailed("Server error (HTTP \(httpResponse.statusCode))")
+        default:
+            throw CircleError.acceptanceFailed("Unexpected response (HTTP \(httpResponse.statusCode))")
+        }
+    }
+
+    /// Revokes a trusted circle membership.
+    /// - Parameter revoke: The CircleRevokeRequest containing the invitation ID.
+    /// - Returns: CircleRevokeResponse confirming revocation.
+    /// - Throws: ApiError if the revocation fails.
+    func revokeCircleContact(_ revoke: CircleRevokeRequest) async throws -> CircleRevokeResponse {
+        let url = baseURL.appendingPathComponent("v1/circle/\(revoke.invitationId)")
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.timeoutInterval = 15
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ApiError.invalidResponse
+        }
+
+        switch httpResponse.statusCode {
+        case 200, 204:
+            return CircleRevokeResponse(success: true, error: nil)
+        case 404:
+            throw CircleError.revocationFailed("Invitation not found")
+        case 500...599:
+            throw CircleError.revocationFailed("Server error (HTTP \(httpResponse.statusCode))")
+        default:
+            throw CircleError.revocationFailed("Unexpected response (HTTP \(httpResponse.statusCode))")
+        }
+    }
+
+    /// Sends a REDACTED trusted circle alert to a trusted contact.
+    ///
+    /// # Security
+    /// The alert payload is REDACTED — it contains ONLY category + reason + who asked for help.
+    /// NEVER include full phone numbers, message bodies, or account details.
+    ///
+    /// - Parameter alert: The CircleAlertRequest containing the redacted alert data.
+    ///   The alert payload is: category + short reason + who asked for help.
+    /// - Returns: CircleAlertResponse confirming delivery.
+    /// - Throws: ApiError if the alert fails.
+    func sendCircleAlert(_ alert: CircleAlertRequest) async throws -> CircleAlertResponse {
+        let url = baseURL.appendingPathComponent("v1/circle/alert")
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.timeoutInterval = 15
+        request.httpBody = try encoder.encode(alert)
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ApiError.invalidResponse
+        }
+
+        switch httpResponse.statusCode {
+        case 200, 201:
+            return try decoder.decode(CircleAlertResponse.self, from: data)
+        case 429:
+            throw ApiError.rateLimitExceeded
+        case 404:
+            throw CircleError.alertFailed("Invitation not found")
+        case 500...599:
+            throw CircleError.alertFailed("Server error (HTTP \(httpResponse.statusCode))")
+        default:
+            throw CircleError.alertFailed("Unexpected response (HTTP \(httpResponse.statusCode))")
+        }
+    }
+
+    /// Fetches the user's subscription entitlement.
+    /// - Returns: Entitlement with tier information.
+    /// - Throws: ApiError if the check fails.
+    func getEntitlement() async throws -> Entitlement {
+        let url = baseURL.appendingPathComponent("v1/entitlement")
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.timeoutInterval = 15
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ApiError.invalidResponse
+        }
+
+        guard httpResponse.statusCode == 200 else {
+            throw ApiError.unexpectedStatusCode(httpResponse.statusCode)
+        }
+
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw ApiError.decodingFailed
+        }
+
+        return try decoder.decode(Entitlement.self, from: data)
+    }
+
+    // MARK: - Submit-to-Check APIs
+
+    /// Checks an email address for scam content.
+    ///
+    /// # Security
+    /// The email text is submitted as-is. The API analyzes it for known scam
+    /// patterns, phishing links, and social engineering tactics.
+    ///
+    /// - Parameter request: The EmailCheckRequest containing the email text.
+    /// - Returns: EmailCheckResponse with the result.
+    /// - Throws: ApiError if the request fails.
+    func checkEmail(_ request: EmailCheckRequest) async throws -> EmailCheckResponse {
+        let url = baseURL.appendingPathComponent("v1/email")
+        var httpRequest = URLRequest(url: url)
+        httpRequest.httpMethod = "POST"
+        httpRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        httpRequest.setValue("application/json", forHTTPHeaderField: "Accept")
+        httpRequest.timeoutInterval = 15
+        httpRequest.httpBody = try encoder.encode(request)
+
+        let (data, response) = try await session.data(for: httpRequest)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ApiError.invalidResponse
+        }
+
+        switch httpResponse.statusCode {
+        case 200, 201:
+            return try decoder.decode(EmailCheckResponse.self, from: data)
+        case 429:
+            throw ApiError.rateLimitExceeded
+        case 404:
+            throw ApiError.notFound
+        case 500...599:
+            throw ApiError.serverError(statusCode: httpResponse.statusCode)
+        default:
+            throw ApiError.unexpectedStatusCode(httpResponse.statusCode)
+        }
+    }
+
+    /// Scans an attachment (image/document) for scam content.
+    ///
+    /// # Security
+    /// EXIF/location metadata is stripped client-side before upload.
+    /// The file is analyzed only for scam content and not retained.
+    ///
+    /// - Parameter request: The AttachmentScanRequest containing the file data.
+    /// - Returns: AttachmentScanResponse with the result.
+    /// - Throws: ApiError if the request fails.
+    func scanAttachment(_ request: AttachmentScanRequest) async throws -> AttachmentScanResponse {
+        let url = baseURL.appendingPathComponent("v1/attachment")
+        var httpRequest = URLRequest(url: url)
+        httpRequest.httpMethod = "POST"
+        httpRequest.setValue("application/json", forHTTPHeaderField: "Accept")
+        httpRequest.timeoutInterval = 30
+        httpRequest.httpBody = try encoder.encode(request)
+
+        let (data, response) = try await session.data(for: httpRequest)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ApiError.invalidResponse
+        }
+
+        switch httpResponse.statusCode {
+        case 200, 201:
+            return try decoder.decode(AttachmentScanResponse.self, from: data)
+        case 429:
+            throw ApiError.rateLimitExceeded
+        case 404:
+            throw ApiError.notFound
+        case 500...599:
+            throw ApiError.serverError(statusCode: httpResponse.statusCode)
+        default:
+            throw ApiError.unexpectedStatusCode(httpResponse.statusCode)
+        }
+    }
+
+    /// Checks a call transcript for scam content.
+    ///
+    /// # Security
+    /// The transcript is submitted as-is. The user must only submit conversations
+    /// they are lawfully permitted to share.
+    ///
+    /// - Parameter request: The TranscriptCheckRequest containing the transcript text.
+    /// - Returns: TranscriptCheckResponse with the result.
+    /// - Throws: ApiError if the request fails.
+    func checkTranscript(_ request: TranscriptCheckRequest) async throws -> TranscriptCheckResponse {
+        let url = baseURL.appendingPathComponent("v1/call")
+        var httpRequest = URLRequest(url: url)
+        httpRequest.httpMethod = "POST"
+        httpRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        httpRequest.setValue("application/json", forHTTPHeaderField: "Accept")
+        httpRequest.timeoutInterval = 15
+        httpRequest.httpBody = try encoder.encode(request)
+
+        let (data, response) = try await session.data(for: httpRequest)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ApiError.invalidResponse
+        }
+
+        switch httpResponse.statusCode {
+        case 200, 201:
+            return try decoder.decode(TranscriptCheckResponse.self, from: data)
+        case 429:
+            throw ApiError.rateLimitExceeded
+        case 404:
+            throw ApiError.notFound
+        case 500...599:
+            throw ApiError.serverError(statusCode: httpResponse.statusCode)
+        default:
+            throw ApiError.unexpectedStatusCode(httpResponse.statusCode)
+        }
+    }
+}
 
     // MARK: - Rate Limiting
 

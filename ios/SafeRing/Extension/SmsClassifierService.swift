@@ -12,10 +12,19 @@ import CoreML
 /// Reports every classification to POST /v1/event so the server
 /// has full operational visibility into what's being detected.
 ///
-/// # Zero PII
+/// # Security
 /// - SMS message bodies are processed entirely on-device.
 /// - The raw text NEVER leaves the device.
+/// - The sender's phone number is hashed with HMAC-SHA256 (not plain SHA-256).
 /// - Only an 8-char hash prefix is sent with events.
+/// - HMAC uses a per-install secret key provisioned at enrollment,
+///   making the hash computationally infeasible to reverse.
+///
+/// # Threat Model
+/// Plain SHA-256(number) is NOT anonymization — the search space (~10^10)
+/// makes it trivially reversible. HMAC-SHA256 with a secret key provides
+/// pseudonymization, making it computationally infeasible to recover the
+/// original number from the hash.
 ///
 final class SmsClassifierService {
 
@@ -24,6 +33,7 @@ final class SmsClassifierService {
     private let smsClassifier: SmsClassifier
     private let repository: ScamRepository?
     private let apiClient: ApiClient?
+    private let hmacKey: HmacKey
 
     // MARK: - Initializer
 
@@ -35,11 +45,13 @@ final class SmsClassifierService {
     init(
         smsClassifier: SmsClassifier,
         repository: ScamRepository? = nil,
-        apiClient: ApiClient? = nil
+        apiClient: ApiClient? = nil,
+        hmacKey: HmacKey
     ) {
         self.smsClassifier = smsClassifier
         self.repository = repository
         self.apiClient = apiClient
+        self.hmacKey = hmacKey
     }
 
     // MARK: - Public API
@@ -57,7 +69,7 @@ final class SmsClassifierService {
         shouldStoreBody: Bool = false
     ) async -> SmsLog {
         let normalized = normalizePhoneNumber(senderRawNumber)
-        let hash = HashUtils.sha256(normalized)
+        let hash = hmacKey.hash(normalized)
         let hashPrefix = String(hash.prefix(8))
 
         Logger.shared.info(

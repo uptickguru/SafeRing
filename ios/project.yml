@@ -72,6 +72,21 @@ targets:
     dependencies:
       - sdk: CallKit.framework
 
+  LiveCallerIDLookupHandler:
+    type: app-extension
+    platform: iOS
+    sources:
+      - LiveCallerIDLookupHandler
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios.LiveCallerIDLookupHandler
+        INFOPLIST_FILE: LiveCallerIDLookupHandler/Info.plist
+        IPHONEOS_DEPLOYMENT_TARGET: "18.0"
+    dependencies:
+      - sdk: CallKit.framework
+      - sdk: BackgroundTasks.framework
+      - target: SafeRing
+
   SafeRingWatch:
     type: application
     platform: watchOS

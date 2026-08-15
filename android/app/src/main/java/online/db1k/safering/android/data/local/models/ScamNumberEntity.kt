@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
  * Mirrors the iOS ScamNumber SwiftData model.
  *
  * # Zero PII Policy
- * The numberHash field stores the SHA-256 hash, NOT the raw number.
+ * The numberHash field stores the HMAC-SHA256 hash, NOT the raw number.
  */
 @Entity(
     tableName = "scam_numbers",

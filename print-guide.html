@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeRing — Safety Lessons</title>
+    <style>
+        :root {
+            --navy: #0a0f1a;
+            --navy-light: #141b2d;
+            --gold: #B38B59;
+            --gold-light: #c9a070;
+            --slate: #64748b;
+            --white: #f8fafc;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--navy);
+            color: var(--white);
+            line-height: 1.6;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--gold);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        
+        .header .subtitle {
+            color: var(--slate);
+            font-size: 1.1rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: var(--success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        
+        .section {
+            margin-bottom: 3rem;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--gold);
+        }
+        
+        .section-header .icon {
+            font-size: 2rem;
+        }
+        
+        .section-header h2 {
+            font-size: 1.8rem;
+            color: var(--gold);
+        }
+        
+        .card {
+            background: var(--navy-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--gold);
+        }
+        
+        .card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--white);
+        }
+        
+        .card p {
+            font-size: 1.1rem;
+            color: var(--slate);
+        }
+        
+        .warning-card {
+            border-left-color: var(--warning);
+        }
+        
+        .danger-card {
+            border-left-color: var(--danger);
+        }
+        
+        .success-card {
+            border-left-color: var(--success);
+        }
+        
+        .never-list {
+            list-style: none;
+        }
+        
+        .never-list li {
+            background: var(--navy-light);
+            border-radius: 8px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .never-list li .icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .never-list li h3 {
+            font-size: 1.2rem;
+            color: var(--danger);
+        }
+        
+        .never-list li p {
+            color: var(--slate);
+            font-size: 1.05rem;
+        }
+        
+        .footer {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 2px solid var(--gold);
+            color: var(--slate);
+            font-size: 0.9rem;
+        }
+        
+        .print-only {
+            display: none;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                color: black;
+                padding: 1rem;
+            }
+            
+            .card, .never-list li {
+                background: #f5f5f5;
+                border: 1px solid #ddd;
+                color: black;
+            }
+            
+            .header, .section-header {
+                border-bottom-color: #333;
+            }
+            
+            .header h1, .section-header h2 {
+                color: #000;
+            }
+            
+            .print-only {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 9999;
+                background: rgba(255,255,255,0.9);
+                padding: 2rem;
+            }
+        }
+        
+        .print-only {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛡️ SafeRing Safety Lessons</h1>
+        <p class="subtitle">Simple rules to protect yourself from phone scams</p>
+        <span class="badge">🔒 No login required</span>
+    </div>
+
+    <div class="print-only">
+        <p><strong>Print this page to keep offline.</strong> No data is collected. No analytics. Just safety lessons.</p>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <span class="icon">📞</span>
+            <h2>Callback Rules</h2>
+        </div>
+        
+        <div class="card">
+            <h3>Rule 1: Never Call Back</h3>
+            <p>If someone asks you to call back, <strong>DON'T</strong>. Just hang up.</p>
+        </div>
+        
+        <div class="card">
+            <h3>Rule 2: Use Your Own Number</h3>
+            <p>Only dial numbers you <strong>ALREADY have saved</strong> in your contacts.</p>
+        </div>
+        
+        <div class="card">
+            <h3>Rule 3: Call the Family</h3>
+            <p>If you're unsure, call a family member you trust. They can help you decide.</p>
+        </div>
+        
+        <p style="color: var(--slate); font-size: 0.9rem; margin-top: 1rem;">
+            These rules protect you from scammers.
+        </p>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <span class="icon">⚠️</span>
+            <h2>Warning Signs</h2>
+        </div>
+        
+        <div class="card warning-card">
+            <h3>🕐 Urgency</h3>
+            <p>Scammers push you to act <strong>FAST</strong>. They say "you'll lose it" or "act now!"</p>
+        </div>
+        
+        <div class="card warning-card">
+            <h3>🔒 Secrecy</h3>
+            <p>Scammers say "don't tell anyone" or "this is private."</p>
+        </div>
+        
+        <div class="card warning-card">
+            <h3>💳 Odd Payment</h3>
+            <p>Scammers want payment in weird ways (gift cards, crypto, wire transfers).</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <span class="icon">🔒</span>
+            <h2>Never Give</h2>
+        </div>
+        
+        <div class="never-list">
+            <div class="never-list li">
+                <span class="icon">💳</span>
+                <div>
+                    <h3>Bank Account Numbers</h3>
+                    <p>Never give your bank account number to a phone call.</p>
+                </div>
+            </div>
+            
+            <div class="never-list li">
+                <span class="icon">🔑</span>
+                <div>
+                    <h3>Passwords</h3>
+                    <p>Never give your passwords to anyone over the phone.</p>
+                </div>
+            </div>
+            
+            <div class="never-list li">
+                <span class="icon">📧</span>
+                <div>
+                    <h3>Security Questions</h3>
+                    <p>Never answer security questions to a stranger.</p>
+                </div>
+            </div>
+            
+            <div class="never-list li">
+                <span class="icon">👤</span>
+                <div>
+                    <h3>Personal Info</h3>
+                    <p>Never share your address or birthday with a caller.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <span class="icon">👨‍👩‍👧‍👦</span>
+            <h2>Family Password</h2>
+        </div>
+        
+        <div class="card success-card">
+            <h3>Pick a Trusted Family Member</h3>
+            <p>Choose one person you trust. They can help you when you're unsure.</p>
+        </div>
+        
+        <div class="card success-card">
+            <h3>Use the App to Check</h3>
+            <p>When in doubt, use SafeRing to check the number first.</p>
+        </div>
+        
+        <div class="card success-card">
+            <h3>Ask Before You Call</h3>
+            <p>Before calling anyone, ask your trusted person: "Should I call this number?"</p>
+        </div>
+        
+        <p style="color: var(--slate); font-size: 0.9rem; margin-top: 1rem;">
+            Your family password is a safety net.
+        </p>
+    </div>
+
+    <div class="footer">
+        <p><strong>SafeRing</strong> — Scam Call Protection</p>
+        <p style="margin-top: 0.5rem; color: var(--gold);">🛡️ Privacy by Design. Zero PII off-device.</p>
+    </div>
+</body>
+</html>

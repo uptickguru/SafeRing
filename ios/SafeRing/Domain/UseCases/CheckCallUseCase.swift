@@ -3,31 +3,46 @@ import Foundation
 /// Use case: Check an incoming or outgoing call for scam risk.
 ///
 /// Steps:
-/// 1. Hash the raw phone number using SHA-256.
+/// 1. Hash the raw phone number using HMAC-SHA256.
 /// 2. Query the local cache via repository (instant).
 /// 3. If cache miss or stale, query the remote API.
 /// 4. Optionally run the on-device ML number classifier.
 /// 5. Return a `CallRisk` domain model.
 ///
-/// # Zero PII
-/// The raw phone number is hashed immediately and never leaves the device.
-/// Only the SHA-256 hash is used for lookups.
+/// # Security
+/// The raw phone number is hashed with HMAC-SHA256 (not plain SHA-256) and
+/// never leaves the device. HMAC uses a per-install secret key provisioned
+/// at enrollment, making the hash computationally infeasible to reverse.
 ///
+/// # Threat Model
+/// Plain SHA-256(number) is NOT anonymization — the search space (~10^10)
+/// makes it trivially reversible. HMAC-SHA256 with a secret key provides
+/// pseudonymization, making it computationally infeasible to recover the
+/// original number from the hash.
+///
+/// # Long-Term Path (TODO)
+/// This approach uses a server-provisioned key, meaning the server can still
+/// correlate phone numbers with their hashes. The preferred long-term solution
+/// is iOS Live Caller ID Lookup over oblivious HTTP (see M2), where the number
+/// never leaves the device in a correlatable form.
 final class CheckCallUseCase {
 
     // MARK: - Properties
 
     private let repository: ScamRepository
     private let numberClassifier: NumberClassifier?
+    private let hmacKey: HmacKey
 
     // MARK: - Initializer
 
     init(
         repository: ScamRepository,
-        numberClassifier: NumberClassifier? = nil
+        numberClassifier: NumberClassifier? = nil,
+        hmacKey: HmacKey
     ) {
         self.repository = repository
         self.numberClassifier = numberClassifier
+        self.hmacKey = hmacKey
     }
 
     // MARK: - Execution
@@ -35,13 +50,13 @@ final class CheckCallUseCase {
     /// Executes a full scam check on the given phone number.
     ///
     /// - Parameter rawNumber: The raw phone number string (e.g., "+15551234567").
-    ///   This is immediately hashed — never persisted or transmitted in plaintext.
+    ///   This is immediately hashed with HMAC-SHA256 — never persisted or transmitted in plaintext.
     /// - Returns: A CallRisk domain model with the assessment.
     /// - Throws: CheckCallError if the check cannot be completed.
     func execute(rawNumber: String) async throws -> CallRisk {
         // 1. Normalize and hash the phone number
         let normalized = normalizePhoneNumber(rawNumber)
-        let hash = HashUtils.sha256(normalized)
+        let hash = hmacKey.hash(normalized)
 
         Logger.shared.info(
             "Checking call risk for hash: \(hash.prefix(8))...",

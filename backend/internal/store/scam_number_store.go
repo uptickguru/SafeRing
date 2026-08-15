@@ -27,10 +27,10 @@ func (s *ScamNumberStore) GetByHash(ctx context.Context, hash string) (*model.Sc
 		SELECT id, number_hash, source, scam_type, risk_score,
 		       report_count, first_seen, last_updated, expires_at
 		FROM scam_numbers
-		WHERE number_hash = ?`
+		WHERE number_hash = ? AND tenant_id = ?`
 
 	var sn model.ScamNumber
-	err := s.db.QueryRowContext(ctx, query, hash).Scan(
+	err := s.db.QueryRowContext(ctx, query, hash, s.db.TenantID).Scan(
 		&sn.ID, &sn.NumberHash, &sn.Source, &sn.ScamType, &sn.RiskScore,
 		&sn.ReportCount, &sn.FirstSeen, &sn.LastUpdated, &sn.ExpiresAt,
 	)
@@ -50,9 +50,9 @@ func (s *ScamNumberStore) Upsert(ctx context.Context, sn *model.ScamNumber) erro
 	sn.LastUpdated = now
 
 	query := `
-		INSERT INTO scam_numbers (number_hash, source, scam_type, risk_score,
+		INSERT INTO scam_numbers (number_hash, tenant_id, source, scam_type, risk_score,
 		                          report_count, first_seen, last_updated, expires_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT(number_hash) DO UPDATE SET
 			risk_score   = excluded.risk_score,
 			source       = CASE WHEN scam_numbers.source = 'unknown' THEN excluded.source ELSE scam_numbers.source END,
@@ -62,7 +62,7 @@ func (s *ScamNumberStore) Upsert(ctx context.Context, sn *model.ScamNumber) erro
 			expires_at   = excluded.expires_at`
 
 	_, err := s.db.ExecContext(ctx, query,
-		sn.NumberHash, sn.Source, sn.ScamType, sn.RiskScore,
+		sn.NumberHash, s.db.TenantID, sn.Source, sn.ScamType, sn.RiskScore,
 		sn.ReportCount, now, now, sn.ExpiresAt,
 	)
 	if err != nil {
@@ -83,7 +83,7 @@ func (s *ScamNumberStore) BulkInsert(ctx context.Context, numbers []*model.ScamN
 		stmt, err := tx.PrepareContext(ctx, `
 			INSERT OR IGNORE INTO scam_numbers
 			    (number_hash, source, scam_type, risk_score, report_count, first_seen, last_updated, expires_at)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
 		if err != nil {
 			return fmt.Errorf("prepare bulk insert: %w", err)
 		}
@@ -95,7 +95,7 @@ func (s *ScamNumberStore) BulkInsert(ctx context.Context, numbers []*model.ScamN
 				continue
 			}
 			result, err := stmt.ExecContext(ctx,
-				sn.NumberHash, sn.Source, sn.ScamType, sn.RiskScore,
+				sn.NumberHash, s.db.TenantID, sn.Source, sn.ScamType, sn.RiskScore,
 				sn.ReportCount, now, now, sn.ExpiresAt,
 			)
 			if err != nil {
@@ -114,7 +114,7 @@ func (s *ScamNumberStore) IncrementReportCount(ctx context.Context, hash string)
 	_, err := s.db.ExecContext(ctx, `
 		UPDATE scam_numbers
 		SET report_count = report_count + 1, last_updated = ?
-		WHERE number_hash = ?`,
+		WHERE number_hash = ? AND tenant_id = ?`,
 		s.now(), hash,
 	)
 	if err != nil {
@@ -159,7 +159,7 @@ func (s *ScamNumberStore) GetHighRisk(ctx context.Context, threshold float64, li
 // GetCount returns the total number of scam numbers in the database.
 func (s *ScamNumberStore) GetCount(ctx context.Context) (int, error) {
 	var count int
-	err := s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM scam_numbers").Scan(&count)
+	err := s.db.QueryRowContext(ctx, "SELECT COUNT(ctx, s.db.TenantID(*) FROM scam_numbers WHERE tenant_id = ?").Scan(&count)
 	return count, err
 }
 

@@ -143,7 +143,7 @@ fun SettingsScreen() {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 InfoRow("Version", "1.0.0")
-                InfoRow("Privacy", "Zero PII — only SHA-256 hashes sent")
+                InfoRow("Privacy", "Zero PII — only HMAC-SHA256 hashes sent (per-install secret key)")
                 InfoRow("Backend", "safering.deathbyathousand.com")
             }
         }

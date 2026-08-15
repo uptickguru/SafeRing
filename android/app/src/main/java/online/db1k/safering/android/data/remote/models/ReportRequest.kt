@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 /**
  * Request model for POST /v1/report
  * Mirrors the iOS ReportRequest.swift exactly.
+ * The hash field is an HMAC-SHA256 hash, not plain SHA-256.
  */
 data class ReportRequest(
     @SerializedName("hash") val hash: String,

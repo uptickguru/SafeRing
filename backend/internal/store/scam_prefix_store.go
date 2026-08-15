@@ -26,10 +26,10 @@ func (s *ScamPrefixStore) GetByPrefix(ctx context.Context, prefix string) (*mode
 		SELECT id, prefix, country_code, risk_score, scam_type,
 		       report_count, samples_hashed, last_updated
 		FROM scam_prefixes
-		WHERE prefix = ?`
+		WHERE prefix = ? AND tenant_id = ?`
 
 	var sp model.ScamPrefix
-	err := s.db.QueryRowContext(ctx, query, prefix).Scan(
+	err := s.db.QueryRowContext(ctx, query, prefix, s.db.TenantID).Scan(
 		&sp.ID, &sp.Prefix, &sp.CountryCode, &sp.RiskScore, &sp.ScamType,
 		&sp.ReportCount, &sp.SamplesHashed, &sp.LastUpdated,
 	)
@@ -46,9 +46,9 @@ func (s *ScamPrefixStore) GetByPrefix(ctx context.Context, prefix string) (*mode
 func (s *ScamPrefixStore) Upsert(ctx context.Context, sp *model.ScamPrefix) error {
 	sp.LastUpdated = s.now()
 	query := `
-		INSERT INTO scam_prefixes (prefix, country_code, risk_score, scam_type,
+		INSERT INTO scam_prefixes (prefix, tenant_id, country_code, risk_score, scam_type,
 		                           report_count, samples_hashed, last_updated)
-		VALUES (?, ?, ?, ?, ?, ?, ?)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT(prefix) DO UPDATE SET
 			risk_score     = excluded.risk_score,
 			scam_type      = COALESCE(NULLIF(excluded.scam_type, ''), scam_prefixes.scam_type),
@@ -57,7 +57,7 @@ func (s *ScamPrefixStore) Upsert(ctx context.Context, sp *model.ScamPrefix) erro
 			last_updated   = excluded.last_updated`
 
 	_, err := s.db.ExecContext(ctx, query,
-		sp.Prefix, sp.CountryCode, sp.RiskScore, sp.ScamType,
+		sp.Prefix, s.db.TenantID, sp.CountryCode, sp.RiskScore, sp.ScamType,
 		sp.ReportCount, sp.SamplesHashed, sp.LastUpdated,
 	)
 	if err != nil {
@@ -73,7 +73,7 @@ func (s *ScamPrefixStore) GetAll(ctx context.Context) ([]*model.ScamPrefix, erro
 		SELECT id, prefix, country_code, risk_score, scam_type,
 		       report_count, samples_hashed, last_updated
 		FROM scam_prefixes
-		WHERE risk_score > 0
+		WHERE risk_score > 0 AND tenant_id = ?
 		ORDER BY risk_score DESC, report_count DESC`
 
 	rows, err := s.db.QueryContext(ctx, query)
@@ -100,7 +100,7 @@ func (s *ScamPrefixStore) GetHighRisk(ctx context.Context, threshold float64) ([
 		SELECT id, prefix, country_code, risk_score, scam_type,
 		       report_count, samples_hashed, last_updated
 		FROM scam_prefixes
-		WHERE risk_score >= ?
+		WHERE risk_score >= ? AND tenant_id = ?
 		ORDER BY risk_score DESC
 		LIMIT 100`
 
@@ -125,6 +125,6 @@ func (s *ScamPrefixStore) GetHighRisk(ctx context.Context, threshold float64) ([
 // GetCount returns the total number of scam prefixes.
 func (s *ScamPrefixStore) GetCount(ctx context.Context) (int, error) {
 	var count int
-	err := s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM scam_prefixes").Scan(&count)
+	err := s.db.QueryRowContext(ctx, "SELECT COUNT(ctx, s.db.TenantID(*) FROM scam_prefixes WHERE tenant_id = ?").Scan(&count)
 	return count, err
 }

@@ -3,8 +3,9 @@ package online.db1k.safering.android.data.remote.models
 import com.google.gson.annotations.SerializedName
 
 /**
- * Response from GET /v1/check?hash=<sha256>
+ * Response from GET /v1/check?hash=<hmac-sha256>
  * Mirrors the iOS CheckResponse.swift exactly.
+ * The hash field is an HMAC-SHA256 hash, not plain SHA-256.
  */
 data class CheckResponse(
     @SerializedName("hash") val hash: String,

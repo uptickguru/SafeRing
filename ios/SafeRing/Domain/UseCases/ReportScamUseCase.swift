@@ -2,12 +2,14 @@ import Foundation
 
 /// Use case: Submit a user report for a scam phone number.
 ///
-/// # Zero PII
-/// Only the SHA-256 hash of the phone number is submitted to the API.
+/// # Security
+/// Only the HMAC-SHA256 hash of the phone number is submitted to the API.
+/// HMAC uses a per-install secret key provisioned at enrollment,
+/// making the hash computationally infeasible to reverse.
 /// The user optionally provides a scam type tag — no personal data.
 ///
 /// # Flow
-/// 1. Hash the raw phone number.
+/// 1. Hash the raw phone number with HMAC-SHA256.
 /// 2. Create a ReportRequest with the hash and scam type.
 /// 3. Submit via the repository.
 /// 4. Log the result for the UI.
@@ -17,11 +19,13 @@ final class ReportScamUseCase {
     // MARK: - Properties
 
     private let repository: ScamRepository
+    private let hmacKey: HmacKey
 
     // MARK: - Initializer
 
-    init(repository: ScamRepository) {
+    init(repository: ScamRepository, hmacKey: HmacKey) {
         self.repository = repository
+        self.hmacKey = hmacKey
     }
 
     // MARK: - Execution
@@ -35,7 +39,7 @@ final class ReportScamUseCase {
     /// - Throws: ReportError if submission fails.
     func execute(rawNumber: String, scamTag: String) async throws -> String {
         let normalized = normalizePhoneNumber(rawNumber)
-        let hash = HashUtils.sha256(normalized)
+        let hash = hmacKey.hash(normalized)
 
         Logger.shared.info(
             "User reporting scam: hash=\(hash.prefix(8))..., tag=\(scamTag)",

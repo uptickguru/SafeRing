@@ -6,9 +6,17 @@ import Foundation
 /// - **Local:** SwiftData-backed `ScamStore` for offline cache
 /// - **Remote:** `ApiClient` for server queries
 ///
-/// # Zero PII Policy
-/// All phone numbers are hashed with SHA-256 before any network call.
+/// # Security
+/// All phone numbers are hashed with HMAC-SHA256 (not plain SHA-256) before any network call.
+/// HMAC uses a per-install secret key provisioned at enrollment,
+/// making the hash computationally infeasible to reverse.
 /// The local store also stores only hashes, never plaintext numbers.
+///
+/// # Threat Model
+/// Plain SHA-256(number) is NOT anonymization — the search space (~10^10)
+/// makes it trivially reversible. HMAC-SHA256 with a secret key provides
+/// pseudonymization, making it computationally infeasible to recover the
+/// original number from the hash.
 ///
 /// # Strategy
 /// 1. Always check local cache first (instant response)
@@ -39,7 +47,7 @@ final class ScamRepository {
     /// Checks a phone number hash against scam databases.
     /// Returns cached result if available and fresh, otherwise fetches from API.
     ///
-    /// - Parameter hash: SHA-256 hash of the phone number.
+    /// - Parameter hash: HMAC-SHA256 hash of the phone number.
     /// - Returns: CheckResult with risk assessment.
     /// - Throws: RepositoryError if both sources fail.
     func checkNumber(hash: String) async throws -> CheckResult {
@@ -118,7 +126,7 @@ final class ScamRepository {
     /// Reports a scam number to the server.
     ///
     /// - Parameters:
-    ///   - hash: SHA-256 hash of the scam number.
+    ///   - hash: HMAC-SHA256 hash of the scam number.
     ///   - tag: Scam type tag.
     /// - Returns: ReportResponse from the server.
     /// - Throws: RepositoryError.

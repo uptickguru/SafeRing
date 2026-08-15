@@ -3,7 +3,7 @@ import Foundation
 /// Domain model representing the risk assessment of an SMS message.
 ///
 /// # Zero PII
-/// - The `hashedSenderNumber` is a SHA-256 hash — never the original number.
+/// - The `hashedSenderNumber` is an HMAC-SHA256 hash — never the original number.
 /// - The `messageBody` is the raw text of the SMS, processed **entirely on-device**
 ///   by the CoreML classifier. It is NEVER transmitted to the server.
 /// - If the user opts in to message body storage, it persists locally only.
@@ -12,7 +12,7 @@ struct SmsRisk: Equatable {
 
     // MARK: - Properties
 
-    /// SHA-256 hash of the sender's phone number.
+    /// HMAC-SHA256 hash of the sender's phone number.
     let hashedSenderNumber: String
 
     /// Raw SMS message body (on-device only; never transmitted).

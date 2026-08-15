@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import online.db1k.safering.android.ui.history.CallHistoryScreen
 import online.db1k.safering.android.ui.home.HomeScreen
 import online.db1k.safering.android.ui.home.HomeViewModel
+import online.db1k.safering.android.ui.lessons.LessonsScreen
 import online.db1k.safering.android.ui.report.ReportScreen
 import online.db1k.safering.android.ui.settings.SettingsScreen
 import online.db1k.safering.android.ui.theme.SafeRingTheme
@@ -71,6 +72,12 @@ class MainActivity : ComponentActivity() {
                                 label = { Text("Settings") },
                                 modifier = Modifier.testTag("tab_settings")
                             )
+                            NavigationBarItem(
+                                selected = selectedTab == 4,
+                                onClick = { selectedTab = 4 },
+                                icon = { Icon(Icons.Default.Person, contentDescription = "Lessons") },
+                                label = { Text("Lessons") }
+                            )
                         }
                     }
                 ) { innerPadding ->
@@ -80,6 +87,7 @@ class MainActivity : ComponentActivity() {
                             1 -> CallHistoryScreen()
                             2 -> ReportScreen()
                             3 -> SettingsScreen()
+                            4 -> LessonsScreen()
                         }
                     }
                 }

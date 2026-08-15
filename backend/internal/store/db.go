@@ -24,6 +24,9 @@ type DB struct {
 	*sql.DB
 	dsn    string
 	logger *zap.Logger
+	// TenantID is the current tenant identifier for isolation.
+	// Must be set before any queries to ensure tenant isolation.
+	TenantID string
 }
 
 // NewDB creates a new database connection and runs migrations.
@@ -48,6 +51,7 @@ func NewDB(ctx context.Context, cfg config.DatabaseConfig, logger *zap.Logger) (
 		DB:     db,
 		dsn:    cfg.URL,
 		logger: logger,
+		TenantID: "default",
 	}
 
 	// Configure connection pool

@@ -22,6 +22,7 @@ struct ContentView: View {
         case history = "History"
         case report = "Report"
         case settings = "Settings"
+        case lessons = "Lessons"
 
         var icon: String {
             switch self {
@@ -29,6 +30,7 @@ struct ContentView: View {
             case .history: return "phone.fill"
             case .report: return "exclamationmark.bubble.fill"
             case .settings: return "gearshape.fill"
+            case .lessons: return "person.2.fill"
             }
         }
 
@@ -71,6 +73,14 @@ struct ContentView: View {
                     Label(Tab.settings.label, systemImage: Tab.settings.icon)
                 }
                 .tag(Tab.settings)
+
+                NavigationStack {
+                    LessonsView()
+                }
+                .tabItem {
+                    Label(Tab.lessons.label, systemImage: Tab.lessons.icon)
+                }
+                .tag(Tab.lessons)
             }
             .tint(AppTheme.accentColor)
 

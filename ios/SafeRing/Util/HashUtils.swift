@@ -2,66 +2,39 @@ import UIKit
 import Foundation
 import CryptoKit
 
-/// Utility for SHA-256 hashing of phone numbers.
+/// ⚠️ DEPRECATED — Use HmacHashUtils instead.
 ///
-/// # Zero PII Policy
-/// This is the core of SafeRing's privacy guarantee.
-/// Phone numbers are hashed with SHA-256 before any network call.
-/// The hash is one-way — the original number cannot be recovered.
+/// Raw SHA-256 is NOT suitable for phone number privacy.
+/// The search space (~10^10 US numbers) makes SHA-256(number) trivially
+/// reversible via precomputed rainbow tables.
 ///
-/// # Usage
-/// ```swift
-/// let hash = HashUtils.sha256("+15551234567")
-/// // hash = "e3b0c44298fc1c149afbf4c8996fb924..."
-/// ```
+/// This file is kept ONLY for backward compatibility with any
+/// non-phone-number hashing that may still reference it (e.g.,
+/// generic data hashing). For phone numbers, use HmacHashUtils.
 ///
+/// Will be removed in a future release.
+///
+@available(*, deprecated, renamed: "HmacHashUtils", message: "Raw SHA-256 is insecure for phone numbers. Use HmacHashUtils.hmacSHA256() instead.")
 enum HashUtils {
 
-    /// Computes the SHA-256 hash of a phone number string.
-    ///
-    /// The input should be a normalized E.164 phone number
-    /// (e.g., "+15551234567") before hashing.
-    ///
-    /// - Parameter input: The phone number string to hash.
-    /// - Returns: Hex-encoded SHA-256 digest string.
+    @available(*, deprecated, message: "Use HmacHashUtils.hmacSHA256() for phone numbers")
     static func sha256(_ input: String) -> String {
         let inputData = Data(input.utf8)
         let hashed = SHA256.hash(data: inputData)
         return hashed.map { String(format: "%02x", $0) }.joined()
     }
 
-    /// Computes the SHA-256 hash of a Data buffer.
-    /// Useful for hashing binary data (not currently used for phone numbers).
-    ///
-    /// - Parameter data: The data to hash.
-    /// - Returns: Hex-encoded SHA-256 digest string.
+    @available(*, deprecated, message: "Use HmacHashUtils for sensitive data")
     static func sha256(data: Data) -> String {
         let hashed = SHA256.hash(data: data)
         return hashed.map { String(format: "%02x", $0) }.joined()
-    }
-
-    /// Verifies that a string matches a known hash.
-    /// Used for testing and validation.
-    ///
-    /// - Parameters:
-    ///   - input: The original string.
-    ///   - hash: The expected SHA-256 hash.
-    /// - Returns: True if the input hashes to the expected value.
-    static func verify(_ input: String, matches hash: String) -> Bool {
-        return sha256(input) == hash
     }
 }
 
 // MARK: - String Extension
 
 extension String {
-    /// Returns the SHA-256 hash of this string.
-    /// Convenience for hashing phone number strings.
-    ///
-    /// Example:
-    /// ```swift
-    /// let hash = "+15551234567".sha256Hash
-    /// ```
+    @available(*, deprecated, message: "Use HmacHashUtils.hmacSHA256() for phone numbers")
     var sha256Hash: String {
         HashUtils.sha256(self)
     }

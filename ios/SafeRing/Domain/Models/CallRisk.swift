@@ -9,7 +9,7 @@ struct CallRisk: Equatable {
 
     // MARK: - Properties
 
-    /// SHA-256 hash of the phone number (hex-encoded).
+    /// HMAC-SHA256 hash of the phone number (hex-encoded).
     let hashedPhoneNumber: String
 
     /// Risk score from 0.0 (safe) to 1.0 (confirmed scam).

@@ -3,10 +3,16 @@ import CoreML
 
 /// On-device CoreML wrapper for phone number classification.
 ///
-/// # Zero PII
-/// This classifier works with SHA-256 hashes of phone numbers, never raw numbers.
+/// # Security
+/// This classifier works with HMAC-SHA256 hashes of phone numbers, never raw numbers.
 /// The on-device model is trained on statistical patterns of scam number hashes
 /// and prefix distributions — no original numbers are embedded in the model.
+///
+/// # Threat Model
+/// Plain SHA-256(number) is NOT anonymization — the search space (~10^10)
+/// makes it trivially reversible. HMAC-SHA256 with a per-install secret key
+/// provisioned at enrollment provides pseudonymization, making it
+/// computationally infeasible to recover the original number from the hash.
 ///
 /// # Architecture
 /// The CoreML model (when available) takes a feature vector derived from:
@@ -54,7 +60,7 @@ final class NumberClassifier {
 
     /// Classifies a hashed phone number for scam risk.
     ///
-    /// - Parameter numberHash: SHA-256 hash of the phone number (hex string).
+    /// - Parameter numberHash: HMAC-SHA256 hash of the phone number (hex string).
     /// - Returns: Classification result with risk score.
     func classify(numberHash: String) -> NumberClassifierResult {
         if let model = model {
@@ -143,7 +149,7 @@ final class NumberClassifier {
     // MARK: - Feature Extraction
 
     /// Extracts ML-friendly features from the hash for model inference.
-    /// - Parameter hash: SHA-256 hash string.
+    /// - Parameter hash: HMAC-SHA256 hash string.
     /// - Returns: MLFeatureProvider with extracted features.
     /// - Throws: If feature extraction fails.
     private func extractFeatures(from hash: String) throws -> MLFeatureProvider {
@@ -152,7 +158,7 @@ final class NumberClassifier {
             Double(Int(String(char), radix: 16) ?? 0) / 15.0
         }
 
-        // Pad or truncate to expected input size (e.g., 64 features for SHA-256 hex)
+        // Pad or truncate to expected input size (e.g., 64 features for HMAC-SHA256 hex)
         let padded = bytes + Array(repeating: 0.0, count: max(0, 64 - bytes.count))
         let input = try MLMultiArray(shape: [1, 64] as [NSNumber], dataType: .double)
         for (index, value) in padded.prefix(64).enumerated() {

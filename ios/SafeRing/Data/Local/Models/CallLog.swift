@@ -3,20 +3,26 @@ import SwiftData
 
 /// SwiftData model for the user's incoming and outgoing call history.
 ///
-/// # Zero PII Policy
-/// The `hashedPhoneNumber` stores a **SHA-256 hash**, never the raw phone number.
+/// # Security
+/// The `hashedPhoneNumber` stores an **HMAC-SHA256 hash**, never the raw phone number.
 /// The raw number is ephemeral — used only for on-device matching and immediately
 /// discarded after hashing.
+///
+/// # Threat Model
+/// Plain SHA-256(number) is NOT anonymization — the search space (~10^10)
+/// makes it trivially reversible. HMAC-SHA256 with a per-install secret key
+/// provisioned at enrollment provides pseudonymization, making it
+/// computationally infeasible to recover the original number from the hash.
 ///
 @Model
 final class CallLog {
 
     // MARK: - Attributes
 
-    /// SHA-256 hash of the phone number (hex-encoded).
+    /// HMAC-SHA256 hash of the phone number (hex-encoded).
     @Attribute(.unique) var id: UUID
 
-    /// SHA-256 hash of the caller's phone number (hex-encoded).
+    /// HMAC-SHA256 hash of the caller's phone number (hex-encoded).
     var hashedPhoneNumber: String
 
     /// Display label for the caller (e.g., "Unknown", "John" from Contacts).

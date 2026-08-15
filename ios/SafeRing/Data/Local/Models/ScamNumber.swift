@@ -3,17 +3,23 @@ import SwiftData
 
 /// SwiftData model representing a phone number flagged as a known scam.
 ///
-/// # Zero PII Policy
-/// The `numberHash` field stores the **SHA-256 hash** of the full phone number,
+/// # Security
+/// The `numberHash` field stores the **HMAC-SHA256 hash** of the full phone number,
 /// NOT the raw number. The original phone number is never persisted locally
 /// or transmitted over the network in plain text.
+///
+/// # Threat Model
+/// Plain SHA-256(number) is NOT anonymization — the search space (~10^10)
+/// makes it trivially reversible. HMAC-SHA256 with a per-install secret key
+/// provisioned at enrollment provides pseudonymization, making it
+/// computationally infeasible to recover the original number from the hash.
 ///
 @Model
 final class ScamNumber {
 
     // MARK: - Attributes
 
-    /// SHA-256 hash of the full phone number (hex-encoded).
+    /// HMAC-SHA256 hash of the full phone number (hex-encoded).
     /// This is the primary identifier used for lookups.
     @Attribute(.unique) var numberHash: String
 

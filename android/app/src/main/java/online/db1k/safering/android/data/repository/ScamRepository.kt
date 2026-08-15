@@ -6,7 +6,7 @@ import online.db1k.safering.android.data.remote.SafeRingApi
 import online.db1k.safering.android.data.remote.models.ReportRequest
 import online.db1k.safering.android.data.remote.models.ReportResponse
 import online.db1k.safering.android.util.AppConfig
-import online.db1k.safering.android.util.HashUtils
+import online.db1k.safering.android.util.HmacHashUtils
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -36,10 +36,21 @@ class ScamRepository(
 
     /**
      * Checks a phone number against the scam database.
-     * Only sends the SHA-256 hash — never the plain number.
+     * Only sends the HMAC-SHA256 hash — never the plain number.
+     *
+     * # Security
+     * Phone numbers are hashed with HMAC-SHA256 (not plain SHA-256) before sending.
+     * HMAC uses a per-install secret key provisioned at enrollment, making the hash
+     * computationally infeasible to reverse.
+     *
+     * # Threat Model
+     * Plain SHA-256(number) is NOT anonymization — the search space (~10^10)
+     * makes it trivially reversible. HMAC-SHA256 with a secret key provides
+     * pseudonymization, making it computationally infeasible to recover the
+     * original number from the hash.
      */
     suspend fun checkNumber(phoneNumber: String): CheckResult {
-        val hash = HashUtils.sha256(phoneNumber)
+        val hash = HmacHashUtils.hmacSHA256(phoneNumber, key: AppConfig.HMAC_KEY)
 
         // Check local cache first
         val cached = scamDao.getByHash(hash)
@@ -115,7 +126,7 @@ class ScamRepository(
         phoneNumber: String,
         scamType: String
     ): ReportResponse {
-        val hash = HashUtils.sha256(phoneNumber)
+        val hash = HmacHashUtils.hmacSHA256(phoneNumber, key: AppConfig.HMAC_KEY)
         val request = ReportRequest(
             hash = hash,
             tag = scamType,
@@ -142,7 +153,7 @@ class ScamRepository(
      * Adds a phone number hash to the whitelist.
      */
     suspend fun addToWhitelist(phoneNumber: String) {
-        val hash = HashUtils.sha256(phoneNumber)
+        val hash = HmacHashUtils.hmacSHA256(phoneNumber, key: AppConfig.HMAC_KEY)
         val existing = scamDao.getByHash(hash)
         if (existing != null) {
             scamDao.upsert(existing.copy(shouldBlock = false, riskScore = 0.0))
@@ -153,7 +164,7 @@ class ScamRepository(
      * Blocks a phone number hash.
      */
     suspend fun addToBlocklist(phoneNumber: String) {
-        val hash = HashUtils.sha256(phoneNumber)
+        val hash = HmacHashUtils.hmacSHA256(phoneNumber, key: AppConfig.HMAC_KEY)
         val existing = scamDao.getByHash(hash)
         if (existing != null) {
             scamDao.upsert(existing.copy(shouldBlock = true))

@@ -2,12 +2,14 @@ import Foundation
 
 /// Request model for POST /v1/report
 ///
-/// # Zero PII
-/// Only the SHA-256 hash of the phone number is sent.
+/// # Security
+/// Only the HMAC-SHA256 hash of the phone number is sent.
+/// HMAC uses a per-install secret key provisioned at enrollment,
+/// making the hash computationally infeasible to reverse.
 /// The server never receives the original phone number.
 ///
 struct ReportRequest: Encodable {
-    /// SHA-256 hash of the phone number being reported (hex-encoded).
+    /// HMAC-SHA256 hash of the phone number being reported (hex-encoded).
     let hash: String
 
     /// Scam type tag (e.g., "IRS-Impression", "Tech-Support", "Grandparent").

@@ -3,13 +3,19 @@ import SwiftData
 
 /// SwiftData model for SMS messages that have been scanned for scam content.
 ///
-/// # Zero PII Policy
-/// - The `hashedSenderNumber` stores a **SHA-256 hash**, never the raw sender number.
+/// # Security
+/// - The `hashedSenderNumber` stores an **HMAC-SHA256 hash**, never the raw sender number.
 /// - The `messageBody` is ephemeral — used for on-device ML classification only
 ///   and is NOT persisted to the database unless the user explicitly chooses to
 ///   save it for record-keeping.
 /// - By default, `storedMessageBody` is nil; the user can opt in to storing bodies
 ///   in settings.
+///
+/// # Threat Model
+/// Plain SHA-256(number) is NOT anonymization — the search space (~10^10)
+/// makes it trivially reversible. HMAC-SHA256 with a per-install secret key
+/// provisioned at enrollment provides pseudonymization, making it
+/// computationally infeasible to recover the original number from the hash.
 ///
 @Model
 final class SmsLog {
@@ -18,7 +24,7 @@ final class SmsLog {
 
     @Attribute(.unique) var id: UUID
 
-    /// SHA-256 hash of the sender's phone number (hex-encoded).
+    /// HMAC-SHA256 hash of the sender's phone number (hex-encoded).
     var hashedSenderNumber: String
 
     /// User-facing sender label (e.g., "Unknown", contact name).

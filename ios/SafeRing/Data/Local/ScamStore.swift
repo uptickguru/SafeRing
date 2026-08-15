@@ -24,8 +24,8 @@ final class ScamStore {
 
     // MARK: - Scam Numbers
 
-    /// Fetches a scam number by its SHA-256 hash.
-    /// - Parameter hash: The hex-encoded SHA-256 hash to look up.
+    /// Fetches a scam number by its HMAC-SHA256 hash.
+    /// - Parameter hash: The hex-encoded HMAC-SHA256 hash to look up.
     /// - Returns: The matching ScamNumber, or nil if not found.
     func fetchScamNumber(byHash hash: String) -> ScamNumber? {
         let predicate = #Predicate<ScamNumber> { $0.numberHash == hash }

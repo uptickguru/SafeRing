@@ -2,23 +2,29 @@ import Foundation
 
 /// Use case: Check an incoming SMS message for scam content.
 ///
-/// # Zero PII
-/// - The sender's phone number is hashed immediately.
+/// # Security
+/// - The sender's phone number is hashed with HMAC-SHA256 immediately.
 /// - The message body is processed **entirely on-device** by the CoreML SMS classifier.
 /// - The raw message text is NEVER transmitted to any server.
 /// - If the user opts in, the body may be stored locally for review.
+///
+/// # Threat Model
+/// Plain SHA-256(number) is NOT anonymization — the search space (~10^10)
+/// makes it trivially reversible. HMAC-SHA256 with a secret key provides
+/// pseudonymization, making it computationally infeasible to recover the
+/// original number from the hash.
 ///
 /// # Classification Pipeline
 /// 1. **Keyword scan:** Fast regex-based check for known scam trigger phrases.
 /// 2. **ML classifier:** On-device CoreML model for deeper semantic analysis.
 /// 3. **Combined score:** Weighted combination of both approaches.
-///
 final class CheckSmsUseCase {
 
     // MARK: - Properties
 
     private let smsClassifier: SmsClassifier
     private let repository: ScamRepository?
+    private let hmacKey: HmacKey
 
     // MARK: - Known Scam Keywords
 
@@ -44,9 +50,10 @@ final class CheckSmsUseCase {
 
     // MARK: - Initializer
 
-    init(smsClassifier: SmsClassifier, repository: ScamRepository? = nil) {
+    init(smsClassifier: SmsClassifier, repository: ScamRepository? = nil, hmacKey: HmacKey) {
         self.smsClassifier = smsClassifier
         self.repository = repository
+        self.hmacKey = hmacKey
     }
 
     // MARK: - Execution
@@ -59,7 +66,7 @@ final class CheckSmsUseCase {
     /// - Returns: SmsRisk domain model with classification.
     func execute(senderNumber: String, messageBody: String) async -> SmsRisk {
         let normalized = normalizePhoneNumber(senderNumber)
-        let hash = HashUtils.sha256(normalized)
+        let hash = hmacKey.hash(normalized)
 
         Logger.shared.info(
             "Checking SMS from hash: \(hash.prefix(8))...",

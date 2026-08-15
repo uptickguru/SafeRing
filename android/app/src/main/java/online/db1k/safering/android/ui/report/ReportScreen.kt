@@ -141,7 +141,7 @@ fun ReportScreen() {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Only the SHA-256 hash of the phone number is sent to our servers. Your privacy is guaranteed.",
+                        text = "Only the HMAC-SHA256 hash of the phone number is sent to our servers (protected by a per-install secret key). Your privacy is guaranteed.",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
