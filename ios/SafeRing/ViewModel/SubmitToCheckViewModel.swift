@@ -145,7 +145,7 @@ class SubmitToCheckViewModel {
         // a proper EXIF stripping library like ImageIO for iOS
         // For now, we return the original data and note that EXIF stripping
         // should be implemented with a proper library
-        Logger.info("EXIF stripping: \(fileName) (simplified — use proper EXIF library)", Logger.Category.CHECK)
+        Logger.shared.info("EXIF stripping: \(fileName) (simplified — use proper EXIF library)", category: .network)
         return data
     }
 
@@ -213,8 +213,4 @@ enum SubmitToCheckError: LocalizedError {
     }
 }
 
-// MARK: - Preview
 
-#Preview {
-    SubmitToCheckViewModel(apiClient: ApiClient())
-}
