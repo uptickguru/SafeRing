@@ -70,6 +70,6 @@ struct TranscriptCheckResponse: Decodable {
 /// # Security
 /// The user must acknowledge that they are lawfully permitted to share
 /// the conversation before submitting.
-struct ConsentNotice: LocalizedStringKey {
-    static let consentNotice = "You must only submit conversations you are lawfully permitted to share. By submitting, you confirm you have the right to do so."
+struct ConsentNotice {
+    static let consentNotice: LocalizedStringKey = "You must only submit conversations you are lawfully permitted to share. By submitting, you confirm you have the right to do so."
 }

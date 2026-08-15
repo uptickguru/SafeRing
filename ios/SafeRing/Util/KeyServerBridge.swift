@@ -23,8 +23,8 @@ final class KeyServerBridge {
     private let keychainService = "online.db1k.SafeRing"
     private let keychainAccount = "hmac-key"
 
-    init(apiClient: ApiClient = .shared) {
-        self.apiClient = apiClient
+    init(apiClient: ApiClient? = nil) {
+        self.apiClient = apiClient ?? ApiClient()
     }
 
     // MARK: - Public API

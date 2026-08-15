@@ -68,19 +68,3 @@ final class EntitlementChecker {
         return entitled
     }
 }
-
-// MARK: - Errors
-
-enum EntitlementError: LocalizedError {
-    case checkFailed(Error)
-    case notEntitled
-
-    var errorDescription: String? {
-        switch self {
-        case .checkFailed(let error):
-            return "Entitlement check failed: \(error.localizedDescription)"
-        case .notEntitled:
-            return "Subscription not active"
-        }
-    }
-}
