@@ -29,28 +29,3 @@ struct CheckResponse: Decodable {
         case suggestedAction = "suggested_action"
     }
 }
-
-// MARK: - Device event (merged from DeviceEvent.swift for target membership)
-struct DeviceEvent: Encodable {
-    let platform: String
-    let action: String
-    let eventType: String
-    let hashPrefix: String?
-    let riskScore: Double?
-    let scamType: String?
-    let source: String?
-
-    enum CodingKeys: String, CodingKey {
-        case platform
-        case action
-        case eventType = "event_type"
-        case hashPrefix = "hash_prefix"
-        case riskScore = "risk_score"
-        case scamType = "scam_type"
-        case source
-    }
-}
-
-struct EventResponse: Decodable {
-    let status: String
-}

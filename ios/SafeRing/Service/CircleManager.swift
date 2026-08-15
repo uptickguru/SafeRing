@@ -27,18 +27,15 @@ final class CircleManager {
     // MARK: - Properties
 
     private let apiClient: ApiClient
-    private let storage: UserDefaults
     private let circleRepository: CircleRepository
 
     // MARK: - Initializer
 
     init(
         apiClient: ApiClient,
-        storage: UserDefaults = .standard,
-        circleRepository: CircleRepository
+        circleRepository: CircleRepository = CircleRepository()
     ) {
         self.apiClient = apiClient
-        self.storage = storage
         self.circleRepository = circleRepository
     }
 
@@ -69,7 +66,14 @@ final class CircleManager {
         let response = try await apiClient.inviteCircleContact(invite)
 
         // Cache the invitation locally
-        circleRepository.saveInvitation(response.invitationId)
+        circleRepository.saveInvitation(
+            CircleInvitationData(
+                invitationId: response.invitationId,
+                isAccepted: false,
+                acceptedAt: nil,
+                revokedAt: nil
+            )
+        )
 
         Logger.shared.info(
             "Invitation sent: \(response.invitationId) status: \(response.status)",
@@ -92,9 +96,13 @@ final class CircleManager {
 
         // Update local cache
         if let cached = circleRepository.getInvitation(invitationId) {
-            cached.isAccepted = true
-            cached.acceptedAt = Date().timeIntervalSince1970
-            circleRepository.updateInvitation(cached)
+            let updated = CircleInvitationData(
+                invitationId: cached.invitationId,
+                isAccepted: true,
+                acceptedAt: Date().timeIntervalSince1970,
+                revokedAt: nil
+            )
+            circleRepository.updateInvitation(updated)
         }
 
         Logger.shared.info(
@@ -236,19 +244,24 @@ final class CircleRepository {
     }
 
     /// Saves an invitation to local storage.
-    func saveInvitation(_ invitationId: String) {
-        let data = CircleInvitationData(invitationId: invitationId)
-        storage.set(data, forKey: "circle_invitation_\(invitationId)")
+    func saveInvitation(_ invitation: CircleInvitationData) {
+        if let data = try? JSONEncoder().encode(invitation) {
+            storage.set(data, forKey: "circle_invitation_\(invitation.invitationId)")
+        }
     }
 
     /// Gets an invitation from local storage.
     func getInvitation(_ invitationId: String) -> CircleInvitationData? {
-        return storage.object(forKey: "circle_invitation_\(invitationId)") as? CircleInvitationData
+        guard let data = storage.data(forKey: "circle_invitation_\(invitationId)"),
+              let decoded = try? JSONDecoder().decode(CircleInvitationData.self, from: data) else {
+            return nil
+        }
+        return decoded
     }
 
     /// Updates an invitation in local storage.
-    func updateInvInvitationData(_ invitation: CircleInvitation) {
-        storage.set(invitation, forKey: "circle_invitation_\(invitation.invitationId)")
+    func updateInvitation(_ invitation: CircleInvitationData) {
+        saveInvitation(invitation)
     }
 
     /// Deletes an invitation from local storage.
@@ -260,9 +273,21 @@ final class CircleRepository {
     ///
     /// - Returns: Array of CircleContact.
     func getCircleContacts() -> [CircleContact] {
-        // Parse all stored invitations
-        let allInvitations = storage.allObjects
-        return allInvitations.compactMap { $0 as? CircleInvitationData }
+        // Return accepted invitations as contacts
+        let allKeys = storage.dictionaryRepresentation().keys
+        return allKeys
+            .filter { $0.hasPrefix("circle_invitation_") }
+            .compactMap { key in
+                guard let data = storage.data(forKey: key),
+                      let invitation = try? JSONDecoder().decode(CircleInvitationData.self, from: data) else {
+                    return nil
+                }
+                return CircleContact(
+                    id: invitation.invitationId,
+                    displayName: "Contact",
+                    isAccepted: invitation.isAccepted
+                )
+            }
     }
 
     /// Gets the number of accepted contacts.

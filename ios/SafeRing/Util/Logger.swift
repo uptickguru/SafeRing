@@ -39,6 +39,7 @@ final class Logger {
         case `extension` = "Extension"
         case repository = "Repository"
         case useCase = "UseCase"
+        case circle = "Circle"
 
         var osLog: OSLog {
             OSLog(subsystem: subsystem, category: rawValue)
