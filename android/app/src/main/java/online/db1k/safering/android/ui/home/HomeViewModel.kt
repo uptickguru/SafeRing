@@ -41,29 +41,18 @@ class HomeViewModel(
                 val dayMs = 24L * 60L * 60L * 1000L
                 val scamCount = repository.getAllScamNumbers().first().size
                 val callLogCount = db.callLogDao().getRecentCount(
-<<<<<<< ours
-                    System.currentTimeMillis() - 24L * 60 * 60 * 1000
-=======
                     System.currentTimeMillis() - dayMs
->>>>>>> theirs
                 )
 
                 // Proxy last sync from newest local scam row update
                 var isStale = false
                 var lastSync: Long? = null
                 runCatching {
-<<<<<<< ours
-                    val lastSyncVal = db.scamNumberDao().getLastUpdateTime()
-                    if (lastSyncVal != null) {
-                        lastSync = lastSyncVal
-                        isStale = (System.currentTimeMillis() - lastSyncVal) > 24L * 3600 * 1000
-=======
                     val lastSyncPref: Long? = db.scamNumberDao().getLastUpdatedAt()
                     if (lastSyncPref != null) {
                         lastSync = lastSyncPref
                         val ageMs: Long = System.currentTimeMillis() - lastSyncPref
                         isStale = ageMs > dayMs
->>>>>>> theirs
                     } else {
                         isStale = true
                     }
