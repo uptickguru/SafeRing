@@ -224,3 +224,25 @@ struct LessonsView: View {
     }
 
     private func neverGiveItem(icon: String, title: String, body: String) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.largeTitle)
+                .foregroundColor(.red)
+
+            Text(title)
+                .font(.headline)
+
+            Text(body)
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemBackground))
+                .shadow(color: .black.opacity(0.05), radius: 8)
+        )
+    }
+}
