@@ -173,7 +173,7 @@ private fun callSavedContactButton(contact: SavedContact) {
         modifier = Modifier
             .fillMaxWidth()
             .height(64.dp) // ≥48dp for accessibility
-            .then(if (contact.savedNumber.isNotEmpty() {
+            .then(if (contact.savedNumber.isNotEmpty()) {
                 Modifier.padding(horizontal = 16.dp)
             } else Modifier),
         shape = RoundedCornerShape(16.dp),
@@ -198,7 +198,7 @@ private fun callSavedContactButton(contact: SavedContact) {
         }
     }
     // TalkBack label
-    if (contact.displayName.isNotEmpty() {
+    if (contact.displayName.isNotEmpty()) {
         androidx.compose.material3.ExperimentalMaterial3Api
         androidx.compose.material3.Text(
             text = "Call ${contact.displayName} on their saved number, not this caller's number",
