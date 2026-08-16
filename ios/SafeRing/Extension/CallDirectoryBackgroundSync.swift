@@ -55,8 +55,10 @@ final class CallDirectoryBackgroundSync {
     func sync() async {
         Logger.shared.info("Starting scam data sync", category: .background)
 
-        // 1. Get all scam numbers from the local store
-        let scamNumbers = repository.getAllCachedScamNumbers(minRisk: 0.3)
+        // 1. Get all scam numbers from the local store (MainActor-isolated)
+        let scamNumbers = await MainActor.run {
+            repository.getAllCachedScamNumbers(minRisk: 0.3)
+        }
 
         // 2. Convert to shared container format
         let sharedNumbers = scamNumbers.map { scamNumber in
@@ -79,27 +81,19 @@ final class CallDirectoryBackgroundSync {
     /// Schedules a periodic background sync task.
     ///
     /// This should be called once during app initialization.
+    /// Registration is handled in SafeRingApp.registerBackgroundTasks().
     func schedulePeriodicSync() {
-        let task = BGTaskScheduler.shared.task(withIdentifier: Self.backgroundTaskIdentifier) { [weak self] task in
-            guard let self = self else { return }
+        let request = BGProcessingTaskRequest(identifier: Self.backgroundTaskIdentifier)
+        request.requiresNetworkConnectivity = true
+        request.requiresExternalPower = false
+        request.earliestBeginDate = Date(timeIntervalSinceNow: 6 * 3600)
 
-            Logger.shared.info("Background sync task triggered", category: .background)
-
-            // Sync scam data to shared container
-            self.sync()
-
-            // Set the task as completed
-            task.setTaskCompleted(success: true)
+        do {
+            try BGTaskScheduler.shared.submit(request)
+            Logger.shared.info("Background sync task scheduled (next run in 6h)", category: .background)
+        } catch {
+            Logger.shared.error("Failed to schedule background sync: \(error.localizedDescription)", category: .background)
         }
-
-        // Set the schedule (every 6 hours)
-        let predicate = BGTaskScheduledStatePredicate()
-        task.setSchedule(BGRepeatIntervalHourlyInterval(taskTimeInterval: 6 * 3600))
-
-        // Request the task
-        BGTaskScheduler.shared.request(task)
-
-        Logger.shared.info("Background sync task scheduled", category: .background)
     }
 
     // MARK: - Private Methods

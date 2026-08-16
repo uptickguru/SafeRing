@@ -211,7 +211,8 @@ struct ReportView: View {
                     apiClient: ApiClient(),
                     scamStore: ScamStore(modelContext: context)
                 )
-                let useCase = ReportScamUseCase(repository: repo)
+                let hmacKey = try await KeyServerBridge.shared.loadOrProvisionKey()
+                let useCase = ReportScamUseCase(repository: repo, hmacKey: hmacKey)
                 _ = try await useCase.execute(rawNumber: rawNumber, scamTag: scamType.rawValue)
 
                 await MainActor.run {

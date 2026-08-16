@@ -10,31 +10,45 @@
 		03297BA3C422173601B7E868 /* ScamStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BE4217C937ACCE1AA39503F /* ScamStore.swift */; };
 		06BC25021327328E383FB70A /* CallRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5E5BD5EC8A271B1EFE7532 /* CallRow.swift */; };
 		0F00FDD5CFE9158A2D26D380 /* WatchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65837E5EED9E1F39236AF5F6 /* WatchKit.framework */; };
+		0F8D95BD72AAF9287DF47DC3 /* CircleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F0FE61A3286D022FAB1D7E /* CircleManager.swift */; };
 		12AAC2D0D929F5E8C8D27727 /* CallHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2BEAC953BCD0671BA9E7E8 /* CallHistoryView.swift */; };
 		164D3E55A0E2AADCD6CB0D8C /* CheckCallUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094F7A0A62EA0B1858379A0C /* CheckCallUseCase.swift */; };
 		1C22603B0090696B16A78E7D /* Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D12CAF32077E4E7338073C /* Font.swift */; };
 		1CB906D1821D15616B9C9C06 /* NumberClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751105410D1B2015453ABF53 /* NumberClassifier.swift */; };
+		1D6794C77F5106244C723236 /* EntitlementMeteringChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD164886DD7391ABBFAC854 /* EntitlementMeteringChecker.swift */; };
 		235F7C0743732229D8CECDDF /* BigButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B522C650E9F4AB98F024F60 /* BigButton.swift */; };
+		31AA8464D6A97841A6B80540 /* ThreatActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5682EA573318474A22E0B667 /* ThreatActionView.swift */; };
 		38B9EEDB5638D575141BFC38 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28F2605C30F463FED3D3AF50 /* SettingsView.swift */; };
 		39A01311344C238D087459CD /* RiskBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31BAC44C6C512A04EFB0250 /* RiskBadge.swift */; };
+		3C45D8921AA579266523FEAE /* LessonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 069DC060D853C77C9A99A068 /* LessonsView.swift */; };
+		3D2CD417C1E57109AEBB077A /* ThreatActionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 699629417152C10AB8E51E49 /* ThreatActionViewModel.swift */; };
 		442031F04BA73F18386918B6 /* CallDirectoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FDD320576A4CAD59C74DDA /* CallDirectoryManager.swift */; };
 		4740CF1A72AAE3C3D20F6AED /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5DD6CAE1194F6F833580470 /* CoreML.framework */; };
 		4B4739C953CD013BFBACB2E4 /* SyncScamDataUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F688FEA27F807EB76F5F4A5 /* SyncScamDataUseCase.swift */; };
 		4DA544784EF9EB1006D3A855 /* CallLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85D7F1635FE560752A371E7B /* CallLog.swift */; };
 		5017F4591F62A43EEA1F7D25 /* ScamRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEADA5B2963A12FDDFAFE5AB /* ScamRepository.swift */; };
+		5423407421586270E6365FFF /* ThreatAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94D5094CEC1BC39D9F0C088E /* ThreatAction.swift */; };
 		5431F9FF035B890204DFD33E /* ScamAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54721C35FCBF8D317BEE4D88 /* ScamAlertView.swift */; };
 		686958DD1A44BB7A59A3D535 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB742A133F05063819591BC7 /* AppTheme.swift */; };
+		6912928861D70999D5243201 /* CircleModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B87816C626AA214546A4CE /* CircleModels.swift */; };
 		6A47E413293B7A04B53CCD32 /* CheckSmsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A55AB8BF01830E89B380F5 /* CheckSmsUseCase.swift */; };
+		6DC57F398A6896EBCF32066E /* DeviceEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87B207D9CE203EE8A2536FCF /* DeviceEvent.swift */; };
 		6E59A59412C8112C2D49CF8F /* SafeRingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E88DA761C99DDB46F4455D /* SafeRingUITests.swift */; };
+		744EC6A807DBB2E6A17E3587 /* BackgroundTasks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13D04D252A8AB2B66AF8E2FF /* BackgroundTasks.framework */; };
 		75A0CBE8C410C10D8D188582 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0558E8807B3857D9C3EADF01 /* ContentView.swift */; };
 		76395E5FC88DE359BE5A2CC5 /* WeeklySummaryManager.swift.bak in Resources */ = {isa = PBXBuildFile; fileRef = 882A4519C77A00D936F255FB /* WeeklySummaryManager.swift.bak */; };
 		7A735723AC0A5518A20066D6 /* WeeklySummaryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7515ABECFB1F8FAFDE5C603 /* WeeklySummaryManager.swift */; };
+		7D6ECB68F9C03629AADED3A1 /* KeyServerBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AD74F8686861E5921FAE4F5 /* KeyServerBridge.swift */; };
+		80ABA26C46EEB6DDA03C99E9 /* CallDirectoryBackgroundSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 910D982F5BE723C61211C00E /* CallDirectoryBackgroundSync.swift */; };
 		81F485F6F5B343052BC0A1F2 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F85D64777E579B93A5FBD148 /* ExtensionDelegate.swift */; };
 		82497A85D1B4887E81E99153 /* ReportScamUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE49811A4BB7DF4EA2DD686A /* ReportScamUseCase.swift */; };
 		84DE1513EE8B2639763EAE14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3DDE5863C0F5763A67DE7E36 /* Assets.xcassets */; };
 		85BD91B0EFC5983F2CEE9B35 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAAB5D62B1DA193FBCA47C7C /* Logger.swift */; };
+		8727E65A32A5A3B27AF7B359 /* SubmitToCheckModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEFB0C2E6C94A600B13EDC31 /* SubmitToCheckModels.swift */; };
 		874F8F321A9C9269C10DE27F /* CallKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F4C2AA1B2F3AF355DF80A81 /* CallKit.framework */; };
 		8973934C6DE561523D6480D5 /* CallRisk.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F028802DB688F9E0E4FE4C /* CallRisk.swift */; };
+		8A66AC695614E64E932661D0 /* LiveCallerIDLookupExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0D6AE3DFB3D4261DDF92DF /* LiveCallerIDLookupExtension.swift */; };
+		8BB3A421D801C970ECC31B8B /* EntitlementChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7925502D9146BF753DE3DFDB /* EntitlementChecker.swift */; };
 		8F96BC48C85509F99040B4B2 /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4032D0BA224E753B8334FBD7 /* ApiClient.swift */; };
 		9041AA5F95A13D88B9D77849 /* BackgroundTasks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13D04D252A8AB2B66AF8E2FF /* BackgroundTasks.framework */; };
 		90830843EDFA29F29556F8E6 /* SmsClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D27132E9C6F2237994006F /* SmsClassifier.swift */; };
@@ -47,20 +61,28 @@
 		A9DC1FF7958CCE0E51E1D9A4 /* ReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 701EA93FAC0A06B8124C3658 /* ReportView.swift */; };
 		B2CA795AF62CFDCDFDB62636 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D5ECE6D83BF05DE54334652 /* Assets.xcassets */; };
 		B8E59E7C61CFA65DC20C11C5 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B7498932862E164E06C947B /* HomeView.swift */; };
+		BDA1F2BBD9E00560424A2A07 /* EmailCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C823FA63465C521847331D3 /* EmailCheckView.swift */; };
 		C145CBC6C3EB3BA3FF2E077E /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5C54CC2A427EC6E23F9221 /* HomeViewModel.swift */; };
 		CA2C57D04AEF8BAF28B2CE90 /* CheckResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76E4E921DB20EDDFBD47599 /* CheckResponse.swift */; };
 		CB9ED046DB5E3153E6CFCB4D /* HashUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B68E2E13C12482226006EDD /* HashUtils.swift */; };
+		D24C5956F2C6FE5876BCC46E /* AttachmentScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6185BCDE978F4910246CC33 /* AttachmentScanView.swift */; };
 		D2AC88E15979EEC50D4D0649 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9F339FEC461F71807EF1713 /* ContentView.swift */; };
 		D358A8238B2BCA8FF1440977 /* SmsLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD3D60625176BE310D840C5A /* SmsLog.swift */; };
 		D7759BFD905C4F1686C22D53 /* SafeRingUITests.swift.bak in Resources */ = {isa = PBXBuildFile; fileRef = CA9AD1DAEDF671F1C922C67A /* SafeRingUITests.swift.bak */; };
+		DB7EF84098CEFBBEBA46EABB /* CallKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F4C2AA1B2F3AF355DF80A81 /* CallKit.framework */; };
+		DC6911A08E89FFBF53F97C5C /* HmacHashUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAE364123E1F4B2273C9DFDB /* HmacHashUtils.swift */; };
 		DDA39B547370294A2F9BF72F /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2B0C3DC04FAFB0D0E21AB22 /* WatchConnectivity.framework */; };
+		E36EEB579D67C1F473809F84 /* LiveCallerIDLookupHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002EEE792B26CDB3E52DC934 /* LiveCallerIDLookupHandler.swift */; };
 		E8F3FDCE493D97317741E5E3 /* SafeRingScreenshotCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C743495FD8B374F63873CC /* SafeRingScreenshotCapture.swift */; };
 		E9EB71530BA1BF820638F281 /* CallDirectoryHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A64236E30282EF7E731CB9 /* CallDirectoryHandler.swift */; };
+		EBC6B54E3D96A46A7A9BECCB /* SubmitToCheckViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 103165E027E4EF78C718ABE0 /* SubmitToCheckViewModel.swift */; };
+		EC50E5F05A9CAE647F5C78F2 /* TranscriptCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B766A845541FC6FF46FAC9CC /* TranscriptCheckView.swift */; };
 		ED6979EB39343602F94BA9BC /* PrefixResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C933A7FE9648C89220EFD563 /* PrefixResponse.swift */; };
 		F20E2C65733F1DD0BDB9BB94 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75AD2172F7D9F5472A5DA419 /* Color.swift */; };
 		F349C4E7467940203EBA80FD /* ScamNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6795B23C1FE7A4F2BF994AB /* ScamNumber.swift */; };
 		F41F4E4178D9C1753FF6FABC /* SafeRingWatchExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 54342C2A22654C12323B90AA /* SafeRingWatchExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F4DBB03B4B66DA06EB3D59C7 /* SafeRingApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51901E96B1804CED8D308660 /* SafeRingApp.swift */; };
+		FE5BFC7DA432F1F1B0F9495C /* ApiClient.swift.bak in Resources */ = {isa = PBXBuildFile; fileRef = A572C58DA521BEB68CA38311 /* ApiClient.swift.bak */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +92,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 37AD91AAA310AE23C4DED243;
 			remoteInfo = SafeRingWatchExtension;
+		};
+		AF9C88F8DD8288DC6FB6362D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E10D3331A2E1A5CB4E374998 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F7EA7D3F91AD5D9545A129C1;
+			remoteInfo = SafeRing;
 		};
 		EDE02B340AD294D55AFAC80D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -95,11 +124,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		002EEE792B26CDB3E52DC934 /* LiveCallerIDLookupHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveCallerIDLookupHandler.swift; sourceTree = "<group>"; };
 		0558E8807B3857D9C3EADF01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		069DC060D853C77C9A99A068 /* LessonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonsView.swift; sourceTree = "<group>"; };
 		07D12CAF32077E4E7338073C /* Font.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Font.swift; sourceTree = "<group>"; };
 		094F7A0A62EA0B1858379A0C /* CheckCallUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckCallUseCase.swift; sourceTree = "<group>"; };
 		0A7F29595F49143B1624BC75 /* SmsRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsRisk.swift; sourceTree = "<group>"; };
+		0C823FA63465C521847331D3 /* EmailCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailCheckView.swift; sourceTree = "<group>"; };
+		103165E027E4EF78C718ABE0 /* SubmitToCheckViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmitToCheckViewModel.swift; sourceTree = "<group>"; };
 		13D04D252A8AB2B66AF8E2FF /* BackgroundTasks.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BackgroundTasks.framework; path = System/Library/Frameworks/BackgroundTasks.framework; sourceTree = SDKROOT; };
+		18B87816C626AA214546A4CE /* CircleModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleModels.swift; sourceTree = "<group>"; };
 		28F2605C30F463FED3D3AF50 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		2DC4EC939FEF8EA750F54F0C /* SafeRing.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SafeRing.entitlements; sourceTree = "<group>"; };
 		36F225FD7B28628CBC9DF487 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
@@ -107,14 +141,19 @@
 		3DDE5863C0F5763A67DE7E36 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4032D0BA224E753B8334FBD7 /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiClient.swift; sourceTree = "<group>"; };
 		4A5E5BD5EC8A271B1EFE7532 /* CallRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallRow.swift; sourceTree = "<group>"; };
+		4AD74F8686861E5921FAE4F5 /* KeyServerBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyServerBridge.swift; sourceTree = "<group>"; };
 		4BA3C3C59409385A5C42681F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		51901E96B1804CED8D308660 /* SafeRingApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeRingApp.swift; sourceTree = "<group>"; };
 		51D27132E9C6F2237994006F /* SmsClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsClassifier.swift; sourceTree = "<group>"; };
 		54342C2A22654C12323B90AA /* SafeRingWatchExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SafeRingWatchExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		54721C35FCBF8D317BEE4D88 /* ScamAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamAlertView.swift; sourceTree = "<group>"; };
+		5682EA573318474A22E0B667 /* ThreatActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreatActionView.swift; sourceTree = "<group>"; };
+		61F0FE61A3286D022FAB1D7E /* CircleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleManager.swift; sourceTree = "<group>"; };
 		6238385F4AA414C2EF87824C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		65837E5EED9E1F39236AF5F6 /* WatchKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchKit.framework; path = System/Library/Frameworks/WatchKit.framework; sourceTree = SDKROOT; };
+		68085B75FB699AF6D6928D90 /* LiveCallerIDLookupHandler.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LiveCallerIDLookupHandler.entitlements; sourceTree = "<group>"; };
 		68BE0983E2D963EA15AE1CC2 /* SafeRing.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SafeRing.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		699629417152C10AB8E51E49 /* ThreatActionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreatActionViewModel.swift; sourceTree = "<group>"; };
 		6BE4217C937ACCE1AA39503F /* ScamStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamStore.swift; sourceTree = "<group>"; };
 		6D5ECE6D83BF05DE54334652 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6F4C2AA1B2F3AF355DF80A81 /* CallKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CallKit.framework; path = System/Library/Frameworks/CallKit.framework; sourceTree = SDKROOT; };
@@ -123,21 +162,32 @@
 		751105410D1B2015453ABF53 /* NumberClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberClassifier.swift; sourceTree = "<group>"; };
 		75AD2172F7D9F5472A5DA419 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		75FDD320576A4CAD59C74DDA /* CallDirectoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallDirectoryManager.swift; sourceTree = "<group>"; };
+		7925502D9146BF753DE3DFDB /* EntitlementChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementChecker.swift; sourceTree = "<group>"; };
 		7B522C650E9F4AB98F024F60 /* BigButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BigButton.swift; sourceTree = "<group>"; };
 		7DB44828848225AFAE3F84DE /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
 		84D85DF02F6C5D250045FA17 /* SafeRingWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SafeRingWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		85D7F1635FE560752A371E7B /* CallLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallLog.swift; sourceTree = "<group>"; };
+		87B207D9CE203EE8A2536FCF /* DeviceEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceEvent.swift; sourceTree = "<group>"; };
 		882A4519C77A00D936F255FB /* WeeklySummaryManager.swift.bak */ = {isa = PBXFileReference; path = WeeklySummaryManager.swift.bak; sourceTree = "<group>"; };
+		910D982F5BE723C61211C00E /* CallDirectoryBackgroundSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallDirectoryBackgroundSync.swift; sourceTree = "<group>"; };
 		93E0833B33BAC50AC3D3E4B3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		94D5094CEC1BC39D9F0C088E /* ThreatAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreatAction.swift; sourceTree = "<group>"; };
 		9836134D3C290BD07D8DCD1A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		9B68E2E13C12482226006EDD /* HashUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashUtils.swift; sourceTree = "<group>"; };
 		9F5C54CC2A427EC6E23F9221 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		A2B0C3DC04FAFB0D0E21AB22 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
 		A3C743495FD8B374F63873CC /* SafeRingScreenshotCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeRingScreenshotCapture.swift; sourceTree = "<group>"; };
+		A572C58DA521BEB68CA38311 /* ApiClient.swift.bak */ = {isa = PBXFileReference; path = ApiClient.swift.bak; sourceTree = "<group>"; };
+		A6185BCDE978F4910246CC33 /* AttachmentScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentScanView.swift; sourceTree = "<group>"; };
 		A7A64236E30282EF7E731CB9 /* CallDirectoryHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallDirectoryHandler.swift; sourceTree = "<group>"; };
+		A9953DFCDDE6FFCD454AAFE5 /* LiveCallerIDLookupHandler.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LiveCallerIDLookupHandler.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAE364123E1F4B2273C9DFDB /* HmacHashUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HmacHashUtils.swift; sourceTree = "<group>"; };
+		AB0D6AE3DFB3D4261DDF92DF /* LiveCallerIDLookupExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveCallerIDLookupExtension.swift; sourceTree = "<group>"; };
 		AB742A133F05063819591BC7 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		AEFB0C2E6C94A600B13EDC31 /* SubmitToCheckModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmitToCheckModels.swift; sourceTree = "<group>"; };
 		B487B81903A3AFD562550782 /* ReportRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportRequest.swift; sourceTree = "<group>"; };
 		B505228C26D1EE2A84FFF8AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B766A845541FC6FF46FAC9CC /* TranscriptCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptCheckView.swift; sourceTree = "<group>"; };
 		BAAB5D62B1DA193FBCA47C7C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		C5DD6CAE1194F6F833580470 /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = System/Library/Frameworks/CoreML.framework; sourceTree = SDKROOT; };
 		C6ACA22FFA19856C601A9742 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
@@ -146,9 +196,11 @@
 		D31BAC44C6C512A04EFB0250 /* RiskBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiskBadge.swift; sourceTree = "<group>"; };
 		D8E88DA761C99DDB46F4455D /* SafeRingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeRingUITests.swift; sourceTree = "<group>"; };
 		DA361D86D0669C0003AD060C /* SafeRingUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SafeRingUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DBD164886DD7391ABBFAC854 /* EntitlementMeteringChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementMeteringChecker.swift; sourceTree = "<group>"; };
 		DD3D60625176BE310D840C5A /* SmsLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsLog.swift; sourceTree = "<group>"; };
 		E2F028802DB688F9E0E4FE4C /* CallRisk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallRisk.swift; sourceTree = "<group>"; };
 		E37D3E309772AC5CB45E4C87 /* CallDirectoryHandler.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = CallDirectoryHandler.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E66BC2ACC87FEEAFA0306876 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E6795B23C1FE7A4F2BF994AB /* ScamNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamNumber.swift; sourceTree = "<group>"; };
 		E7515ABECFB1F8FAFDE5C603 /* WeeklySummaryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklySummaryManager.swift; sourceTree = "<group>"; };
 		E7A55AB8BF01830E89B380F5 /* CheckSmsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckSmsUseCase.swift; sourceTree = "<group>"; };
@@ -188,6 +240,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DEB9AD39214C4FAEAEAD1777 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DB7EF84098CEFBBEBA46EABB /* CallKit.framework in Frameworks */,
+				744EC6A807DBB2E6A17E3587 /* BackgroundTasks.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -196,9 +257,11 @@
 			children = (
 				676AC5B3D78FE7ED25ACFEAC /* CallHistory */,
 				F8A586BD9EFE744FE33C1D28 /* Home */,
+				7A8B68E40F393C82EF048BF0 /* Lessons */,
 				A55276934BBA5F664F18BBC0 /* Onboarding */,
 				6B63CE6535C195F54570B289 /* Report */,
 				9A7C7549E93D1BF112883712 /* Settings */,
+				6FC142BD5B9ED4B740363CBF /* SubmitToCheck */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -247,8 +310,11 @@
 			isa = PBXGroup;
 			children = (
 				F76E4E921DB20EDDFBD47599 /* CheckResponse.swift */,
+				18B87816C626AA214546A4CE /* CircleModels.swift */,
+				87B207D9CE203EE8A2536FCF /* DeviceEvent.swift */,
 				C933A7FE9648C89220EFD563 /* PrefixResponse.swift */,
 				B487B81903A3AFD562550782 /* ReportRequest.swift */,
+				AEFB0C2E6C94A600B13EDC31 /* SubmitToCheckModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -266,7 +332,10 @@
 		36CA250C3FC6A212D34EC7B7 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				910D982F5BE723C61211C00E /* CallDirectoryBackgroundSync.swift */,
 				75FDD320576A4CAD59C74DDA /* CallDirectoryManager.swift */,
+				AB0D6AE3DFB3D4261DDF92DF /* LiveCallerIDLookupExtension.swift */,
+				002EEE792B26CDB3E52DC934 /* LiveCallerIDLookupHandler.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -281,8 +350,10 @@
 				2051EC7C722CA819F3A7A906 /* Data */,
 				8944DC1CF0FB1F11816CCD56 /* Domain */,
 				36CA250C3FC6A212D34EC7B7 /* Extension */,
+				B3E27712C11899613553F33A /* Service */,
 				ADE55733B6DA831083284FA5 /* UI */,
 				594BC0E4BF508255752FC6C1 /* Util */,
+				4D1315080C62687C8B2AA67D /* ViewModel */,
 			);
 			path = SafeRing;
 			sourceTree = "<group>";
@@ -304,6 +375,7 @@
 			children = (
 				E2F028802DB688F9E0E4FE4C /* CallRisk.swift */,
 				0A7F29595F49143B1624BC75 /* SmsRisk.swift */,
+				94D5094CEC1BC39D9F0C088E /* ThreatAction.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -321,6 +393,7 @@
 			isa = PBXGroup;
 			children = (
 				E37D3E309772AC5CB45E4C87 /* CallDirectoryHandler.appex */,
+				A9953DFCDDE6FFCD454AAFE5 /* LiveCallerIDLookupHandler.appex */,
 				68BE0983E2D963EA15AE1CC2 /* SafeRing.app */,
 				DA361D86D0669C0003AD060C /* SafeRingUITests.xctest */,
 				84D85DF02F6C5D250045FA17 /* SafeRingWatch.app */,
@@ -329,11 +402,24 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		4D1315080C62687C8B2AA67D /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				103165E027E4EF78C718ABE0 /* SubmitToCheckViewModel.swift */,
+				699629417152C10AB8E51E49 /* ThreatActionViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		594BC0E4BF508255752FC6C1 /* Util */ = {
 			isa = PBXGroup;
 			children = (
 				C6ACA22FFA19856C601A9742 /* AppConfig.swift */,
+				7925502D9146BF753DE3DFDB /* EntitlementChecker.swift */,
+				DBD164886DD7391ABBFAC854 /* EntitlementMeteringChecker.swift */,
 				9B68E2E13C12482226006EDD /* HashUtils.swift */,
+				AAE364123E1F4B2273C9DFDB /* HmacHashUtils.swift */,
+				4AD74F8686861E5921FAE4F5 /* KeyServerBridge.swift */,
 				BAAB5D62B1DA193FBCA47C7C /* Logger.swift */,
 				E7515ABECFB1F8FAFDE5C603 /* WeeklySummaryManager.swift */,
 				882A4519C77A00D936F255FB /* WeeklySummaryManager.swift.bak */,
@@ -366,6 +452,24 @@
 				701EA93FAC0A06B8124C3658 /* ReportView.swift */,
 			);
 			path = Report;
+			sourceTree = "<group>";
+		};
+		6FC142BD5B9ED4B740363CBF /* SubmitToCheck */ = {
+			isa = PBXGroup;
+			children = (
+				A6185BCDE978F4910246CC33 /* AttachmentScanView.swift */,
+				0C823FA63465C521847331D3 /* EmailCheckView.swift */,
+				B766A845541FC6FF46FAC9CC /* TranscriptCheckView.swift */,
+			);
+			path = SubmitToCheck;
+			sourceTree = "<group>";
+		};
+		7A8B68E40F393C82EF048BF0 /* Lessons */ = {
+			isa = PBXGroup;
+			children = (
+				069DC060D853C77C9A99A068 /* LessonsView.swift */,
+			);
+			path = Lessons;
 			sourceTree = "<group>";
 		};
 		86B859E13DE1251564668F6B /* ML */ = {
@@ -413,10 +517,20 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
+		9DEBBBF314FD0CED00BD2994 /* LiveCallerIDLookupHandler */ = {
+			isa = PBXGroup;
+			children = (
+				E66BC2ACC87FEEAFA0306876 /* Info.plist */,
+				68085B75FB699AF6D6928D90 /* LiveCallerIDLookupHandler.entitlements */,
+			);
+			path = LiveCallerIDLookupHandler;
+			sourceTree = "<group>";
+		};
 		A019566902E0A77157BD0A39 /* Remote */ = {
 			isa = PBXGroup;
 			children = (
 				4032D0BA224E753B8334FBD7 /* ApiClient.swift */,
+				A572C58DA521BEB68CA38311 /* ApiClient.swift.bak */,
 				1E817CE866A77DB9CD43F38B /* Models */,
 			);
 			path = Remote;
@@ -438,6 +552,14 @@
 				C0C33AAF627196BCDA2B4CFD /* Theme */,
 			);
 			path = UI;
+			sourceTree = "<group>";
+		};
+		B3E27712C11899613553F33A /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				61F0FE61A3286D022FAB1D7E /* CircleManager.swift */,
+			);
+			path = Service;
 			sourceTree = "<group>";
 		};
 		B723663660A2BB7D4F3E2535 /* App */ = {
@@ -466,6 +588,7 @@
 				4A5E5BD5EC8A271B1EFE7532 /* CallRow.swift */,
 				D31BAC44C6C512A04EFB0250 /* RiskBadge.swift */,
 				54721C35FCBF8D317BEE4D88 /* ScamAlertView.swift */,
+				5682EA573318474A22E0B667 /* ThreatActionView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -474,6 +597,7 @@
 			isa = PBXGroup;
 			children = (
 				47FA119654B7FE186B46F774 /* CallDirectoryHandler */,
+				9DEBBBF314FD0CED00BD2994 /* LiveCallerIDLookupHandler */,
 				3F2078BF8C434EA50C006D65 /* SafeRing */,
 				60804BF49E2CF74262FC7403 /* SafeRingUITests */,
 				1C4BED60801C63D431F13F13 /* SafeRingWatch */,
@@ -531,6 +655,25 @@
 			productName = SafeRingUITests;
 			productReference = DA361D86D0669C0003AD060C /* SafeRingUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		C6D9A0235DFE31143885C210 /* LiveCallerIDLookupHandler */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D03AEA19AD6EEF8F0ED6F83 /* Build configuration list for PBXNativeTarget "LiveCallerIDLookupHandler" */;
+			buildPhases = (
+				68F4611F54CDD7246C9B39E3 /* Sources */,
+				DEB9AD39214C4FAEAEAD1777 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5FC223856543A7CF2D18AE84 /* PBXTargetDependency */,
+			);
+			name = LiveCallerIDLookupHandler;
+			packageProductDependencies = (
+			);
+			productName = LiveCallerIDLookupHandler;
+			productReference = A9953DFCDDE6FFCD454AAFE5 /* LiveCallerIDLookupHandler.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		D08323F1467A1BD3FF557507 /* CallDirectoryHandler */ = {
 			isa = PBXNativeTarget;
@@ -605,6 +748,9 @@
 						DevelopmentTeam = ZS9TKMU2Q4;
 						TestTargetID = F7EA7D3F91AD5D9545A129C1;
 					};
+					C6D9A0235DFE31143885C210 = {
+						DevelopmentTeam = ZS9TKMU2Q4;
+					};
 					D08323F1467A1BD3FF557507 = {
 						DevelopmentTeam = ZS9TKMU2Q4;
 					};
@@ -631,6 +777,7 @@
 			projectRoot = "";
 			targets = (
 				D08323F1467A1BD3FF557507 /* CallDirectoryHandler */,
+				C6D9A0235DFE31143885C210 /* LiveCallerIDLookupHandler */,
 				F7EA7D3F91AD5D9545A129C1 /* SafeRing */,
 				B9F9ADBEAE5DBC5F65BE486E /* SafeRingUITests */,
 				ECC7DCD38EAEBCBAFCCEA136 /* SafeRingWatch */,
@@ -644,6 +791,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE5BFC7DA432F1F1B0F9495C /* ApiClient.swift.bak in Resources */,
 				B2CA795AF62CFDCDFDB62636 /* Assets.xcassets in Resources */,
 				76395E5FC88DE359BE5A2CC5 /* WeeklySummaryManager.swift.bak in Resources */,
 			);
@@ -668,6 +816,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		68F4611F54CDD7246C9B39E3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		78DC606A0A237BE6A2227DBB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -675,7 +830,9 @@
 				8F96BC48C85509F99040B4B2 /* ApiClient.swift in Sources */,
 				A0FB4202060DBAD64CE901BD /* AppConfig.swift in Sources */,
 				686958DD1A44BB7A59A3D535 /* AppTheme.swift in Sources */,
+				D24C5956F2C6FE5876BCC46E /* AttachmentScanView.swift in Sources */,
 				235F7C0743732229D8CECDDF /* BigButton.swift in Sources */,
+				80ABA26C46EEB6DDA03C99E9 /* CallDirectoryBackgroundSync.swift in Sources */,
 				442031F04BA73F18386918B6 /* CallDirectoryManager.swift in Sources */,
 				12AAC2D0D929F5E8C8D27727 /* CallHistoryView.swift in Sources */,
 				4DA544784EF9EB1006D3A855 /* CallLog.swift in Sources */,
@@ -684,12 +841,23 @@
 				164D3E55A0E2AADCD6CB0D8C /* CheckCallUseCase.swift in Sources */,
 				CA2C57D04AEF8BAF28B2CE90 /* CheckResponse.swift in Sources */,
 				6A47E413293B7A04B53CCD32 /* CheckSmsUseCase.swift in Sources */,
+				0F8D95BD72AAF9287DF47DC3 /* CircleManager.swift in Sources */,
+				6912928861D70999D5243201 /* CircleModels.swift in Sources */,
 				F20E2C65733F1DD0BDB9BB94 /* Color.swift in Sources */,
 				75A0CBE8C410C10D8D188582 /* ContentView.swift in Sources */,
+				6DC57F398A6896EBCF32066E /* DeviceEvent.swift in Sources */,
+				BDA1F2BBD9E00560424A2A07 /* EmailCheckView.swift in Sources */,
+				8BB3A421D801C970ECC31B8B /* EntitlementChecker.swift in Sources */,
+				1D6794C77F5106244C723236 /* EntitlementMeteringChecker.swift in Sources */,
 				1C22603B0090696B16A78E7D /* Font.swift in Sources */,
 				CB9ED046DB5E3153E6CFCB4D /* HashUtils.swift in Sources */,
+				DC6911A08E89FFBF53F97C5C /* HmacHashUtils.swift in Sources */,
 				B8E59E7C61CFA65DC20C11C5 /* HomeView.swift in Sources */,
 				C145CBC6C3EB3BA3FF2E077E /* HomeViewModel.swift in Sources */,
+				7D6ECB68F9C03629AADED3A1 /* KeyServerBridge.swift in Sources */,
+				3C45D8921AA579266523FEAE /* LessonsView.swift in Sources */,
+				8A66AC695614E64E932661D0 /* LiveCallerIDLookupExtension.swift in Sources */,
+				E36EEB579D67C1F473809F84 /* LiveCallerIDLookupHandler.swift in Sources */,
 				85BD91B0EFC5983F2CEE9B35 /* Logger.swift in Sources */,
 				1CB906D1821D15616B9C9C06 /* NumberClassifier.swift in Sources */,
 				933364C08D804AB620E0F544 /* OnboardingView.swift in Sources */,
@@ -707,7 +875,13 @@
 				90830843EDFA29F29556F8E6 /* SmsClassifier.swift in Sources */,
 				D358A8238B2BCA8FF1440977 /* SmsLog.swift in Sources */,
 				A5E59055ECCA3AF11508E377 /* SmsRisk.swift in Sources */,
+				8727E65A32A5A3B27AF7B359 /* SubmitToCheckModels.swift in Sources */,
+				EBC6B54E3D96A46A7A9BECCB /* SubmitToCheckViewModel.swift in Sources */,
 				4B4739C953CD013BFBACB2E4 /* SyncScamDataUseCase.swift in Sources */,
+				5423407421586270E6365FFF /* ThreatAction.swift in Sources */,
+				31AA8464D6A97841A6B80540 /* ThreatActionView.swift in Sources */,
+				3D2CD417C1E57109AEBB077A /* ThreatActionViewModel.swift in Sources */,
+				EC50E5F05A9CAE647F5C78F2 /* TranscriptCheckView.swift in Sources */,
 				7A735723AC0A5518A20066D6 /* WeeklySummaryManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -759,9 +933,46 @@
 			target = 37AD91AAA310AE23C4DED243 /* SafeRingWatchExtension */;
 			targetProxy = 33667FE93DA409968C581BE6 /* PBXContainerItemProxy */;
 		};
+		5FC223856543A7CF2D18AE84 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F7EA7D3F91AD5D9545A129C1 /* SafeRing */;
+			targetProxy = AF9C88F8DD8288DC6FB6362D /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		00B3DBF11C93938C9C6DB614 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = LiveCallerIDLookupHandler/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios.LiveCallerIDLookupHandler;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		02394A2AAC7CC3B83021DB97 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = LiveCallerIDLookupHandler/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios.LiveCallerIDLookupHandler;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		033310EA2B2E0D22E327FC35 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1075,6 +1286,15 @@
 			buildConfigurations = (
 				64E543AF5BA502EFE77105B6 /* Debug */,
 				FA545FA202366B7BFC73EF4A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		2D03AEA19AD6EEF8F0ED6F83 /* Build configuration list for PBXNativeTarget "LiveCallerIDLookupHandler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00B3DBF11C93938C9C6DB614 /* Debug */,
+				02394A2AAC7CC3B83021DB97 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

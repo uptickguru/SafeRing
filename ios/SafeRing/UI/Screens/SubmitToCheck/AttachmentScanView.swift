@@ -219,7 +219,7 @@ struct AttachmentScanView: View {
                 .font(.title2)
                 .foregroundColor(Color("criticalRed"))
 
-            Text(viewModel.attachmentError)
+            Text(viewModel.attachmentError ?? "")
                 .font(.bodyText)
                 .foregroundColor(Color("criticalRed"))
                 .multilineTextAlignment(.center)

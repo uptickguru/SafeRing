@@ -24,30 +24,36 @@ class SubmitToCheckViewModel: ObservableObject {
 
     // MARK: - Email Check
 
-    private(set) var emailText: String = ""
-    private(set) var isCheckingEmail: Bool = false
-    private(set) var emailResult: EmailCheckResponse?
-    private(set) var emailError: String?
+    @Published var emailText: String = ""
+    @Published private(set) var isCheckingEmail: Bool = false
+    @Published private(set) var emailResult: EmailCheckResponse?
+    @Published private(set) var emailError: String?
 
     // MARK: - Attachment Scan
 
-    private(set) var attachmentData: Data?
-    private(set) var attachmentFileName: String = ""
-    private(set) var attachmentMimeType: String = ""
-    private(set) var isScanningAttachment: Bool = false
-    private(set) var attachmentResult: AttachmentScanResponse?
-    private(set) var attachmentError: String?
+    @Published private(set) var attachmentData: Data?
+    @Published private(set) var attachmentFileName: String = ""
+    @Published private(set) var attachmentMimeType: String = ""
+    @Published private(set) var isScanningAttachment: Bool = false
+    @Published private(set) var attachmentResult: AttachmentScanResponse?
+    @Published private(set) var attachmentError: String?
 
     // MARK: - Transcript Check
 
-    private(set) var transcriptText: String = ""
-    private(set) var isCheckingTranscript: Bool = false
-    private(set) var transcriptResult: TranscriptCheckResponse?
-    private(set) var transcriptError: String?
+    @Published var transcriptText: String = ""
+    @Published private(set) var isCheckingTranscript: Bool = false
+    @Published private(set) var transcriptResult: TranscriptCheckResponse?
+    @Published private(set) var transcriptError: String?
 
     // MARK: - Consent Notice
 
-    private(set) var consentAcknowledged: Bool = false
+    @Published var consentAcknowledged: Bool = false
+
+    // MARK: - Error Alert
+
+    @Published var showError: Bool = false
+    @Published var showConsentAlert: Bool = false
+    @Published var errorMessage: String = ""
 
     // MARK: - Initializer
 
@@ -57,10 +63,7 @@ class SubmitToCheckViewModel: ObservableObject {
 
     // MARK: - Email Check
 
-    /// Sets the email text to check.
-    func setEmailText(_ text: String) {
-        emailText = text
-    }
+
 
     /// Checks the email for scam content.
     ///
@@ -92,12 +95,7 @@ class SubmitToCheckViewModel: ObservableObject {
 
     // MARK: - Attachment Scan
 
-    /// Sets the attachment data to scan.
-    func setAttachmentData(_ data: Data, fileName: String, mimeType: String) {
-        attachmentData = data
-        attachmentFileName = fileName
-        attachmentMimeType = mimeType
-    }
+
 
     /// Scans the attachment for scam content.
     ///
@@ -153,15 +151,7 @@ class SubmitToCheckViewModel: ObservableObject {
 
     // MARK: - Transcript Check
 
-    /// Sets the transcript text to check.
-    func setTranscriptText(_ text: String) {
-        transcriptText = text
-    }
 
-    /// Sets the consent acknowledgement.
-    func setConsentAcknowledged(_ acknowledged: Bool) {
-        consentAcknowledged = acknowledged
-    }
 
     /// Checks the transcript for scam content.
     ///

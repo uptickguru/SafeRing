@@ -91,7 +91,7 @@ struct ThreatActionView: View {
             Image(systemName: threatIcon)
                 .font(.system(size: 64))
                 .foregroundColor(threatColor)
-                .symbolEffect(.pulse, value: .constant(true))
+                .symbolEffect(.pulse, isActive: true)
 
             // Caller Label
             Text(callerLabel)
@@ -115,8 +115,10 @@ struct ThreatActionView: View {
     private var actionButtonsSection: some View {
         VStack(spacing: AppTheme.spacingSM) {
             switch recommendedAction {
-            case .callSavedContact(let contact):
-                callSavedContactButton(for: contact)
+            case .callSavedContact:
+                if let contact = savedContact {
+                    callSavedContactButton(for: contact)
+                }
 
             case .askFamilyPassword:
                 askFamilyPasswordButton
@@ -367,8 +369,10 @@ struct ThreatActionView: View {
     /// Perform the recommended human action.
     private func performHumanAction() {
         switch recommendedAction {
-        case .callSavedContact(let contact):
-            openPhoneApp(with: contact.savedNumber)
+        case .callSavedContact:
+            if let contact = savedContact {
+                openPhoneApp(with: contact.savedNumber)
+            }
         case .askFamilyPassword:
             performFamilyPasswordPrompt()
         case .loopTrustedContact:

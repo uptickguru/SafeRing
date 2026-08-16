@@ -188,7 +188,7 @@ struct EmailCheckView: View {
             icon: "magnifyingglass",
             isLoading: false,
             action: {
-                Task { await viewModel.checkEmail() }
+                Task { do { _ = try await viewModel.checkEmail() } catch {} }
             }
         )
     }
@@ -201,7 +201,7 @@ struct EmailCheckView: View {
                 .font(.title2)
                 .foregroundColor(Color("criticalRed"))
 
-            Text(viewModel.emailError)
+            Text(viewModel.emailError ?? "")
                 .font(.bodyText)
                 .foregroundColor(Color("criticalRed"))
                 .multilineTextAlignment(.center)

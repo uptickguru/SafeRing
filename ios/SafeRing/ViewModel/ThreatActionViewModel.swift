@@ -49,7 +49,7 @@ class ThreatActionViewModel {
     /// This is called when a threat is detected.
     func setRecommendedAction(_ action: ThreatAction) {
         recommendedAction = action
-        Logger.info("Threat action set: \(action.rawValue)", Logger.Category.CALL)
+        Logger.shared.info("Threat action set: \(action.rawValue)", category: .network)
     }
 
     /// Set the caller label (display name).
@@ -81,7 +81,7 @@ class ThreatActionViewModel {
     /// This is called when the user taps a button on the ThreatActionScreen.
     func performHumanAction() {
         guard let action = recommendedAction else { return }
-        Logger.info("Human action performed: \(action.rawValue)", Logger.Category.CALL)
+        Logger.shared.info("Human action performed: \(action.rawValue)", category: .network)
     }
 
     /// Open the phone app with the saved number (for CALL_SAVED_CONTACT).
@@ -89,7 +89,7 @@ class ThreatActionViewModel {
     func openPhoneApp(savedNumber: String) {
         // In production, this would open the phone app with the dialer
         // Pre-fill the saved number, never the incoming number
-        Logger.info("Opening phone app with saved number: \(savedNumber)", Logger.Category.CALL)
+        Logger.shared.info("Opening phone app with saved number: \(savedNumber)", category: .network)
     }
 
     /// Perform the family password prompt (for ASK_FAMILY_PASSWORD).
@@ -97,21 +97,21 @@ class ThreatActionViewModel {
     func performFamilyPasswordPrompt() {
         // In production, this would show a UI prompt to ask the caller
         // for the family password without transmitting any information
-        Logger.info("Family password prompt triggered (M6)", Logger.Category.CALL)
+        Logger.shared.info("Family password prompt triggered (M6)", category: .network)
     }
 
     /// Trigger a trusted circle alert (for LOOP_TRUSTED_CONTACT / LOOKS_OK_STILL_VERIFY).
     /// Only fires if the user has opted in (M5).
     func triggerTrustedCircleAlert() {
         if userOptedIn {
-            Logger.info("Trusted circle alert triggered (M5)", Logger.Category.CALL)
+            Logger.shared.info("Trusted circle alert triggered (M5)", category: .network)
         }
     }
 
     /// Report the threat as a scam.
     func reportAsScam() {
         // In production, this would report the threat to the server
-        Logger.info("Reported as scam", Logger.Category.CALL)
+        Logger.shared.info("Reported as scam", category: .network)
     }
 }
 

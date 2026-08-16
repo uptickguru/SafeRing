@@ -124,7 +124,7 @@ struct LessonsView: View {
 
     private func warningSignsLessons() -> some View {
         VStack(alignment: .leading, spacing: 20) {
-            header(title: "Warning Signs", icon: "exclamationmark.triangle", color: .warningYellow)
+            header(title: "Warning Signs", icon: "exclamationmark.triangle", color: Color("warningYellow"))
 
             warningSignCard(icon: "clock", title: "Urgency", body: "Scammers push you to act FAST. They say 'you'll lose it' or 'act now!'")
             warningSignCard(icon: "lock", title: "Secrecy", body: "Scammers say 'don't tell anyone' or 'this is private.'")
@@ -204,7 +204,7 @@ struct LessonsView: View {
         VStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.largeTitle)
-                .foregroundColor(.warningYellow)
+                .foregroundColor(Color("warningYellow"))
 
             Text(title)
                 .font(.headline)

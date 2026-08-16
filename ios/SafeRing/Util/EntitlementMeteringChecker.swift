@@ -40,7 +40,7 @@ final class EntitlementMeteringChecker {
     /// - Throws: EntitlementError if the check fails.
     func isEntitled() async throws -> Bool {
         // Check local cache first
-        if let cached = storage.bool(forKey: "entitled") {
+        if let cached = storage.object(forKey: "entitled") as? Bool {
             return cached
         }
 
@@ -49,16 +49,16 @@ final class EntitlementMeteringChecker {
             let response = try await fetchEntitlement()
             if response.isEntitled {
                 storage.set(true, forKey: "entitled")
-                Logger.info("User is entitled", category: .entitlement)
+                Logger.shared.info("User is entitled", category: .entitlement)
                 return true
             } else {
                 storage.set(false, forKey: "entitled")
-                Logger.info("User is not entitled", category: .entitlement)
+                Logger.shared.info("User is not entitled", category: .entitlement)
                 return false
             }
         } catch {
             // Cache the result to avoid repeated failures
-            Logger.warning(
+            Logger.shared.warning(
                 "Entitlement check failed: \(error.localizedDescription)",
                 category: .entitlement
             )
@@ -87,7 +87,7 @@ final class EntitlementMeteringChecker {
             let response = try await apiClient.getEntitlement()
             return response
         } catch {
-            Logger.warning(
+            Logger.shared.warning(
                 "Entitlement fetch failed: \(error.localizedDescription)",
                 category: .entitlement
             )

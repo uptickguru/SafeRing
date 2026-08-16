@@ -34,14 +34,14 @@ final class EntitlementChecker {
     /// - Throws: EntitlementError if the check fails.
     func isEntitled() async throws -> Bool {
         // Check local cache first
-        if let cached = storage.bool(forKey: "entitled") {
+        if let cached = storage.object(forKey: "entitled") as? Bool {
             return cached
         }
 
         // Query backend
         do {
             let response = try await apiClient.getEntitlement()
-            if response.success {
+            if response.isEntitled {
                 storage.set(true, forKey: "entitled")
                 Logger.shared.info("User is entitled", category: .entitlement)
                 return true

@@ -37,7 +37,7 @@ final class KeyServerBridge {
     func provisionKey() async throws -> HmacKey {
         // TODO: Call POST /v1/keys/provision when Go backend is ready
         // For now, use development fallback
-        Logger.warning("KeyServerBridge.provisionKey() — using dev fallback (backend not ready)", category: .security)
+        Logger.shared.warning("KeyServerBridge.provisionKey() — using dev fallback (backend not ready)", category: .security)
 
         let devKey = Data("dev-hmac-key-do-not-use-in-production".utf8)
         let key = HmacKey(provisionedKey: devKey)
@@ -51,7 +51,7 @@ final class KeyServerBridge {
     /// - Throws: KeyServerError if rotation fails.
     func rotateKey() async throws -> HmacKey {
         // TODO: Call POST /v1/keys/rotate when Go backend is ready
-        Logger.warning("KeyServerBridge.rotateKey() — not yet implemented", category: .security)
+        Logger.shared.warning("KeyServerBridge.rotateKey() — not yet implemented", category: .security)
         throw KeyServerError.notImplemented
     }
 
@@ -60,7 +60,7 @@ final class KeyServerBridge {
     /// - Returns: Key status information.
     func checkKeyStatus() async throws -> KeyStatus {
         // TODO: Call GET /v1/keys/status when Go backend is ready
-        Logger.warning("KeyServerBridge.checkKeyStatus() — not yet implemented", category: .security)
+        Logger.shared.warning("KeyServerBridge.checkKeyStatus() — not yet implemented", category: .security)
         throw KeyServerError.notImplemented
     }
 
@@ -73,7 +73,7 @@ final class KeyServerBridge {
     func loadOrProvisionKey() async throws -> HmacKey {
         // Try Keychain first
         if let keyData = loadFromKeychain() {
-            Logger.info("HMAC key loaded from Keychain", category: .security)
+            Logger.shared.info("HMAC key loaded from Keychain", category: .security)
             return HmacKey(provisionedKey: keyData)
         }
 
@@ -101,7 +101,7 @@ final class KeyServerBridge {
             throw KeyServerError.keychainWriteFailed(status)
         }
 
-        Logger.info("HMAC key stored in Keychain", category: .security)
+        Logger.shared.info("HMAC key stored in Keychain", category: .security)
     }
 
     /// Load key data from iOS Keychain.

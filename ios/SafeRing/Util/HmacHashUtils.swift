@@ -39,9 +39,9 @@ final class HmacHashUtils {
     /// - Returns: Hex-encoded HMAC-SHA256 digest string.
     static func hmacSHA256(_ input: String, key: Data) -> String {
         let inputData = Data(input.utf8)
-        let hmac = HMAC<SHA256>.init(key: key)
-        let hashed = hmac.calculate(for: inputData)
-        return hashed.map { String(format: "%02x", $0) }.joined()
+        let symmetricKey = SymmetricKey(data: key)
+        let mac = HMAC<SHA256>.authenticationCode(for: inputData, using: symmetricKey)
+        return Data(mac).map { String(format: "%02x", $0) }.joined()
     }
 
     /// Computes the HMAC-SHA256 hash of a Data buffer.
@@ -51,9 +51,9 @@ final class HmacHashUtils {
     /// - Parameter key: The HMAC key to use.
     /// - Returns: Hex-encoded HMAC-SHA256 digest string.
     static func hmacSHA256(data: Data, key: Data) -> String {
-        let hmac = HMAC<SHA256>.init(key: key)
-        let hashed = hmac.calculate(for: data)
-        return hashed.map { String(format: "%02x", $0) }.joined()
+        let symmetricKey = SymmetricKey(data: key)
+        let mac = HMAC<SHA256>.authenticationCode(for: data, using: symmetricKey)
+        return Data(mac).map { String(format: "%02x", $0) }.joined()
     }
 
     /// Verifies that a string matches a known HMAC hash.

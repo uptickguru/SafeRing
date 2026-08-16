@@ -55,13 +55,13 @@ struct TranscriptCheckView: View {
                     }
                 }
             }
-            .alert("Consent Required", isPresented: $viewModel.consentAlert) {
-                Button("I Understand", role: .primary) {
-                    viewModel.setConsentAcknowledged(true)
+            .alert("Consent Required", isPresented: $viewModel.showConsentAlert) {
+                Button("I Understand", role: .none) {
+                    viewModel.consentAcknowledged = true
                 }
                 Button("Cancel", role: .cancel) { }
             } message: {
-                Text(viewModel.consentMessage)
+                Text("You must only submit conversations you are lawfully permitted to share.")
             }
         }
     }
@@ -101,7 +101,7 @@ struct TranscriptCheckView: View {
                 .font(.bodyText)
                 .foregroundColor(Color("primaryText"))
 
-            Text(viewModel.consentMessage)
+            Text("You must only submit conversations you are lawfully permitted to share.")
                 .font(.captionText)
                 .foregroundColor(Color("secondaryText"))
                 .multilineTextAlignment(.center)
@@ -217,7 +217,7 @@ struct TranscriptCheckView: View {
             icon: "magnifyingglass",
             isLoading: false,
             action: {
-                Task { await viewModel.checkTranscript() }
+                Task { do { _ = try await viewModel.checkTranscript() } catch {} }
             }
         )
     }
@@ -230,7 +230,7 @@ struct TranscriptCheckView: View {
                 .font(.title2)
                 .foregroundColor(Color("criticalRed"))
 
-            Text(viewModel.transcriptError)
+            Text(viewModel.transcriptError ?? "")
                 .font(.bodyText)
                 .foregroundColor(Color("criticalRed"))
                 .multilineTextAlignment(.center)

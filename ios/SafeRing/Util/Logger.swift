@@ -40,6 +40,8 @@ final class Logger {
         case repository = "Repository"
         case useCase = "UseCase"
         case circle = "Circle"
+        case entitlement = "Entitlement"
+        case security = "Security"
 
         var osLog: OSLog {
             OSLog(subsystem: subsystem, category: rawValue)
