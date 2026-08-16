@@ -2,6 +2,7 @@
 package online.db1k.safering.android
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,6 +27,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import online.db1k.safering.android.service.HelpReason
 import online.db1k.safering.android.service.HelpSignaler
 import online.db1k.safering.android.service.HouseholdStore
+import online.db1k.safering.android.service.TripwireNotifier
 import online.db1k.safering.android.ui.check.PasteCheckScreen
 import online.db1k.safering.android.ui.history.CallHistoryScreen
 import online.db1k.safering.android.ui.home.HomeScreen
@@ -37,9 +39,14 @@ import online.db1k.safering.android.ui.theme.SafeRingTheme
 
 class MainActivity : ComponentActivity() {
 
+    private var incomingSharedText by mutableStateOf<String?>(null)
+    private var pendingCheckIn by mutableStateOf(false)
+    private var pendingHelp by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        consumeIntent(intent)
 
         setContent {
             SafeRingTheme {
@@ -49,6 +56,7 @@ class MainActivity : ComponentActivity() {
                 var selectedTab by remember { mutableIntStateOf(0) }
                 var showCheck by remember { mutableStateOf(false) }
                 var showAfterCall by remember { mutableStateOf(false) }
+                var checkText by remember { mutableStateOf("") }
 
                 val lifecycleOwner = LocalLifecycleOwner.current
                 DisposableEffect(lifecycleOwner, onboarded) {
@@ -63,6 +71,23 @@ class MainActivity : ComponentActivity() {
                     onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
                 }
 
+                LaunchedEffect(incomingSharedText, pendingCheckIn, pendingHelp, onboarded) {
+                    if (!onboarded) return@LaunchedEffect
+                    incomingSharedText?.let {
+                        checkText = it
+                        showCheck = true
+                        incomingSharedText = null
+                    }
+                    if (pendingCheckIn) {
+                        showAfterCall = true
+                        pendingCheckIn = false
+                    }
+                    if (pendingHelp) {
+                        pendingHelp = false
+                        signaler.send(HelpReason.AFTER_CALL)
+                    }
+                }
+
                 if (!onboarded) {
                     OnboardingScreen(onFinished = { onboarded = true })
                     return@SafeRingTheme
@@ -71,15 +96,21 @@ class MainActivity : ComponentActivity() {
                 if (showCheck) {
                     PasteCheckScreen(
                         trustedName = household.trustedContactName,
+                        initialText = checkText,
                         onHelp = {
                             signaler.send(HelpReason.PASTE_SCAM)
                             showCheck = false
+                            checkText = ""
                         },
                         onCall = {
                             signaler.callSaved()
                             showCheck = false
+                            checkText = ""
                         },
-                        onClose = { showCheck = false }
+                        onClose = {
+                            showCheck = false
+                            checkText = ""
+                        }
                     )
                     return@SafeRingTheme
                 }
@@ -156,5 +187,34 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        consumeIntent(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+    }
+
+    private fun consumeIntent(intent: Intent?) {
+        if (intent == null) return
+        val shared = intent.getStringExtra(Intent.EXTRA_TEXT)
+            ?: intent.getStringExtra(TripwireNotifier.EXTRA_SHARED_TEXT)
+        if (!shared.isNullOrBlank()) {
+            incomingSharedText = shared.trim()
+        }
+        if (intent.getBooleanExtra(TripwireNotifier.EXTRA_SHOW_CHECKIN, false)) {
+            pendingCheckIn = true
+        }
+        if (intent.getStringExtra(TripwireNotifier.EXTRA_HELP_REASON) != null) {
+            pendingHelp = true
+        }
+        intent.removeExtra(Intent.EXTRA_TEXT)
+        intent.removeExtra(TripwireNotifier.EXTRA_SHARED_TEXT)
+        intent.removeExtra(TripwireNotifier.EXTRA_SHOW_CHECKIN)
+        intent.removeExtra(TripwireNotifier.EXTRA_HELP_REASON)
     }
 }
