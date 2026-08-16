@@ -15,12 +15,20 @@ import online.db1k.safering.android.service.ScamVerdict
 @Composable
 fun PasteCheckScreen(
     trustedName: String,
+    initialText: String = "",
     onHelp: () -> Unit,
     onCall: () -> Unit,
     onClose: () -> Unit
 ) {
-    var text by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf(initialText) }
     var result by remember { mutableStateOf<ScamCheckResult?>(null) }
+
+    LaunchedEffect(initialText) {
+        if (initialText.isNotBlank() && result == null) {
+            text = initialText
+            result = OnDeviceScamChecker.check(initialText)
+        }
+    }
 
     Column(
         modifier = Modifier

@@ -82,7 +82,7 @@ jobs:
       - name: Distribute to Firebase App Distribution
         env:
           FIREBASE_SERVICE_ACCOUNT: /tmp/firebase-service-account.json
-          FIREBASE_RELEASE_NOTES: "1.0.16 tripwire. Set a trusted number, tap Help, paste a scam text. Contacts still ring; unknown is silenced when SafeRing is the caller-ID app."
+          FIREBASE_RELEASE_NOTES: "1.0.17: notification after we silence an unknown call (Get my person). Share a text from Messages into Check. Home shows whether SafeRing is actually the Caller ID & spam app."
         run: |
           cd android
           ./gradlew appDistributionUploadRelease --no-daemon --stacktrace
