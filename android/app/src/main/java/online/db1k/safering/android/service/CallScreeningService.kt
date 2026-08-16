@@ -43,8 +43,10 @@ class SafeRingCallScreeningService : CallScreeningService() {
             return
         }
 
+        // Silence unknown. Do not reject — they can still find it in Recents.
         household.recordUnknownCall()
         respondToCall(details, silence())
+        TripwireNotifier.notifyUnknownCallSilenced(this)
         Logger.info(
             "Silenced unknown incoming (stir=$verification)",
             Logger.Category.CALL
