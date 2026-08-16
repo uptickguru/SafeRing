@@ -1,23 +1,13 @@
 # SafeRing — Android CI/CD
-# Builds the Android app and distributes to Firebase App Distribution.
-#
-# Triggers:
-#   - push to main
-#   - pull requests targeting main
-#
-# Secrets required (set in GitHub repo settings):
-#   FIREBASE_SERVICE_ACCOUNT — JSON key for Firebase service account
-#
-# The Firebase App Distribution Gradle plugin is already configured in
-# android/app/build.gradle.kts (release build type).
+# Builds the signed APK and distributes to Firebase App Distribution
+# (the Android equivalent of TestFlight).
 
 name: Android Build & Firebase Distribution
 
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: android-${{ github.ref }}
@@ -39,27 +29,40 @@ jobs:
           java-version: 17
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Decode Firebase service account
         env:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "FIREBASE_SERVICE_ACCOUNT secret is empty"
+            exit 1
+          fi
           echo "$FIREBASE_SERVICE_ACCOUNT_JSON" | base64 --decode > /tmp/firebase-service-account.json
           echo "FIREBASE_SERVICE_ACCOUNT=/tmp/firebase-service-account.json" >> "$GITHUB_ENV"
 
-      - name: Generate keystore
+      - name: Restore or generate keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          keytool -genkey -v -keystore android/safering-keystore.jks \
-            -alias safering \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -storepass kailey99 \
-            -keypass kailey99 \
-            -dname "CN=SafeRing, OU=SafeRing, O=GMG, L=NYC, S=NY, C=US" \
-            -noprompt
-          echo "Keystore generated"
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/safering-keystore.jks
+            echo "Using ANDROID_KEYSTORE_BASE64 secret"
+          elif [ -f android/safering-keystore.jks ]; then
+            echo "Using committed keystore"
+          else
+            keytool -genkey -v -keystore android/safering-keystore.jks \
+              -alias safering \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -storepass kailey99 \
+              -keypass kailey99 \
+              -dname "CN=SafeRing, OU=SafeRing, O=GMG, L=NYC, S=NY, C=US" \
+              -noprompt
+            echo "Generated ephemeral keystore (testers must uninstall previous builds)"
+          fi
 
       - name: Build release APK
         env:
@@ -67,7 +70,6 @@ jobs:
           KEYSTORE_PASSWORD: kailey99
         run: |
           cd android
-          ls -la safering-keystore.jks
           ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Upload APK as artifact
@@ -78,10 +80,9 @@ jobs:
           retention-days: 14
 
       - name: Distribute to Firebase App Distribution
-        continue-on-error: true
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           FIREBASE_SERVICE_ACCOUNT: /tmp/firebase-service-account.json
+          FIREBASE_RELEASE_NOTES: "1.0.16 tripwire. Set a trusted number, tap Help, paste a scam text. Contacts still ring; unknown is silenced when SafeRing is the caller-ID app."
         run: |
           cd android
-          ./gradlew appDistributionUploadRelease --no-daemon
+          ./gradlew appDistributionUploadRelease --no-daemon --stacktrace

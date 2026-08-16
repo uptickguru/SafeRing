@@ -3,11 +3,23 @@
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <queries>
+        <package android:name="org.thoughtcrime.securesms" />
+        <package android:name="com.whatsapp" />
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="sgnl" />
+        </intent>
+    </queries>
 
     <application
         android:name=".SafeRingApp"
@@ -29,7 +41,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Call Screening Service (Android equivalent of iOS CallDirectory) -->
         <service
             android:name=".service.SafeRingCallScreeningService"
             android:exported="true"
