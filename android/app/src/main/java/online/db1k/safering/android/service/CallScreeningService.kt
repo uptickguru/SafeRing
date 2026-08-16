@@ -96,7 +96,7 @@ class SafeRingCallScreeningService : CallScreeningService() {
         val phoneNumber = details.handle?.schemeSpecificPart ?: return
 
         scope.launch {
-            val hash = HmacHashUtils.hmacSHA256(phoneNumber, key: AppConfig.HMAC_KEY)
+            val hash = HmacHashUtils.hmacSHA256(phoneNumber, key = AppConfig.HMAC_KEY)
             val hashPrefix = hash.take(8)
 
             // Check local blocked numbers first (instant, no network)
