@@ -309,11 +309,6 @@ private fun resultSection() {
                     colors = ButtonDefaults.buttonColors(containerColor = SafeGreen)
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 1afe),
-                    shape = MaterialTheme.shapes.medium,
-                    colors = ButtonDefaults.buttonColors(containerColor = SafeGreen)
-                ) {
-                    Row(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {

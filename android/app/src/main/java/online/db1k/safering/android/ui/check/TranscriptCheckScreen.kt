@@ -327,6 +327,9 @@ private fun resultSection() {
         }
     }
 }
+    }
+}
+
 
 // MARK: - Check Button
 

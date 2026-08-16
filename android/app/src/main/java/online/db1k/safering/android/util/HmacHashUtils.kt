@@ -74,7 +74,7 @@ object HmacHashUtils {
  * Represents an HMAC key for phone number hashing.
  * Keys are provisioned by the backend at enrollment and stored in Keystore.
  */
-class HmacKey(private val keyBytes: ByteArray) // provisionedKey {
+class HmacKey(private val keyBytes: ByteArray) {
 
     constructor(provisionedKey: String) : this(provisionedKey.toByteArray(Charsets.UTF_8))
 
