@@ -22,7 +22,4 @@ interface SmsLogDao {
 
     @Query("DELETE FROM sms_logs")
     suspend fun deleteAll()
-
-    @Query("SELECT COUNT(*) FROM sms_logs WHERE timestamp >= :since")
-    suspend fun getRecentCount(since: Long): Int
 }
