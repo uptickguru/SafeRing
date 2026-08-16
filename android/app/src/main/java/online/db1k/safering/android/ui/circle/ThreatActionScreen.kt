@@ -256,8 +256,7 @@ private fun askFamilyPasswordButton() {
  */
 @Composable
 private fun loopTrustedContactButton() {
-    Button
-        (
+    Button(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(64.dp) // ≥48dp for accessibility
