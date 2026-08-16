@@ -1,223 +1,128 @@
 package online.db1k.safering.android.ui.home
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import online.db1k.safering.android.service.HelpReason
+import online.db1k.safering.android.service.HelpSignaler
+import online.db1k.safering.android.service.HouseholdStore
 import java.text.SimpleDateFormat
-import java.util.*
-import androidx.compose.ui.platform.testTag
+import java.util.Date
+import java.util.Locale
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel) {
-    val state by viewModel.uiState.collectAsState()
+fun HomeScreen(
+    onOpenCheck: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    val household = remember { HouseholdStore.get(context) }
+    val signaler = remember { HelpSignaler(context, household) }
+    var showPassword by remember { mutableStateOf(false) }
+    var tick by remember { mutableIntStateOf(0) }
+    @Suppress("UNUSED_VARIABLE")
+    val refresh = tick
+
+    val trusted = household.trustedContactName.ifBlank { "my person" }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+            .verticalScroll(rememberScrollState())
+            .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Shield icon area
-        Surface(
-            modifier = Modifier.size(120.dp),
-            shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.primaryContainer
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text(
-                    text = "🛡️",
-                    fontSize = 64.sp
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
+        Text("SafeRing", modifier = Modifier.testTag("home_title"), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
         Text(
-            text = "SafeRing",
-            modifier = Modifier.testTag("home_title"),
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = "Scam Call Protection",
+            if (household.isConfigured) "Tripwire ready" else "Needs setup",
             modifier = Modifier.testTag("home_subtitle"),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            "Help texts $trusted at ${household.displayNumber}. Unknown callers are silenced when SafeRing is the screening app. Contacts still ring.",
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        if (household.lastHelpAt > 0) {
+            val stamp = SimpleDateFormat("MMM d, h:mm a", Locale.getDefault()).format(Date(household.lastHelpAt))
+            Text("Last alert $stamp · ${household.helpCount} sent", style = MaterialTheme.typography.bodySmall)
+        }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(Modifier.height(20.dp))
 
-        // Stats row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+        Button(
+            onClick = { signaler.send(HelpReason.MONEY); tick++ },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+            modifier = Modifier.fillMaxWidth().height(72.dp)
         ) {
-            StatCard(
-                value = "${state.scamCount}",
-                label = "Scams Identified",
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            StatCard(
-                value = "${state.blockedToday}",
-                label = "Blocked Today",
-                modifier = Modifier.weight(1f)
-            )
+            Text("Someone wants money — get my person", fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+        }
+        Spacer(Modifier.height(8.dp))
+        Button(
+            onClick = { signaler.send(HelpReason.HELP); tick++ },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+            modifier = Modifier.fillMaxWidth().height(56.dp)
+        ) { Text("I'm not sure — ping them anyway") }
+
+        Spacer(Modifier.height(12.dp))
+        OutlinedButton(onClick = { signaler.callSaved() }, modifier = Modifier.fillMaxWidth().height(56.dp)) {
+            Text("Call $trusted for real")
+        }
+        OutlinedButton(onClick = onOpenCheck, modifier = Modifier.fillMaxWidth().height(56.dp)) {
+            Text("Check a text or email")
+        }
+        OutlinedButton(onClick = { showPassword = true }, modifier = Modifier.fillMaxWidth().height(56.dp)) {
+            Text("Ask them the family password")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Stale data warning
-        if (state.isDataStale) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        Spacer(Modifier.height(20.dp))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp)) {
+                Text("Phone & carrier", fontWeight = FontWeight.Bold)
+                CheckLine("Call screening role", household.callScreeningConfirmed)
+                CheckLine("Carrier scam block", household.carrierProtectionConfirmed)
+                CheckLine("Silence unknown callers", household.silenceUnknownConfirmed)
+            }
+        }
+        Spacer(Modifier.height(12.dp))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp)) {
+                Text("If they claim to be family", fontWeight = FontWeight.Bold)
+                Text(
+                    "Ask for the family password. Hang up if they stall. Then call $trusted on the saved number — never the incoming caller.",
+                    style = MaterialTheme.typography.bodyMedium
                 )
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "⚠️",
-                        fontSize = 20.sp,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                    Text(
-                        text = "Scam database hasn't been updated recently.\nConnect to the internet to get latest protection.",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // Empty state when no activity yet
-        if (state.scamCount == 0 && state.blockedToday == 0) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "🛡️",
-                        fontSize = 40.sp
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "Your Protection Is Active",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "SafeRing is monitoring calls and messages.\nWhen a scam is detected, stats will appear here.",
-                        style = MaterialTheme.typography.bodySmall,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "No calls blocked yet — that's a good day!",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // Extension status
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = if (state.isExtensionActive)
-                    MaterialTheme.colorScheme.secondaryContainer
-                else
-                    MaterialTheme.colorScheme.errorContainer
-            )
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = if (state.isExtensionActive) "✅ Active" else "⚙️ Needs Setup",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = if (state.isExtensionActive) "Call screening is on" else "Enable in Settings",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
-
-        // Last sync timestamp
-        if (state.lastSyncTime != null) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Last updated: ${formatTime(state.lastSyncTime!!)}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
-}
 
-private fun formatTime(timestamp: Long): String {
-    val sdf = SimpleDateFormat("MMM d, h:mm a", Locale.getDefault())
-    return sdf.format(Date(timestamp))
+    if (showPassword) {
+        AlertDialog(
+            onDismissRequest = { showPassword = false },
+            confirmButton = { TextButton(onClick = { showPassword = false }) { Text("OK") } },
+            title = { Text("Ask them the family password") },
+            text = {
+                Text(
+                    if (household.hasFamilyPassword)
+                        "Ask them first. Do not say it unless you are sure. Yours is: ${household.familyPassword}"
+                    else
+                        "No family password is saved. Add one in Settings."
+                )
+            }
+        )
+    }
 }
 
 @Composable
-private fun StatCard(
-    value: String,
-    label: String,
-    modifier: Modifier = Modifier
-) {
-    Card(modifier = modifier) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
+private fun CheckLine(title: String, on: Boolean) {
+    Text(if (on) "✓ $title" else "○ $title")
 }
