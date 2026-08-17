@@ -9,7 +9,7 @@ settings:
   base:
     SWIFT_VERSION: "5.9"
     MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "129"
+    CURRENT_PROJECT_VERSION: "130"
     DEVELOPMENT_TEAM: "53DRV2V873"
     INFOPLIST_FILE: SafeRing/Info.plist
     PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios
@@ -75,6 +75,23 @@ targets:
         IPHONEOS_DEPLOYMENT_TARGET: "17.0"
     dependencies:
       - sdk: CallKit.framework
+
+
+  MessageFilterExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - MessageFilterExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios.MessageFilterExtension
+        INFOPLIST_FILE: MessageFilterExtension/Info.plist
+        CODE_SIGN_ENTITLEMENTS: MessageFilterExtension/MessageFilterExtension.entitlements
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+        CURRENT_PROJECT_VERSION: "130"
+        MARKETING_VERSION: "1.0.0"
+    dependencies:
+      - sdk: IdentityLookup.framework
 
   LiveCallerIDLookupHandler:
     type: app-extension

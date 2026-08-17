@@ -124,7 +124,11 @@ final class HouseholdStore: ObservableObject {
     }
 
     var e164Number: String {
-        Self.normalizeToE164(trustedContactNumber)
+        let n = Self.normalizeToE164(trustedContactNumber)
+        if n.filter({ $0.isNumber }).count >= 10 {
+            FilterRulesStore.shared.syncTrustedContactE164(n)
+        }
+        return n
     }
 
     var displayNumber: String {

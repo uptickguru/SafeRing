@@ -120,6 +120,7 @@ func main() {
 	reportHandler := handler.NewReportHandler(reportStore, logger)
 	statsHandler := handler.NewStatsHandler(reportStore, numberStore, prefixStore, aggregator, logger)
 	eventHandler := handler.NewEventHandler(logger)
+	mfHandler := handler.NewMessageFilterHandler(logger)
 
 	// Build router
 	r := chi.NewRouter()
@@ -178,6 +179,16 @@ func main() {
 		// POST /v1/event — Device action telemetry (block/warn/monitor)
 		// No rate limit — essential for operational visibility
 		r.Post("/event", eventHandler.ServeHTTP)
+
+		// Message filter network + exceptional encrypted OSINT capture
+		r.With(handler.RateLimiter(handler.ModerateRateLimit, cfg.Rate.Window)).
+			Post("/message-filter", mfHandler.ServeMessageFilter)
+		r.With(handler.RateLimiter(handler.ModerateRateLimit, cfg.Rate.Window)).
+			Post("/exceptional/capture", mfHandler.ServeExceptionalCapture)
+		r.With(handler.RateLimiter(handler.LowRateLimit, cfg.Rate.Window)).
+			Get("/exceptional/cases", mfHandler.ServeExceptionalCases)
+		r.With(handler.RateLimiter(handler.ModerateRateLimit, cfg.Rate.Window)).
+			Post("/exceptional/confirm-block", mfHandler.ServeConfirmBlock)
 
 		// Agent coordination endpoints (for distributed scraper agents)
 		// No rate limiting — agents are internal (Tailscale)

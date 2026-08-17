@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Settings screen for SafeRing.
 ///
@@ -28,6 +29,8 @@ struct SettingsView: View {
 
     @ObservedObject private var household = HouseholdStore.shared
     @State private var newPassword = ""
+    @State private var showKeywordEditor = false
+    @State private var showExceptionalReport = false
     @State private var showContacts = false
 
     var body: some View {
@@ -70,6 +73,52 @@ struct SettingsView: View {
             }
 
             Section {
+                
+                Section {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("SMS filter (iPhone)")
+                            .font(.headline)
+                        Text("Turns scam texts into Junk using your word list. Apple requires this path — SafeRing cannot read your inbox.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        Text("Settings → Messages → Unknown & Spam → SMS Filtering → SafeRing")
+                            .font(.footnote)
+                        
+                        Button("Edit filter words") { showKeywordEditor = true }
+                        Toggle(isOn: Binding(
+                            get: { FilterRulesStore.shared.exceptionalCaptureEnabled },
+                            set: { FilterRulesStore.shared.exceptionalCaptureEnabled = $0 }
+                        )) {
+                            Text("Exceptional investigation mode")
+                                .font(.footnote)
+                        }
+                        if FilterRulesStore.shared.exceptionalCaptureEnabled {
+                            Button("Investigate a number (OSINT assist)") {
+                                showExceptionalReport = true
+                            }
+                        }
+
+                        Button("Open iOS Settings") {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                        let kw = FilterRulesStore.shared.keywords.count
+                        let bl = FilterRulesStore.shared.blockedSenders.count
+                        Text("Keywords: \(kw) · Blocked senders: \(bl)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Toggle(isOn: Binding(
+                            get: { FilterRulesStore.shared.networkAssistEnabled },
+                            set: { FilterRulesStore.shared.networkAssistEnabled = $0 }
+                        )) {
+                            Text("Advanced network assist (exceptional clients)")
+                                .font(.footnote)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+
                 Toggle("Silence Unknown Callers is on", isOn: $household.silenceUnknownConfirmed)
                 Toggle("Filter Unknown Senders is on", isOn: $household.filterUnknownSmsConfirmed)
                 Toggle("Carrier scam block is on", isOn: $household.carrierProtectionConfirmed)

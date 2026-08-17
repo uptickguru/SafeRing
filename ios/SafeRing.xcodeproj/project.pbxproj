@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C2E3C4A70002DD04EE05FF06 /* FilterEditors.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3C4A70002AA01BB02CC03 /* FilterEditors.swift */; };
+		C2E3C4A70001DD04EE05FF06 /* ExceptionalCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3C4A70001AA01BB02CC03 /* ExceptionalCaptureService.swift */; };
+		B1E25001F11E5702E5000002 /* FilterRulesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E25001F11E5702E5000001 /* FilterRulesStore.swift */; };
+		B6F708192A3B4C5D6E7F8091 /* MessageFilterHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2B3C4D5E6F708192A3B4C /* MessageFilterHandler.swift */; };
+		C708192A3B4C5D6E7F8091A2 /* FilterRulesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B3C4D5E6F708192A3B4C5D /* FilterRulesStore.swift */; };
+		D8192A3B4C5D6E7F8091A2B3 /* MessageFilterExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A5E6F708192A3B4C5D6E7F80 /* MessageFilterExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		72B3C4D5E6F708192A3B4C5D /* IdentityLookup.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 83C4D5E6F708192A3B4C5D6E /* IdentityLookup.framework */; };
 		03297BA3C422173601B7E868 /* ScamStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BE4217C937ACCE1AA39503F /* ScamStore.swift */; };
 		06BC25021327328E383FB70A /* CallRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5E5BD5EC8A271B1EFE7532 /* CallRow.swift */; };
 		0F00FDD5CFE9158A2D26D380 /* WatchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65837E5EED9E1F39236AF5F6 /* WatchKit.framework */; };
@@ -118,6 +125,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		61A2B3C4D5E6F708192A3B4C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D8192A3B4C5D6E7F8091A2B3 /* MessageFilterExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F33D9F601F7DFDBE86567892 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -132,6 +150,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C2E3C4A70002AA01BB02CC03 /* FilterEditors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeRing/UI/Screens/Settings/FilterEditors.swift; sourceTree = "<group>"; };
+		C2E3C4A70001AA01BB02CC03 /* ExceptionalCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeRing/Service/ExceptionalCaptureService.swift; sourceTree = "<group>"; };
+		B1E25001F11E5702E5000001 /* FilterRulesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FilterRulesStore.swift; path = FilterRulesStore.swift; sourceTree = "<group>"; };
+		C1A2B3C4D5E6F708192A3B4C /* MessageFilterHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageFilterHandler.swift; sourceTree = "<group>"; };
+		D2B3C4D5E6F708192A3B4C5D /* FilterRulesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterRulesStore.swift; sourceTree = "<group>"; };
+		E3C4D5E6F708192A3B4C5D6E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F4D5E6F708192A3B4C5D6E7F /* MessageFilterExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MessageFilterExtension.entitlements; sourceTree = "<group>"; };
+		A5E6F708192A3B4C5D6E7F80 /* MessageFilterExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = MessageFilterExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		83C4D5E6F708192A3B4C5D6E /* IdentityLookup.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IdentityLookup.framework; path = System/Library/Frameworks/IdentityLookup.framework; sourceTree = SDKROOT; };
 		002EEE792B26CDB3E52DC934 /* LiveCallerIDLookupHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveCallerIDLookupHandler.swift; sourceTree = "<group>"; };
 		0558E8807B3857D9C3EADF01 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		069DC060D853C77C9A99A068 /* LessonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonsView.swift; sourceTree = "<group>"; };
@@ -229,6 +256,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1C5D6E7F8091A2B3C4D5E6F7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72B3C4D5E6F708192A3B4C5D /* IdentityLookup.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		000584A6ECEDDF66E7E599F2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -271,6 +306,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E92A3B4C5D6E7F8091A2B3C4 /* MessageFilterExtension */ = {
+			isa = PBXGroup;
+			children = (
+				C1A2B3C4D5E6F708192A3B4C /* MessageFilterHandler.swift */,
+				D2B3C4D5E6F708192A3B4C5D /* FilterRulesStore.swift */,
+				E3C4D5E6F708192A3B4C5D6E /* Info.plist */,
+				F4D5E6F708192A3B4C5D6E7F /* MessageFilterExtension.entitlements */,
+			);
+			path = MessageFilterExtension;
+			sourceTree = "<group>";
+		};
 		03063CD6202FBDAF07A9070B /* Screens */ = {
 			isa = PBXGroup;
 			children = (
@@ -416,6 +462,7 @@
 			isa = PBXGroup;
 			children = (
 				E37D3E309772AC5CB45E4C87 /* CallDirectoryHandler.appex */,
+				A5E6F708192A3B4C5D6E7F80 /* MessageFilterExtension.appex */,
 				A9953DFCDDE6FFCD454AAFE5 /* LiveCallerIDLookupHandler.appex */,
 				68BE0983E2D963EA15AE1CC2 /* SafeRing.app */,
 				DA361D86D0669C0003AD060C /* SafeRingUITests.xctest */,
@@ -590,6 +637,7 @@
 				61F0FE61A3286D022FAB1D7E /* CircleManager.swift */,
 				CBC50011C6B17532B70EA8C7 /* HelpSignaler.swift */,
 				ECF261525785F38D332040EB /* HouseholdStore.swift */,
+				B1E25001F11E5702E5000001 /* FilterRulesStore.swift */,
 				9FDF59CDCF54F20E4FFE931F /* OnDeviceScamChecker.swift */,
 			);
 			path = Service;
@@ -632,6 +680,7 @@
 			isa = PBXGroup;
 			children = (
 				47FA119654B7FE186B46F774 /* CallDirectoryHandler */,
+				E92A3B4C5D6E7F8091A2B3C4 /* MessageFilterExtension */,
 				9DEBBBF314FD0CED00BD2994 /* LiveCallerIDLookupHandler */,
 				3F2078BF8C434EA50C006D65 /* SafeRing */,
 				60804BF49E2CF74262FC7403 /* SafeRingUITests */,
@@ -710,6 +759,24 @@
 			productReference = A9953DFCDDE6FFCD454AAFE5 /* LiveCallerIDLookupHandler.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		FA3B4C5D6E7F8091A2B3C4D5 /* MessageFilterExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3E7F8091A2B3C4D5E6F70819 /* Build configuration list for PBXNativeTarget "MessageFilterExtension" */;
+			buildPhases = (
+				0B4C5D6E7F8091A2B3C4D5E6 /* Sources */,
+				1C5D6E7F8091A2B3C4D5E6F7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MessageFilterExtension;
+			packageProductDependencies = (
+			);
+			productName = MessageFilterExtension;
+			productReference = A5E6F708192A3B4C5D6E7F80 /* MessageFilterExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		D08323F1467A1BD3FF557507 /* CallDirectoryHandler */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 64C10E2715D2EE6C8C291A06 /* Build configuration list for PBXNativeTarget "CallDirectoryHandler" */;
@@ -755,11 +822,13 @@
 				78DC606A0A237BE6A2227DBB /* Sources */,
 				1A4F9EB503A9E054D14BAA7E /* Resources */,
 				000584A6ECEDDF66E7E599F2 /* Frameworks */,
-			);
+			
+				61A2B3C4D5E6F708192A3B4C /* Embed Foundation Extensions */,);
 			buildRules = (
 			);
 			dependencies = (
-			);
+			
+				2D6E7F8091A2B3C4D5E6F708 /* PBXTargetDependency */,);
 			name = SafeRing;
 			packageProductDependencies = (
 			);
@@ -812,6 +881,7 @@
 			projectRoot = "";
 			targets = (
 				D08323F1467A1BD3FF557507 /* CallDirectoryHandler */,
+				FA3B4C5D6E7F8091A2B3C4D5 /* MessageFilterExtension */,
 				C6D9A0235DFE31143885C210 /* LiveCallerIDLookupHandler */,
 				F7EA7D3F91AD5D9545A129C1 /* SafeRing */,
 				B9F9ADBEAE5DBC5F65BE486E /* SafeRingUITests */,
@@ -848,6 +918,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0B4C5D6E7F8091A2B3C4D5E6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B6F708192A3B4C5D6E7F8091 /* MessageFilterHandler.swift in Sources */,
+				C708192A3B4C5D6E7F8091A2 /* FilterRulesStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		68F4611F54CDD7246C9B39E3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -886,6 +965,9 @@
 				1C22603B0090696B16A78E7D /* Font.swift in Sources */,
 				CB9ED046DB5E3153E6CFCB4D /* HashUtils.swift in Sources */,
 				6EFDE362E6FC3F6D115FC7FF /* HelpSignaler.swift in Sources */,
+				B1E25001F11E5702E5000002 /* FilterRulesStore.swift in Sources */,
+				C2E3C4A70002DD04EE05FF06 /* FilterEditors.swift in Sources */,
+				C2E3C4A70001DD04EE05FF06 /* ExceptionalCaptureService.swift in Sources */,
 				DC6911A08E89FFBF53F97C5C /* HmacHashUtils.swift in Sources */,
 				B8E59E7C61CFA65DC20C11C5 /* HomeView.swift in Sources */,
 				C145CBC6C3EB3BA3FF2E077E /* HomeViewModel.swift in Sources */,
@@ -963,6 +1045,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2D6E7F8091A2B3C4D5E6F708 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FA3B4C5D6E7F8091A2B3C4D5 /* MessageFilterExtension */;
+		};
 		37FE2109C94E29D751B7F5A6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F7EA7D3F91AD5D9545A129C1 /* SafeRing */;
@@ -981,6 +1067,57 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		4F8091A2B3C4D5E6F708192A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MessageFilterExtension/MessageFilterExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 131;
+				DEVELOPMENT_TEAM = 53DRV2V873;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = MessageFilterExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios.MessageFilterExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		5091A2B3C4D5E6F708192A3B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MessageFilterExtension/MessageFilterExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 131;
+				DEVELOPMENT_TEAM = 53DRV2V873;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = MessageFilterExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = online.db1k.safering.ios.MessageFilterExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		00B3DBF11C93938C9C6DB614 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1073,7 +1210,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 129;
+				CURRENT_PROJECT_VERSION = 131;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 53DRV2V873;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1237,7 +1374,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 129;
+				CURRENT_PROJECT_VERSION = 131;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 53DRV2V873;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -1321,6 +1458,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3E7F8091A2B3C4D5E6F70819 /* Build configuration list for PBXNativeTarget "MessageFilterExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F8091A2B3C4D5E6F708192A /* Debug */,
+				5091A2B3C4D5E6F708192A3B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		035903E75498032889DB9814 /* Build configuration list for PBXNativeTarget "SafeRing" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
