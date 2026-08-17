@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Design tokens and theme constants for SafeRing.
 ///
@@ -106,3 +107,143 @@ extension View {
         modifier(AppTheme.cardShadow)
     }
 }
+
+/// SafeRing visual language — calm, large, high-contrast, fills the phone.
+
+
+// MARK: - Elegant SafeRing tokens (hard RGB — never muddy asset colors)
+
+// MARK: - Timeless luxury tokens (Rolex-class restraint)
+
+enum SR {
+    /// sRGB via UIColor — predictable on device and simulator
+    private static func c(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat, _ a: CGFloat = 1) -> Color {
+        Color(uiColor: UIColor(red: r, green: g, blue: b, alpha: a))
+    }
+
+    // Ivory dial / soft metal
+    static let canvasTop = c(0.97, 0.965, 0.955)
+    static let canvasBot = c(0.94, 0.935, 0.92)
+    static let surface = c(0.99, 0.985, 0.978)
+    static let ink = c(0.16, 0.15, 0.14)
+    static let mute = c(0.48, 0.46, 0.43)
+    static let line = c(0.82, 0.79, 0.74, 0.85)
+
+    // Precious metal accents
+    static let gold = c(0.62, 0.52, 0.34)
+    static let goldSoft = c(0.72, 0.62, 0.42)
+    static let steel = c(0.55, 0.56, 0.58)
+
+    // Actions — dignified, not carnival
+    static let help = c(0.48, 0.22, 0.24)          // soft burgundy
+    static let helpDeep = c(0.38, 0.16, 0.18)
+    static let caution = c(0.52, 0.40, 0.28)        // muted bronze
+    static let cautionDeep = c(0.42, 0.32, 0.22)
+    static let go = c(0.28, 0.40, 0.36)             // quiet sage
+    static let goDeep = c(0.22, 0.32, 0.29)
+    static let accent = gold
+
+    // Legacy aliases used by older call sites
+    static let helpLegacy = help
+    static let ok = go
+    static let warn = caution
+
+    static func font(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
+        // Classic system, not rounded cartoon
+        .system(size: size, weight: weight, design: .default)
+    }
+
+    static var canvas: some View {
+        LinearGradient(colors: [canvasTop, canvasBot], startPoint: .top, endPoint: .bottom)
+            .ignoresSafeArea()
+    }
+}
+
+struct PressSoft: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.988 : 1)
+            .opacity(configuration.isPressed ? 0.94 : 1)
+            .animation(.easeOut(duration: 0.16), value: configuration.isPressed)
+    }
+}
+
+/// Primary control — solid metal; fixed height or expand to fill parent.
+struct ElegantPrimary: View {
+    let title: String
+    var subtitle: String? = nil
+    var icon: String? = nil
+    var top: Color
+    var bottom: Color = .clear
+    /// nil = fill offered space (use with frame maxHeight: .infinity)
+    var height: CGFloat? = 56
+    var titleSize: CGFloat = 22
+    var lightLabel: Bool = true
+    let action: () -> Void
+
+    private var isHero: Bool {
+        if let height { return height > 140 }
+        return true
+    }
+
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                RoundedRectangle(cornerRadius: isHero ? 22 : 16, style: .continuous)
+                    .fill(top)
+                RoundedRectangle(cornerRadius: isHero ? 22 : 16, style: .continuous)
+                    .stroke(SR.gold.opacity(0.35), lineWidth: 0.8)
+
+                VStack(spacing: isHero ? 10 : 5) {
+                    if let icon {
+                        Image(systemName: icon)
+                            .font(.system(size: isHero ? 34 : 18, weight: .medium))
+                            .symbolRenderingMode(.monochrome)
+                    }
+                    Text(title)
+                        .font(SR.font(titleSize, .semibold))
+                        .tracking(isHero ? 2.5 : 0.4)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.85)
+                    if let subtitle {
+                        Text(subtitle)
+                            .font(SR.font(isHero ? 18 : 15, .regular))
+                            .opacity(0.88)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    }
+                }
+                .foregroundStyle(lightLabel ? Color.white.opacity(0.96) : SR.ink)
+                .padding(.horizontal, 16)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(maxHeight: .infinity)
+            .frame(height: height)
+            .shadow(color: Color.black.opacity(0.10), radius: 12, y: 5)
+        }
+        .buttonStyle(PressSoft())
+    }
+}
+
+struct StatusPill: View {
+    let text: String
+    var ok: Bool = true
+    var body: some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(ok ? SR.gold : SR.mute)
+                .frame(width: 7, height: 7)
+            Text(text)
+                .font(SR.font(14, .medium))
+                .foregroundStyle(SR.ink)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(Capsule(style: .continuous).fill(SR.surface))
+        .overlay(Capsule(style: .continuous).stroke(SR.line, lineWidth: 0.8))
+    }
+}
+

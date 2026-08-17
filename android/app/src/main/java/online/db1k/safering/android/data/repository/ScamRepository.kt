@@ -32,6 +32,17 @@ class ScamRepository(
     suspend fun getBlockedNumbersOnce(): List<ScamNumberEntity> =
         scamDao.getBlockedNumbersOnce()
 
+    suspend fun checkNumberCached(hash: String): CheckResult? {
+        val cached = scamDao.getByHash(hash) ?: return null
+        return CheckResult(
+            hash = cached.numberHash,
+            risk = cached.riskScore,
+            label = cached.scamLabel,
+            confidence = cached.confidence,
+            isLocalOnly = true
+        )
+    }
+
     // ─── Check Number ────────────────────────────────────────────
 
     /**

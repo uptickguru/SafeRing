@@ -1,43 +1,41 @@
 import Foundation
 import UserNotifications
-import SwiftUI
 
-class WeeklySummaryManager {
-    
+enum WeeklySummaryManager {
     private static let notificationId = "weekly-summary"
-    
+
+    /// Never prompts. Only schedules if already authorized.
     static func schedule() {
         let center = UNUserNotificationCenter.current()
-        center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
-        center.removePendingNotificationRequests(withIdentifiers: [notificationId])
-        
-        let content = UNMutableNotificationContent()
-        content.title = "📊 SafeRing Weekly Summary"
-        content.body = "Tap to see your scam protection stats for this week."
-        content.sound = .default
-        
-        var dateComponents = DateComponents()
-        dateComponents.weekday = 2
-        dateComponents.hour = 10
-        dateComponents.minute = 0
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        let request = UNNotificationRequest(identifier: notificationId, content: content, trigger: trigger)
-        center.add(request)
-    }
-    
-    static func updateStats(blocked: Int, filtered: Int) {
-        let center = UNUserNotificationCenter.current()
-        center.getPendingNotificationRequests { requests in
-            guard let request = requests.first(where: { $0.identifier == notificationId }) else { return }
-            let content = request.content.mutableCopy() as! UNMutableNotificationContent
-            content.body = "\(blocked) calls blocked · \(filtered) SMS filtered this week."
-            content.badge = NSNumber(value: blocked + filtered)
-            let newRequest = UNNotificationRequest(identifier: notificationId, content: content, trigger: request.trigger)
-            center.add(newRequest)
+        center.getNotificationSettings { settings in
+            guard settings.authorizationStatus == .authorized
+                || settings.authorizationStatus == .provisional
+                || settings.authorizationStatus == .ephemeral else { return }
+            Self.enqueueWeekly()
         }
     }
-    
+
+    /// Explicit opt-in from Settings only.
+    static func requestPermissionIfNeeded() {
+        // Intentionally empty in v1 — notification prompt was covering Home/Onboarding.
+        // Wire from Settings later if product wants weekly check-ins.
+    }
+
+    private static func enqueueWeekly() {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [notificationId])
+        let content = UNMutableNotificationContent()
+        content.title = "SafeRing weekly check-in"
+        content.body = "Tap to review protection for this week."
+        content.sound = .default
+        var dc = DateComponents()
+        dc.weekday = 2
+        dc.hour = 10
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dc, repeats: true)
+        center.add(UNNotificationRequest(identifier: notificationId, content: content, trigger: trigger))
+    }
+
+    static func updateStats(blocked: Int, filtered: Int) {}
     static func cancel() {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [notificationId])
     }

@@ -26,8 +26,66 @@ struct SettingsView: View {
 
     // MARK: - Body
 
+    @ObservedObject private var household = HouseholdStore.shared
+    @State private var newPassword = ""
+    @State private var showContacts = false
+
     var body: some View {
         List {
+            Section {
+                TextField("Your name", text: $household.ownerDisplayName)
+                TextField("Trusted person name", text: $household.trustedContactName)
+                TextField("Trusted person number", text: $household.trustedContactNumber)
+                    .keyboardType(.phonePad)
+                    .textContentType(.telephoneNumber)
+                Button("Pick from Contacts") { showContacts = true }
+
+                Picker("How to reach them", selection: $household.preferredChannel) {
+                    ForEach(HouseholdStore.SignalChannel.allCases) { channel in
+                        Text(channel.title).tag(channel)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(household.preferredChannel.subtitle)
+                        .font(.captionText)
+                        .foregroundColor(Color("secondaryText"))
+                    Text("Text / iMessage is the only channel that reliably delivers a prefilled alert on iPhone. Signal has no send API. WhatsApp can prefill if it is installed. FaceTime is for a live check, not a text.")
+                        .font(.captionText)
+                        .foregroundColor(Color("secondaryText"))
+                }
+
+                SecureField("New family password", text: $newPassword)
+                Button("Save family password on this phone") {
+                    household.setFamilyPassword(newPassword)
+                    newPassword = ""
+                }
+                .disabled(newPassword.trimmingCharacters(in: .whitespaces).count < 3)
+            } header: {
+                Text("Your person")
+                    .font(.sectionTitle)
+            } footer: {
+                Text("The number and password stay on this device. Help texts only go to this person.")
+                    .font(.captionText)
+            }
+
+            Section {
+                Toggle("Silence Unknown Callers is on", isOn: $household.silenceUnknownConfirmed)
+                Toggle("Filter Unknown Senders is on", isOn: $household.filterUnknownSmsConfirmed)
+                Toggle("Carrier scam block is on", isOn: $household.carrierProtectionConfirmed)
+                Button("Open iPhone Settings") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+            } header: {
+                Text("Give the iPhone permission")
+                    .font(.sectionTitle)
+            } footer: {
+                Text("1. Settings → Phone → Silence Unknown Callers.\n2. Settings → Apps → Messages → Unknown & Spam → Filter Unknown Senders.\n3. Contacts: allow SafeRing when it asks, so you can pick your person.\n4. Carrier: T-Mobile Scam Shield, AT&T ActiveArmor, or Verizon Call Filter — turn Block on.\niPhone will not let SafeRing become the system caller-ID app. Silence Unknown + carrier block do the intercept. SafeRing is the family tripwire.")
+                    .font(.captionText)
+            }
+
             // MARK: - Protection Section
             Section {
                 Toggle(isOn: $protectionEnabled) {
@@ -230,7 +288,7 @@ struct SettingsView: View {
                 Button(role: .destructive) {
                     showResetConfirmation = true
                 } label: {
-                    Label("Reset SafeRing", systemImage: "trash")
+                    Label("Start over — clear and onboard again", systemImage: "arrow.counterclockwise")
                         .font(.buttonLabel)
                 }
             }
@@ -247,7 +305,18 @@ struct SettingsView: View {
                 resetApp()
             }
         } message: {
-            Text("This will clear all cached scam data and reset your settings. You will need to go through the setup again to restore protection.")
+            Text("Clears your person, password, and settings on this phone. You will see the welcome setup again immediately.")
+        }
+        .sheet(isPresented: $showContacts) {
+            ContactPicker(
+                onPick: { name, number in
+                    if !name.isEmpty { household.trustedContactName = name }
+                    household.trustedContactNumber = number
+                    showContacts = false
+                },
+                onCancel: { showContacts = false }
+            )
+            .ignoresSafeArea()
         }
     }
 
@@ -314,7 +383,10 @@ struct SettingsView: View {
     }
 
     private func resetApp() {
-        UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
+        // Full wipe → onboarding on next paint (works without killing the app)
+        HouseholdStore.shared.resetForOnboarding()
+        hasCompletedOnboarding = false
+        clearCache()
     }
 }
 

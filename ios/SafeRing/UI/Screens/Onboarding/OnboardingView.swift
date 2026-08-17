@@ -1,200 +1,251 @@
 import SwiftUI
 
-/// Three-step onboarding wizard for first-time users.
-///
-/// # Senior-Friendly Design
-/// - 3 screens, 30 seconds max
-/// - Large illustrations and text
-/// - Single tap to grant permissions
-/// - Clear, encouraging messaging
-/// - No login or account creation
-///
-/// # Steps
-/// 1. Welcome & Permission Granting
-/// 2. Call Protection Setup (CallKit)
-/// 3. All Set — Notification & SMS Permission
-///
+/// Full-viewport onboarding on any device size.
 struct OnboardingView: View {
-
-    // MARK: - Properties
 
     let onComplete: () -> Void
 
-    @State private var currentStep: Int = 0
-    @State private var animateContent = false
+    @ObservedObject private var household = HouseholdStore.shared
 
-    // MARK: - Steps
+    @State private var step = 0
+    @State private var password = ""
+    @State private var passwordConfirm = ""
+    @State private var showContacts = false
+    @State private var errorMessage: String?
 
-    private let steps: [OnboardingStep] = [
-        OnboardingStep(
-            title: "Meet SafeRing",
-            subtitle: "AI-powered protection against phone scams",
-            icon: "shield.checkered",
-            color: Color("safeGreen"),
-            description: "SafeRing automatically screens your calls and text messages for known scam patterns. No setup required — just grant permission and you're protected.",
-            actionLabel: "Get Started"
-        ),
-        OnboardingStep(
-            title: "Call Protection",
-            subtitle: "Stop scams before they ring",
-            icon: "phone.badge.waveform.fill",
-            color: AppTheme.accentColor,
-            description: "SafeRing will check every incoming call against our scam database. Scam numbers are identified before you answer, and confirmed scams are blocked automatically.",
-            actionLabel: "Enable Call Screening"
-        ),
-        OnboardingStep(
-            title: "You're All Set!",
-            subtitle: "Nothing else to configure",
-            icon: "hand.wave.fill",
-            color: Color("safeGreen"),
-            description: "SafeRing works silently in the background. You can review blocked calls and report new scams from the app anytime. Stay safe! 🛡️",
-            actionLabel: "Start Protection"
-        ),
-    ]
-
-    // MARK: - Body
+    private let total = 4
 
     var body: some View {
-        ZStack {
-            Color("appBackground").ignoresSafeArea()
+        GeometryReader { geo in
+            let h = max(geo.size.height, 1)
+            let side = max(18, min(geo.size.width * 0.06, 28))
 
-            VStack {
-                // Skip button
-                skipButton
-
-                Spacer()
-
-                // Step Content
-                TabView(selection: $currentStep) {
-                    ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
-                        stepView(step)
-                            .tag(index)
+            VStack(spacing: 0) {
+                HStack(spacing: 6) {
+                    ForEach(0..<total, id: \.self) { i in
+                        Capsule()
+                            .fill(i <= step ? SR.gold : SR.line)
+                            .frame(width: i == step ? 22 : 7, height: 6)
                     }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.easeInOut(duration: 0.5), value: currentStep)
+                .padding(.top, max(10, h * 0.02))
+                .padding(.bottom, 8)
 
-                Spacer()
-
-                // Navigation
-                VStack(spacing: AppTheme.spacingMD) {
-                    // Page Dots
-                    HStack(spacing: 12) {
-                        ForEach(0..<steps.count, id: \.self) { index in
-                            Circle()
-                                .fill(currentStep == index ? AppTheme.accentColor : Color("secondaryText").opacity(0.3))
-                                .frame(width: 12, height: 12)
-                                .animation(.spring(), value: currentStep)
-                        }
-                    }
-
-                    // Action Button
-                    BigButton(
-                        title: steps[currentStep].actionLabel,
-                        icon: currentStep == steps.count - 1 ? "checkmark" : "arrow.right",
-                        action: handleAction,
-                        color: steps[currentStep].color
-                    )
-                    .padding(.horizontal)
-
-                    // Back button (not on first step)
-                    if currentStep > 0 {
-                        Button("Back") {
-                            withAnimation {
-                                currentStep -= 1
-                            }
-                        }
-                        .font(.bodyText)
-                        .foregroundColor(Color("secondaryText"))
+                Group {
+                    switch step {
+                    case 0: welcome(h: h)
+                    case 1: nameStep
+                    case 2: personStep
+                    default: passwordStep
                     }
                 }
-                .padding(.bottom, 40)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                if let errorMessage {
+                    Text(errorMessage)
+                        .font(SR.font(16, .medium))
+                        .foregroundStyle(SR.help)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, side)
+                        .padding(.bottom, 8)
+                }
+
+                Button(action: advance) {
+                    Text(step == total - 1 ? "Begin" : "Continue")
+                        .font(SR.font(18, .semibold))
+                        .tracking(1.0)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: max(54, min(h * 0.08, 62)))
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(SR.ink)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .stroke(SR.gold.opacity(0.4), lineWidth: 0.8)
+                        )
+                }
+                .buttonStyle(PressSoft())
+                .padding(.horizontal, side)
+
+                if step > 0 {
+                    Button("Back") {
+                        errorMessage = nil
+                        withAnimation(.easeInOut(duration: 0.18)) { step -= 1 }
+                    }
+                    .font(SR.font(16, .medium))
+                    .foregroundStyle(SR.mute)
+                    .frame(height: 44)
+                } else {
+                    Color.clear.frame(height: 44)
+                }
             }
+            .frame(width: geo.size.width, height: geo.size.height)
+            .padding(.bottom, geo.safeAreaInsets.bottom > 0 ? 0 : 8)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(SR.canvas.ignoresSafeArea())
+        .sheet(isPresented: $showContacts) {
+            ContactPicker(
+                onPick: { name, number in
+                    if !name.isEmpty { household.trustedContactName = name }
+                    household.trustedContactNumber = number
+                    showContacts = false
+                },
+                onCancel: { showContacts = false }
+            )
+            .ignoresSafeArea()
         }
     }
 
-    // MARK: - Skip Button
-
-    private var skipButton: some View {
-        HStack {
-            Spacer()
-            if currentStep < steps.count - 1 {
-                Button("Skip") {
-                    completeOnboarding()
-                }
-                .font(.bodyText)
-                .foregroundColor(Color("secondaryText"))
-                .padding()
+    private func welcome(h: CGFloat) -> some View {
+        VStack(spacing: 18) {
+            Spacer(minLength: h * 0.06)
+            ZStack {
+                Circle()
+                    .stroke(SR.gold.opacity(0.35), lineWidth: 1)
+                    .frame(width: min(120, h * 0.16), height: min(120, h * 0.16))
+                Image(systemName: "shield")
+                    .font(.system(size: min(44, h * 0.055), weight: .ultraLight))
+                    .foregroundStyle(SR.ink)
             }
-        }
-    }
-
-    // MARK: - Step View
-
-    private func stepView(_ step: OnboardingStep) -> some View {
-        VStack(spacing: AppTheme.spacingXL) {
-            // Icon
-            Image(systemName: step.icon)
-                .font(.system(size: 80))
-                .foregroundColor(step.color)
-                .symbolEffect(.bounce, value: currentStep)
-
-            // Text Content
-            VStack(spacing: AppTheme.spacingSM) {
-                Text(step.title)
-                    .font(.heroTitle)
-                    .foregroundColor(Color("primaryText"))
-                    .multilineTextAlignment(.center)
-
-                Text(step.subtitle)
-                    .font(.largeBody)
-                    .foregroundColor(Color("secondaryText"))
-                    .multilineTextAlignment(.center)
-            }
-
-            // Description
-            Text(step.description)
-                .font(.bodyText)
-                .foregroundColor(Color("secondaryText"))
+            Text("SAFERING")
+                .font(SR.font(12, .semibold))
+                .tracking(4)
+                .foregroundStyle(SR.gold)
+            Text("A quiet promise.")
+                .font(SR.font(min(32, h * 0.045), .regular))
+                .foregroundStyle(SR.ink)
+            Text("Texts someone you trust\nwhen something feels wrong.")
+                .font(SR.font(18, .regular))
+                .foregroundStyle(SR.mute)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, AppTheme.spacingLG)
+                .padding(.horizontal, 28)
+            Spacer()
+            Spacer()
         }
-        .padding(.horizontal)
+        .frame(maxWidth: .infinity)
     }
 
-    // MARK: - Actions
+    private var nameStep: some View {
+        formShell(title: "Your name", hint: "Your person sees this in the alert.") {
+            field("Example: Helen", text: $household.ownerDisplayName)
+                .textContentType(.name)
+        }
+    }
 
-    private func handleAction() {
-        if currentStep == steps.count - 1 {
-            completeOnboarding()
-        } else {
-            withAnimation {
-                currentStep += 1
+    private var personStep: some View {
+        formShell(title: "Who we reach", hint: "Usually a child or spouse.") {
+            VStack(spacing: 12) {
+                field("Their name", text: $household.trustedContactName)
+                    .textContentType(.name)
+                field("Their phone number", text: $household.trustedContactNumber)
+                    .keyboardType(.phonePad)
+                    .textContentType(.telephoneNumber)
+                Button { showContacts = true } label: {
+                    Text("Choose from Contacts")
+                        .font(SR.font(16, .medium))
+                        .foregroundStyle(SR.ink)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(SR.surface)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(SR.line, lineWidth: 0.8)
+                        )
+                }
             }
         }
     }
 
-    private func completeOnboarding() {
-        withAnimation(.easeInOut(duration: 0.5)) {
-            onComplete()
+    private var passwordStep: some View {
+        formShell(title: "Family password", hint: "Ask them this if someone claims to be family. Not a bank PIN.") {
+            VStack(spacing: 12) {
+                secure("Password", text: $password)
+                secure("Type it again", text: $passwordConfirm)
+            }
         }
     }
-}
 
-// MARK: - Onboarding Step Model
+    private func formShell<C: View>(title: String, hint: String, @ViewBuilder content: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Spacer().frame(height: 12)
+            Text(title)
+                .font(SR.font(28, .regular))
+                .foregroundStyle(SR.ink)
+            Text(hint)
+                .font(SR.font(16, .regular))
+                .foregroundStyle(SR.mute)
+                .fixedSize(horizontal: false, vertical: true)
+            content()
+            Spacer()
+        }
+        .padding(.horizontal, 24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
 
-private struct OnboardingStep {
-    let title: String
-    let subtitle: String
-    let icon: String
-    let color: Color
-    let description: String
-    let actionLabel: String
-}
+    private func field(_ placeholder: String, text: Binding<String>) -> some View {
+        TextField(placeholder, text: text)
+            .font(SR.font(20, .regular))
+            .padding(16)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(SR.surface))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(SR.line, lineWidth: 0.8))
+    }
 
-// MARK: - Preview
+    private func secure(_ placeholder: String, text: Binding<String>) -> some View {
+        SecureField(placeholder, text: text)
+            .font(SR.font(20, .regular))
+            .padding(16)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(SR.surface))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(SR.line, lineWidth: 0.8))
+            .textContentType(.newPassword)
+    }
 
-#Preview {
-    OnboardingView(onComplete: { })
+    private func advance() {
+        errorMessage = nil
+        switch step {
+        case 0:
+            withAnimation { step = 1 }
+        case 1:
+            if household.ownerDisplayName.trimmingCharacters(in: .whitespacesAndNewlines).count < 2 {
+                errorMessage = "Type your name."
+                return
+            }
+            withAnimation { step = 2 }
+        case 2:
+            if HouseholdStore.normalizeToE164(household.trustedContactNumber).filter(\.isNumber).count < 10 {
+                errorMessage = "Enter a real phone number."
+                return
+            }
+            if household.trustedContactName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                household.trustedContactName = "My person"
+            }
+            withAnimation { step = 3 }
+        case 3:
+            let trimmed = password.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.count < 3 {
+                errorMessage = "Password needs at least 3 characters."
+                return
+            }
+            if trimmed != passwordConfirm.trimmingCharacters(in: .whitespacesAndNewlines) {
+                errorMessage = "Passwords do not match."
+                return
+            }
+            household.setFamilyPassword(trimmed)
+            password = ""
+            passwordConfirm = ""
+            guard household.isConfigured else {
+                errorMessage = "Missing name or phone. Go back and check."
+                return
+            }
+            onComplete()
+        default:
+            break
+        }
+    }
 }

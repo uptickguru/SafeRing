@@ -1,27 +1,36 @@
 package online.db1k.safering.android.ui.onboarding
 
-import android.app.role.RoleManager
-import android.content.Intent
+import android.Manifest
 import android.os.Build
-import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import online.db1k.safering.android.service.HouseholdStore
 
+private val Green = Color(0xFF2E7D32)
+
+/**
+ * Senior-first onboarding: one question per screen, huge type.
+ * Phone/carrier checklist is deferred to Settings — not a wall of text here.
+ */
 @Composable
 fun OnboardingScreen(onFinished: () -> Unit) {
     val context = LocalContext.current
@@ -34,119 +43,73 @@ fun OnboardingScreen(onFinished: () -> Unit) {
     var confirm by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
 
-    val roleLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { }
-    val contactsPermission = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
+    val runtimePermissions = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
     ) { }
 
-    fun requestCallScreening() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val rm = context.getSystemService(RoleManager::class.java)
-            if (rm != null && rm.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING) &&
-                !rm.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)
-            ) {
-                roleLauncher.launch(rm.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING))
-            } else {
-                roleLauncher.launch(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
-            }
-        }
-    }
+    val total = 4
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
+            .padding(horizontal = 24.dp)
+            .padding(top = 16.dp, bottom = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        LinearProgressIndicator(
-            progress = (step + 1) / 5f,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(Modifier.height(24.dp))
+        // Step dots
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            repeat(total) { i ->
+                Box(
+                    modifier = Modifier
+                        .height(10.dp)
+                        .width(if (i == step) 28.dp else 10.dp)
+                        .clip(RoundedCornerShape(5.dp))
+                        .background(
+                            if (i <= step) Green else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f)
+                        )
+                )
+            }
+        }
 
-        when (step) {
-            0 -> StepCopy(
-                title = "A person, not a database",
-                body = "Your phone and carrier already block most junk. SafeRing texts someone you trust when a call or message still gets through."
-            )
-            1 -> {
-                StepCopy("What should we call you?", "Your person sees this name in the alert.")
-                OutlinedTextField(
-                    value = owner,
-                    onValueChange = { owner = it },
-                    label = { Text("Your name") },
-                    modifier = Modifier.fillMaxWidth()
+        Spacer(Modifier.height(12.dp))
+
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
+            when (step) {
+                0 -> WelcomePane()
+                1 -> NamePane(owner) { owner = it }
+                2 -> PersonPane(
+                    name = trustedName,
+                    number = trustedNumber,
+                    onName = { trustedName = it },
+                    onNumber = { trustedNumber = it }
                 )
-            }
-            2 -> {
-                StepCopy("Who do we text?", "Use your other number for this test. Help never dials the incoming caller.")
-                OutlinedTextField(
-                    value = trustedName,
-                    onValueChange = { trustedName = it },
-                    label = { Text("Their name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = trustedNumber,
-                    onValueChange = { trustedNumber = it },
-                    label = { Text("Their phone number") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            3 -> {
-                StepCopy("Family password", "This stays on this phone. If someone claims to be family, you ask them this.")
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = confirm,
-                    onValueChange = { confirm = it },
-                    label = { Text("Type it again") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            else -> {
-                StepCopy(
-                    "Let the phone do the blocking",
-                    "Turn SafeRing on as the caller ID / spam app. Contacts still ring. Unknown numbers are silenced."
-                )
-                Checklist(
-                    title = "SafeRing is the call screening app",
-                    checked = household.callScreeningConfirmed,
-                    onChecked = { household.callScreeningConfirmed = it },
-                    actionLabel = "Request call screening",
-                    onAction = { requestCallScreening() }
-                )
-                Checklist(
-                    title = "Carrier scam block is on",
-                    checked = household.carrierProtectionConfirmed,
-                    onChecked = { household.carrierProtectionConfirmed = it }
-                )
-                Checklist(
-                    title = "I understand unknown callers may be silenced",
-                    checked = household.silenceUnknownConfirmed,
-                    onChecked = { household.silenceUnknownConfirmed = it }
+                else -> PasswordPane(
+                    password = password,
+                    confirm = confirm,
+                    onPassword = { password = it },
+                    onConfirm = { confirm = it }
                 )
             }
         }
 
         error?.let {
-            Spacer(Modifier.height(12.dp))
-            Text(it, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
+            Text(
+                it,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
         }
 
-        Spacer(Modifier.height(24.dp))
         Button(
             onClick = {
                 error = null
@@ -154,7 +117,7 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                     0 -> step = 1
                     1 -> {
                         if (owner.trim().length < 2) {
-                            error = "Type the name your person should see."
+                            error = "Type your name."
                         } else {
                             household.ownerDisplayName = owner.trim()
                             step = 2
@@ -162,69 +125,170 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                     }
                     2 -> {
                         if (HouseholdStore.normalizeToE164(trustedNumber).filter { it.isDigit() }.length < 10) {
-                            error = "Enter your person's real phone number."
+                            error = "Enter a real phone number."
                         } else {
                             household.trustedContactName = trustedName.ifBlank { "My person" }
                             household.trustedContactNumber = trustedNumber
                             step = 3
                         }
                     }
-                    3 -> {
+                    else -> {
                         if (password.trim().length < 3) {
-                            error = "Pick a password only your family knows."
+                            error = "Password needs at least 3 characters."
                         } else if (password != confirm) {
-                            error = "The two passwords do not match."
+                            error = "Passwords do not match."
                         } else {
                             household.familyPassword = password.trim()
-                            step = 4
+                            val needed = buildList {
+                                add(Manifest.permission.READ_CONTACTS)
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    add(Manifest.permission.POST_NOTIFICATIONS)
+                                }
+                            }
+                            runtimePermissions.launch(needed.toTypedArray())
+                            household.hasCompletedOnboarding = true
+                            onFinished()
                         }
-                    }
-                    else -> {
-                        contactsPermission.launch(android.Manifest.permission.READ_CONTACTS)
-                        household.hasCompletedOnboarding = true
-                        onFinished()
                     }
                 }
             },
+            colors = ButtonDefaults.buttonColors(containerColor = Green, contentColor = Color.White),
+            shape = RoundedCornerShape(18.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(64.dp)
         ) {
-            Text(if (step == 4) "Start protection" else "Continue", fontWeight = FontWeight.Bold)
+            Text(
+                if (step == total - 1) "Start" else "Next",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
+
         if (step > 0) {
-            TextButton(onClick = { step -= 1; error = null }) { Text("Back") }
+            TextButton(onClick = { step -= 1; error = null }) {
+                Text("Back", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 }
 
 @Composable
-private fun StepCopy(title: String, body: String) {
-    Text(title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-    Spacer(Modifier.height(8.dp))
-    Text(body, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
-    Spacer(Modifier.height(20.dp))
+private fun WelcomePane() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("SafeRing", fontSize = 40.sp, fontWeight = FontWeight.Black)
+        Spacer(Modifier.height(16.dp))
+        Text(
+            "Texts someone you trust\nwhen something feels wrong.",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            lineHeight = 32.sp
+        )
+    }
 }
 
 @Composable
-private fun Checklist(
-    title: String,
-    checked: Boolean,
-    onChecked: (Boolean) -> Unit,
-    actionLabel: String? = null,
-    onAction: (() -> Unit)? = null
+private fun NamePane(value: String, onChange: (String) -> Unit) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Spacer(Modifier.height(24.dp))
+        Text("Your name", fontSize = 34.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "Your person sees this in the alert.",
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(20.dp))
+        OutlinedTextField(
+            value = value,
+            onValueChange = onChange,
+            placeholder = { Text("Example: Helen", fontSize = 22.sp) },
+            textStyle = LocalTextStyle.current.copy(fontSize = 26.sp),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun PersonPane(
+    name: String,
+    number: String,
+    onName: (String) -> Unit,
+    onNumber: (String) -> Unit
 ) {
-    Card(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
-        Column(Modifier.padding(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(checked = checked, onCheckedChange = onChecked)
-                Text(title, modifier = Modifier.weight(1f))
-            }
-            if (actionLabel != null && onAction != null) {
-                OutlinedButton(onClick = onAction, modifier = Modifier.fillMaxWidth()) {
-                    Text(actionLabel)
-                }
-            }
-        }
+    Column(modifier = Modifier.fillMaxSize()) {
+        Spacer(Modifier.height(16.dp))
+        Text("Who gets help texts?", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "Usually a child or spouse.",
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(16.dp))
+        OutlinedTextField(
+            value = name,
+            onValueChange = onName,
+            label = { Text("Their name") },
+            textStyle = LocalTextStyle.current.copy(fontSize = 24.sp),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(
+            value = number,
+            onValueChange = onNumber,
+            label = { Text("Their phone number") },
+            textStyle = LocalTextStyle.current.copy(fontSize = 24.sp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun PasswordPane(
+    password: String,
+    confirm: String,
+    onPassword: (String) -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Spacer(Modifier.height(16.dp))
+        Text("Family password", fontSize = 32.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "Ask them this if someone claims to be family. Not a bank PIN.",
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(16.dp))
+        OutlinedTextField(
+            value = password,
+            onValueChange = onPassword,
+            label = { Text("Password") },
+            textStyle = LocalTextStyle.current.copy(fontSize = 24.sp),
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(
+            value = confirm,
+            onValueChange = onConfirm,
+            label = { Text("Type it again") },
+            textStyle = LocalTextStyle.current.copy(fontSize = 24.sp),
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }

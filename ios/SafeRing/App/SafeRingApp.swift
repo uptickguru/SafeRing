@@ -53,33 +53,51 @@ struct SafeRingApp: App {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("protectionEnabled") private var protectionEnabled = true
 
+    @StateObject private var household = HouseholdStore.shared
     @Environment(\.scenePhase) private var scenePhase
 
     // MARK: - Initializer
 
     init() {
         registerBackgroundTasks()
-        // Schedule weekly retention summary if user completed onboarding
-        if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
-            WeeklySummaryManager.schedule()
+        _ = CallEndObserver.shared
+        let args = ProcessInfo.processInfo.arguments
+        if args.contains("-force-onboarding") {
+            HouseholdStore.shared.resetForOnboarding()
+        } else {
+            HouseholdStore.shared.applyLaunchTestSeedIfNeeded()
         }
+        // Notification permission is requested once after onboarding completes,
+        // not on every cold start (that made Home feel unusable).
     }
 
     // MARK: - Body
 
     var body: some Scene {
         WindowGroup {
-            if hasCompletedOnboarding {
-                ContentView()
-                    .modelContainer(Self.sharedModelContainer)
-                    
-                    .onChange(of: scenePhase) { _, newPhase in
-                        handleScenePhaseChange(newPhase)
-                    }
-            } else {
-                OnboardingView(onComplete: {
-                    hasCompletedOnboarding = true
-                })
+            Group {
+                if hasCompletedOnboarding && household.isConfigured {
+                    ContentView()
+                        .modelContainer(Self.sharedModelContainer)
+                        .onChange(of: scenePhase) { _, newPhase in
+                            handleScenePhaseChange(newPhase)
+                        }
+                } else {
+                    // Preserve partial household fields. Only mark complete when configured.
+                    OnboardingView(onComplete: {
+                        guard household.isConfigured else { return }
+                        hasCompletedOnboarding = true
+                    })
+                }
+            }
+            .environmentObject(household)
+            .onReceive(NotificationCenter.default.publisher(for: .saferingDidReset)) { _ in
+                hasCompletedOnboarding = false
+            }
+            .onAppear {
+                if ProcessInfo.processInfo.arguments.contains("-force-onboarding") {
+                    hasCompletedOnboarding = false
+                }
             }
         }
     }

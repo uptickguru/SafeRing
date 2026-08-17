@@ -1,63 +1,137 @@
 package online.db1k.safering.android.ui.check
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import online.db1k.safering.android.service.OnDeviceScamChecker
 import online.db1k.safering.android.service.ScamCheckResult
 import online.db1k.safering.android.service.ScamVerdict
+import online.db1k.safering.android.service.SmsIntake
+import online.db1k.safering.android.ui.theme.Ivory
+import online.db1k.safering.android.util.PhoneNumberUtils
 
 @Composable
 fun PasteCheckScreen(
     trustedName: String,
     initialText: String = "",
+    initialSender: String = "",
     onHelp: () -> Unit,
     onCall: () -> Unit,
     onClose: () -> Unit
 ) {
+    val context = LocalContext.current
     var text by remember { mutableStateOf(initialText) }
+    var sender by remember { mutableStateOf(initialSender) }
     var result by remember { mutableStateOf<ScamCheckResult?>(null) }
+    var foundPhones by remember { mutableStateOf<List<String>>(emptyList()) }
+
+    fun runCheck() {
+        val r = OnDeviceScamChecker.check(text)
+        result = r
+        val extracted = PhoneNumberUtils.extractPhones(text)
+        foundPhones = extracted
+        if (sender.isBlank() && extracted.isNotEmpty()) {
+            sender = PhoneNumberUtils.pretty(extracted.first())
+        }
+        SmsIntake.recordCheck(
+            context = context,
+            body = text,
+            senderRaw = sender.ifBlank { extracted.firstOrNull() },
+            result = r,
+            storeBody = false
+        )
+    }
 
     LaunchedEffect(initialText) {
         if (initialText.isNotBlank() && result == null) {
             text = initialText
-            result = OnDeviceScamChecker.check(initialText)
+            if (initialSender.isNotBlank()) sender = initialSender
+            runCheck()
         }
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Ivory)
             .padding(20.dp)
             .verticalScroll(rememberScrollState())
     ) {
         Text("Check this", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Text(
-            "Paste a text, email, or anything someone sent you. It stays on this phone.",
+            "Paste a text or email. It stays on this phone. Add who it was from if you know.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
+            value = sender,
+            onValueChange = { sender = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("check_from"),
+            label = { Text("From / return number (optional)") },
+            placeholder = { Text("e.g. (727) 555-1212") },
+            singleLine = true
+        )
+        Spacer(Modifier.height(10.dp))
+        OutlinedTextField(
             value = text,
             onValueChange = { text = it },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(180.dp),
+                .height(180.dp)
+                .testTag("check_body"),
             placeholder = { Text("Paste here") }
         )
         Spacer(Modifier.height(12.dp))
         Button(
-            onClick = { result = OnDeviceScamChecker.check(text) },
+            onClick = { runCheck() },
             enabled = text.isNotBlank(),
-            modifier = Modifier.fillMaxWidth().height(52.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp)
+                .testTag("check_run")
         ) { Text("Check this") }
+
+        if (foundPhones.isNotEmpty()) {
+            Spacer(Modifier.height(12.dp))
+            Text("Numbers found in the message", fontWeight = FontWeight.SemiBold)
+            foundPhones.forEach { p ->
+                Text("· ${PhoneNumberUtils.pretty(p)}", style = MaterialTheme.typography.bodyMedium)
+            }
+            Text(
+                "Never call a number from a suspicious text — call your person on the number you saved.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 6.dp)
+            )
+        }
 
         result?.let { r ->
             Spacer(Modifier.height(16.dp))

@@ -1,128 +1,135 @@
 import SwiftUI
-import SwiftData
-import BackgroundTasks
+import MessageUI
 
-/// Root content view for SafeRing app.
-/// Manages tab-based navigation between the main dashboard, call history,
-/// settings, and scam reporting.
 struct ContentView: View {
 
-    // MARK: - Properties
-
     @State private var selectedTab: Tab = .home
-    @State private var showScamAlert: ScamAlertInfo? = nil
-
-    /// Shared scam repository for cross-view access.
     @StateObject private var homeViewModel = HomeViewModel()
+    @StateObject private var signaler = HelpSignaler.shared
+    @StateObject private var callObserver = CallEndObserver.shared
+    @ObservedObject private var household = HouseholdStore.shared
 
-    // MARK: - Tab Definition
+    @State private var showCheckIn = false
 
-    enum Tab: String, CaseIterable {
-        case home = "Home"
-        case history = "History"
-        case report = "Report"
-        case settings = "Settings"
-        case lessons = "Lessons"
-
-        var icon: String {
-            switch self {
-            case .home: return "shield.fill"
-            case .history: return "phone.fill"
-            case .report: return "exclamationmark.bubble.fill"
-            case .settings: return "gearshape.fill"
-            case .lessons: return "person.2.fill"
-            }
-        }
-
-        var label: String { rawValue }
+    enum Tab: String {
+        case home, history, settings
     }
 
-    // MARK: - Body
+    init() {
+        // Solid tab bar — never floating glass over Call / tools
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        let barBG = UIColor(red: 0.97, green: 0.965, blue: 0.955, alpha: 1)
+        appearance.backgroundColor = barBG
+        appearance.shadowColor = UIColor(white: 0, alpha: 0.08)
+        let item = UITabBarItemAppearance()
+        let font = UIFont.systemFont(ofSize: 11, weight: .medium)
+        let muted = UIColor(red: 0.55, green: 0.53, blue: 0.50, alpha: 1)
+        let selected = UIColor(red: 0.18, green: 0.17, blue: 0.16, alpha: 1)
+        item.normal.iconColor = muted
+        item.normal.titleTextAttributes = [.font: font, .foregroundColor: muted]
+        item.selected.iconColor = selected
+        item.selected.titleTextAttributes = [.font: font, .foregroundColor: selected]
+        appearance.stackedLayoutAppearance = item
+        appearance.inlineLayoutAppearance = item
+        appearance.compactInlineLayoutAppearance = item
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+        UITabBar.appearance().isTranslucent = false
+        UITabBar.appearance().tintColor = selected
+        UITabBar.appearance().unselectedItemTintColor = muted
+    }
 
     var body: some View {
-        ZStack {
-            TabView(selection: $selectedTab) {
-                NavigationStack {
-                    HomeView(viewModel: homeViewModel)
-                }
-                .tabItem {
-                    Label(Tab.home.label, systemImage: Tab.home.icon)
-                }
+        TabView(selection: $selectedTab) {
+            HomeView(viewModel: homeViewModel)
+                .tabItem { Label("Home", systemImage: "house") }
                 .tag(Tab.home)
+                .toolbarBackground(Color(red: 0.97, green: 0.965, blue: 0.955), for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
 
-                NavigationStack {
-                    CallHistoryView()
-                }
-                .tabItem {
-                    Label(Tab.history.label, systemImage: Tab.history.icon)
-                }
+            NavigationStack { CallHistoryView() }
+                .tabItem { Label("History", systemImage: "clock") }
                 .tag(Tab.history)
 
-                NavigationStack {
-                    ReportView()
-                }
-                .tabItem {
-                    Label(Tab.report.label, systemImage: Tab.report.icon)
-                }
-                .tag(Tab.report)
-
-                NavigationStack {
-                    SettingsView()
-                }
-                .tabItem {
-                    Label(Tab.settings.label, systemImage: Tab.settings.icon)
-                }
+            NavigationStack { SettingsView() }
+                .tabItem { Label("Settings", systemImage: "gearshape") }
                 .tag(Tab.settings)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(SR.canvas)
+        .tint(SR.gold)
 
-                NavigationStack {
-                    LessonsView()
+        .sheet(item: Binding(
+            get: { signaler.draft },
+            set: { if $0 == nil { signaler.cancelDraft() } }
+        )) { draft in
+            MessageComposeView(
+                recipients: draft.recipients,
+                body: draft.body,
+                onFinish: { result in
+                    if result == .sent { signaler.markSent() }
+                    else { signaler.cancelDraft() }
                 }
-                .tabItem {
-                    Label(Tab.lessons.label, systemImage: Tab.lessons.icon)
+            )
+            .ignoresSafeArea()
+        }
+        .sheet(isPresented: $showCheckIn) {
+            AfterCallCheckInView(
+                checkIn: callObserver.pendingCheckIn,
+                trustedName: household.trustedContactName,
+                onOkay: { callObserver.dismiss(); showCheckIn = false },
+                onHelp: {
+                    callObserver.dismiss(); showCheckIn = false
+                    homeViewModel.requestHelp(.afterCall)
+                },
+                onCall: {
+                    callObserver.dismiss(); showCheckIn = false
+                    homeViewModel.callPerson()
                 }
-                .tag(Tab.lessons)
-            }
-            .tint(AppTheme.accentColor)
-
-            // Full-screen scam alert overlay
-            if let alert = showScamAlert {
-                ScamAlertView(
-                    riskLabel: alert.label,
-                    riskScore: alert.score,
-                    callerName: alert.callerName,
-                    scamType: alert.scamType,
-                    onDismiss: {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            showScamAlert = nil
-                        }
-                    },
-                    onBlock: {
-                        // Block would update CallDirectory extension
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            showScamAlert = nil
-                        }
-                    }
-                )
-                .transition(.opacity.combined(with: .scale))
-                .zIndex(100)
-            }
+            )
+            .presentationDetents([.medium, .large])
+        }
+        .onChange(of: callObserver.pendingCheckIn) { _, newValue in
+            showCheckIn = newValue != nil
         }
     }
 }
 
-// MARK: - Scam Alert Info
+private struct AfterCallCheckInView: View {
+    let checkIn: CallCheckIn?
+    let trustedName: String
+    let onOkay: () -> Void
+    let onHelp: () -> Void
+    let onCall: () -> Void
 
-/// Transient payload for showing full-screen scam alerts from any tab.
-struct ScamAlertInfo: Identifiable {
-    let id = UUID()
-    let label: String
-    let score: Double
-    let callerName: String
-    let scamType: String
-}
-
-// MARK: - Preview
-
-#Preview {
-    ContentView()
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer().frame(height: 8)
+            Text("A CALL ENDED")
+                .font(SR.font(12, .semibold))
+                .tracking(2.5)
+                .foregroundStyle(SR.gold)
+            Text("Was everything alright?")
+                .font(SR.font(26, .regular))
+                .foregroundStyle(SR.ink)
+            Text("If anyone asked for money, passwords, or secrecy, reach \(trustedName.isEmpty ? "your person" : trustedName).")
+                .font(SR.font(17, .regular))
+                .foregroundStyle(SR.mute)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 20)
+            ElegantPrimary(title: "It felt wrong — get help", top: SR.help, height: 64, titleSize: 18, action: onHelp)
+                .padding(.horizontal, 22)
+            ElegantPrimary(title: "Call my person", icon: "phone.fill", top: SR.go, height: 56, titleSize: 17, action: onCall)
+                .padding(.horizontal, 22)
+            Button("It was fine", action: onOkay)
+                .font(SR.font(16, .medium))
+                .foregroundStyle(SR.mute)
+                .padding(.top, 6)
+            Spacer()
+        }
+        .padding(20)
+        .background(SR.canvas)
+    }
 }

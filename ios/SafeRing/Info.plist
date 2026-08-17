@@ -15,8 +15,28 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSContactsUsageDescription</key>
+	<string>SafeRing uses Contacts only so you can pick the trusted person we should text when you tap Help. We do not upload your address book.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>sgnl</string>
+		<string>whatsapp</string>
+		<string>facetime</string>
+		<string>facetime-audio</string>
+		<string>tel</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>online.db1k.safering.ios.sync-scam-data</string>
+	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
+	<key>UIStatusBarHidden</key>
+	<false/>
 </dict>
 </plist>

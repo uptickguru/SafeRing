@@ -7,10 +7,12 @@ import android.telecom.Call
 import android.telecom.CallScreeningService
 import androidx.annotation.RequiresApi
 import online.db1k.safering.android.util.Logger
+import online.db1k.safering.android.util.PhoneNumberUtils
 
 /**
  * Free-tier screening: contacts and the trusted person always ring.
- * Unknown / unverified numbers are silenced (still appear in Recents).
+ * Unknown numbers are silenced (still appear in Recents).
+ * Caller handle → E.164 → HMAC log via [CallIntake] (no raw number in UI).
  */
 @RequiresApi(Build.VERSION_CODES.N)
 class SafeRingCallScreeningService : CallScreeningService() {
@@ -25,11 +27,13 @@ class SafeRingCallScreeningService : CallScreeningService() {
 
         val raw = details.handle?.schemeSpecificPart.orEmpty()
         val household = HouseholdStore.get(this)
-        val trusted = HouseholdStore.normalizeToE164(household.trustedContactNumber)
-        val incoming = HouseholdStore.normalizeToE164(raw)
+        val trusted = PhoneNumberUtils.normalizeToE164(household.trustedContactNumber)
+        val incoming = PhoneNumberUtils.normalizeToE164(raw)
 
-        val isTrusted = incoming.isNotBlank() && incoming == trusted
-        val isContact = isInContacts(this, raw)
+        val isTrusted = incoming.isNotBlank() &&
+            PhoneNumberUtils.isPlausibleE164(incoming) &&
+            incoming == trusted
+        val isContact = isInContacts(this, raw) || isInContacts(this, incoming)
 
         val verification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             details.callerNumberVerificationStatus
@@ -38,13 +42,21 @@ class SafeRingCallScreeningService : CallScreeningService() {
         }
 
         if (isTrusted || isContact) {
+            val disp = if (isTrusted) CallIntake.Disposition.TRUSTED else CallIntake.Disposition.CONTACT
+            CallIntake.record(this, raw.ifBlank { incoming }, disp, silenced = false, stirStatus = verification)
             respondToCall(details, allow())
-            Logger.info("Allowed contact/trusted incoming", Logger.Category.CALL)
+            Logger.info("Allowed ${disp.name} incoming", Logger.Category.CALL)
             return
         }
 
-        // Silence unknown. Do not reject — they can still find it in Recents.
         household.recordUnknownCall()
+        CallIntake.record(
+            this,
+            raw.ifBlank { incoming },
+            CallIntake.Disposition.SILENCED,
+            silenced = true,
+            stirStatus = verification
+        )
         respondToCall(details, silence())
         TripwireNotifier.notifyUnknownCallSilenced(this)
         Logger.info(

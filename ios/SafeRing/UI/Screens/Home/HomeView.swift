@@ -1,322 +1,192 @@
 import SwiftUI
-import SwiftData
 
-/// Main dashboard view showing protection status and scam statistics.
-///
-/// # Senior-Friendly Design
-/// - Large, clear status indicator at the top
-/// - Big touch targets for all actions
-/// - High contrast colors for risk indicators
-/// - Simple, scannable statistics
-///
+/// Soft full-screen home — content clears the tab bar; colors quiet and timeless.
 struct HomeView: View {
 
-    // MARK: - Properties
-
     @StateObject var viewModel: HomeViewModel
-    @Environment(\.modelContext) private var modelContext
+    @ObservedObject private var household = HouseholdStore.shared
 
-    // MARK: - Body
+    @State private var showCheck = false
+    @State private var showPassword = false
+
+    private var person: String {
+        let n = household.trustedContactName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return n.isEmpty ? "my person" : n
+    }
+
+    private var ready: Bool { household.isConfigured }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: AppTheme.spacingLG) {
-                // Protection Status Card
-                protectionStatusCard
-                    .padding(.horizontal)
+        VStack(spacing: 0) {
+            header
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
 
-                // Quick Stats Grid
-                statsGrid
-                    .padding(.horizontal)
+            // Quiet rule
+            Rectangle()
+                .fill(SR.line)
+                .frame(height: 1)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 14)
 
-                // Scam Alert Preview or Empty State
-                if !viewModel.recentCalls.isEmpty {
-                    recentActivitySection
-                        .padding(.horizontal)
-                } else {
-                    emptyHomeState
-                        .padding(.horizontal)
-                }
+            // HELP fills remaining space above the lower stack
+            helpButton
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.horizontal, 20)
 
-                // Sync Status + Offline Warning
-                syncStatusBar
-                    .padding(.horizontal)
-
-                if let lastSync = viewModel.lastSyncDate,
-                   Date().timeIntervalSince(lastSync) > 24 * 3600 {
-                    staleDataBanner
-                        .padding(.horizontal)
-                }
-
-                // Refresh Button
-                BigButton(
-                    title: viewModel.isSyncing ? "Updating..." : "Check for New Scams",
-                    icon: "arrow.clockwise",
-                    action: {
-                        Task { await viewModel.refreshData() }
-                    },
-                    isLoading: viewModel.isSyncing
+            VStack(spacing: 10) {
+                secondaryButton(
+                    title: "Not sure — still text them",
+                    fill: SR.caution,
+                    action: { viewModel.requestHelp(.help) }
                 )
-                .padding(.horizontal)
+                secondaryButton(
+                    title: "Call \(person)",
+                    fill: SR.go,
+                    icon: "phone.fill",
+                    action: { viewModel.callPerson() }
+                )
+
+                HStack(spacing: 10) {
+                    toolTile("Message", "text.magnifyingglass") { showCheck = true }
+                    toolTile("Code", "lock.fill") { showPassword = true }
+                }
             }
-            .padding(.vertical)
+            .padding(.horizontal, 20)
+            .padding(.top, 14)
+            .padding(.bottom, 12)
         }
-        .background(Color("appBackground"))
-        .navigationTitle("SafeRing")
-        .navigationBarTitleDisplayMode(.large)
-        .task {
-            await viewModel.loadDashboard()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(SR.canvas.ignoresSafeArea())
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)
+        .sheet(isPresented: $showCheck) {
+            PasteCheckView(
+                household: household,
+                onNeedHelp: { reason in
+                    showCheck = false
+                    viewModel.requestHelp(reason)
+                },
+                onCallPerson: {
+                    showCheck = false
+                    viewModel.callPerson()
+                }
+            )
         }
-        .alert("Error", isPresented: $viewModel.showError) {
-            Button("OK", role: .cancel) { }
+        .alert("Family password", isPresented: $showPassword) {
+            Button("OK", role: .cancel) {}
         } message: {
-            Text(viewModel.errorMessage)
+            Text(passwordText)
+        }
+        .alert("Could not reach your person", isPresented: $viewModel.showError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(viewModel.lastError ?? "")
         }
     }
 
-    // MARK: - Protection Status Card
-
-    private var protectionStatusCard: some View {
-        VStack(spacing: AppTheme.spacingMD) {
-            // Status Icon
-            Image(systemName: statusIcon)
-                .font(.system(size: 48))
-                .foregroundColor(statusColor)
-                .symbolEffect(.bounce, value: viewModel.protectionStatus)
-
-            // Status Text
-            Text(viewModel.protectionStatus.rawValue)
-                .font(.screenTitle)
-                .foregroundColor(Color("primaryText"))
-
-            // Description
-            Text(protectionDescription)
-                .font(.bodyText)
-                .foregroundColor(Color("secondaryText"))
-                .multilineTextAlignment(.center)
-
-            // Setup Button (if needed)
-            if viewModel.protectionStatus == .needsSetup {
-                BigButton(
-                    title: "Enable Protection",
-                    icon: "gearshape",
-                    action: {
-                        viewModel.openCallDirectorySettings()
-                    },
-                    color: AppTheme.accentColor
-                )
-                .padding(.top, AppTheme.spacingXS)
+    private var header: some View {
+        HStack(alignment: .center, spacing: 10) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text("SAFERING")
+                    .font(SR.font(11, .semibold))
+                    .tracking(3.0)
+                    .foregroundStyle(SR.gold)
+                Text("Protection")
+                    .font(SR.font(24, .regular))
+                    .foregroundStyle(SR.ink)
             }
+            Spacer(minLength: 8)
+            StatusPill(text: ready ? "Ready · \(person)" : "Needs setup", ok: ready)
         }
-        .padding(AppTheme.spacingLG)
-        .frame(maxWidth: .infinity)
-        .background(Color("cardBackground"))
-        .cornerRadius(AppTheme.cornerRadius)
-        .cardShadow()
     }
 
-    // MARK: - Stats Grid
+    private var helpButton: some View {
+        Button(action: { viewModel.requestHelp(.money) }) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(SR.help)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .stroke(SR.gold.opacity(0.22), lineWidth: 0.8)
+                VStack(spacing: 12) {
+                    Image(systemName: "bell.fill")
+                        .font(.system(size: 30, weight: .medium))
+                    Text("HELP")
+                        .font(SR.font(36, .semibold))
+                        .tracking(3)
+                    Text("Text \(person)")
+                        .font(SR.font(17, .regular))
+                        .opacity(0.9)
+                }
+                .foregroundStyle(Color.white.opacity(0.96))
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .shadow(color: .black.opacity(0.08), radius: 10, y: 4)
+        }
+        .buttonStyle(PressSoft())
+        .accessibilityLabel("Help. Texts \(person).")
+    }
 
-    private var statsGrid: some View {
-        LazyVGrid(
-            columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-            ],
-            spacing: AppTheme.spacingMD
-        ) {
-            StatCard(
-                value: "\(viewModel.blockedCount)",
-                label: "Calls\nBlocked",
-                icon: "phone.down.fill",
-                color: Color("safeGreen")
+    private func secondaryButton(title: String, fill: Color, icon: String? = nil, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                if let icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 16, weight: .medium))
+                }
+                Text(title)
+                    .font(SR.font(16, .medium))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+            }
+            .foregroundStyle(.white.opacity(0.96))
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(fill)
             )
-            StatCard(
-                value: "\(viewModel.smsFilteredCount)",
-                label: "SMS\nFiltered",
-                icon: "trash.fill",
-                color: Color("warningYellow")
-            )
-            StatCard(
-                value: "\(viewModel.knownScamCount)",
-                label: "Scam #\nKnown",
-                icon: "shield.fill",
-                color: Color("highRiskOrange")
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(Color.white.opacity(0.08), lineWidth: 0.6)
             )
         }
+        .buttonStyle(PressSoft())
     }
 
-    // MARK: - Empty Home State
-
-    private var emptyHomeState: some View {
-        VStack(spacing: AppTheme.spacingMD) {
-            Image(systemName: "shield.checkered")
-                .font(.system(size: 48))
-                .foregroundColor(Color("safeGreen"))
-
-            Text("Your Protection Is Active")
-                .font(.sectionTitle)
-                .foregroundColor(Color("primaryText"))
-
-            Text("SafeRing is monitoring your calls and messages. When a scam is detected, it will appear here.")
-                .font(.bodyText)
-                .foregroundColor(Color("secondaryText"))
-                .multilineTextAlignment(.center)
-
-            if let lastSync = viewModel.lastSyncDate {
-                Text("Scam database updated \(lastSync.formatted(date: .abbreviated, time: .shortened))")
-                    .font(.captionText)
-                    .foregroundColor(Color("safeGreen"))
+    private func toolTile(_ title: String, _ icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundStyle(SR.gold)
+                    .frame(width: 22)
+                Text(title)
+                    .font(SR.font(15, .medium))
+                    .foregroundStyle(SR.ink)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
             }
-
-            HStack(spacing: AppTheme.spacingSM) {
-                Image(systemName: "hand.raised.fill")
-                    .foregroundColor(Color("safeGreen"))
-                Text("No calls blocked yet — that\'s a good day!")
-                    .font(.badgeLabel)
-                    .foregroundColor(Color("secondaryText"))
-            }
-            .padding(.vertical, AppTheme.spacingXS)
+            .padding(.horizontal, 14)
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(SR.surface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(SR.line, lineWidth: 1)
+            )
         }
-        .padding(AppTheme.spacingLG)
-        .frame(maxWidth: .infinity)
-        .background(Color("cardBackground"))
-        .cornerRadius(AppTheme.cornerRadius)
+        .buttonStyle(PressSoft())
     }
 
-    // MARK: - Recent Activity
-
-    private var recentActivitySection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.spacingSM) {
-            Text("Recent Activity")
-                .font(.sectionTitle)
-                .foregroundColor(Color("primaryText"))
-
-            ForEach(viewModel.recentCalls.prefix(5)) { call in
-                CallRow(callLog: call)
-            }
+    private var passwordText: String {
+        if let password = household.familyPassword() {
+            return "Ask them first. Yours is: \(password)\n\nHang up if they do not know it."
         }
-    }
-
-    // MARK: - Stale Data Banner
-
-    private var staleDataBanner: some View {
-        HStack(spacing: AppTheme.spacingSM) {
-            Image(systemName: "exclamationmark.icloud.fill")
-                .foregroundColor(Color("warningYellow"))
-            Text("Scam database hasn't been updated in 24+ hours. Connect to the internet and tap refresh to get the latest protection.")
-                .font(.badgeLabel)
-                .foregroundColor(Color("secondaryText"))
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(AppTheme.spacingMD)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color("warningYellow").opacity(0.1))
-        .cornerRadius(AppTheme.smallCornerRadius)
-    }
-
-    // MARK: - Sync Status
-
-    private var syncStatusBar: some View {
-        HStack {
-            if viewModel.didJustSync {
-                Image(systemName: "checkmark.icloud.fill")
-                    .foregroundColor(Color("safeGreen"))
-                Text("Synced")
-                    .font(.captionText)
-                    .foregroundColor(Color("safeGreen"))
-            } else if viewModel.isSyncing {
-                Image(systemName: "arrow.triangle.2.circlepath.icloud")
-                    .foregroundColor(Color("secondaryText"))
-                Text("Updating...")
-                    .font(.captionText)
-                    .foregroundColor(Color("secondaryText"))
-            } else {
-                Image(systemName: viewModel.lastSyncDate != nil ? "icloud.fill" : "icloud.slash.fill")
-                    .foregroundColor(viewModel.lastSyncDate != nil ? Color("safeGreen") : Color("secondaryText"))
-                Text(syncStatusText)
-                    .font(.captionText)
-                    .foregroundColor(viewModel.lastSyncDate != nil ? Color("safeGreen") : Color("secondaryText"))
-            }
-            Spacer()
-        }
-        .padding(.vertical, AppTheme.spacingXS)
-    }
-
-    // MARK: - Helpers
-
-    private var statusIcon: String {
-        switch viewModel.protectionStatus {
-        case .active: return "checkmark.shield.fill"
-        case .needsSetup: return "shield.slash.fill"
-        case .checking: return "shield.lefthalf.filled"
-        }
-    }
-
-    private var statusColor: Color {
-        switch viewModel.protectionStatus {
-        case .active: return Color("safeGreen")
-        case .needsSetup: return Color("warningYellow")
-        case .checking: return Color("secondaryText")
-        }
-    }
-
-    private var protectionDescription: String {
-        switch viewModel.protectionStatus {
-        case .active:
-            return "SafeRing is actively screening your calls and SMS messages for known scams."
-        case .needsSetup:
-            return "Tap the button below to go to Settings, then turn ON SafeRing, then come back and tap Check for New Scams."
-        case .checking:
-            return "Checking protection status..."
-        }
-    }
-
-    private var syncStatusText: String {
-        if let date = viewModel.lastSyncDate {
-            return "Last updated \(date.formatted(date: .abbreviated, time: .shortened))"
-        }
-        return "Not yet synced"
-    }
-}
-
-// MARK: - Stat Card Component
-
-private struct StatCard: View {
-    let value: String
-    let label: String
-    let icon: String
-    let color: Color
-
-    var body: some View {
-        VStack(spacing: AppTheme.spacingXS) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(color)
-
-            Text(value)
-                .font(.riskScore)
-                .foregroundColor(Color("primaryText"))
-                .minimumScaleFactor(0.5)
-
-            Text(label)
-                .font(.badgeLabel)
-                .foregroundColor(Color("secondaryText"))
-                .multilineTextAlignment(.center)
-                .lineSpacing(2)
-        }
-        .padding(AppTheme.spacingSM)
-        .frame(maxWidth: .infinity)
-        .background(Color("cardBackground"))
-        .cornerRadius(AppTheme.cornerRadius)
-    }
-}
-
-// MARK: - Preview
-
-#Preview {
-    NavigationStack {
-        HomeView(viewModel: HomeViewModel())
+        return "No password yet. Add one in Settings."
     }
 }

@@ -45,6 +45,8 @@ struct ThreatActionView: View {
     /// Whether the call was blocked by the screening service.
     let wasBlocked: Bool
 
+    @State private var showFamilyPassword = false
+
     // MARK: - Body
 
     var body: some View {
@@ -74,11 +76,19 @@ struct ThreatActionView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Close") {
-                    // Don't close — keep the threat visible
                     performHumanAction()
                 }
                 .accessibilityLabel("Continue with threat action")
                 .buttonStyle(.bordered)
+            }
+        }
+        .alert("Ask them the family password", isPresented: $showFamilyPassword) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            if let password = HouseholdStore.shared.familyPassword() {
+                Text("Ask them first. Do not read it aloud unless you are sure. Yours is: \(password)")
+            } else {
+                Text("No family password is saved. Add one in Settings.")
             }
         }
     }
@@ -196,11 +206,11 @@ struct ThreatActionView: View {
                 HStack {
                     Image(systemName: "info.circle")
                     Text("What is this threat?")
-                        .foregroundColor(Color("linkBlue"))
+                        .foregroundColor(AppTheme.accentColor)
                 }
             }
             .font(.bodyText)
-            .foregroundColor(Color("linkBlue"))
+            .foregroundColor(AppTheme.accentColor)
         }
         .padding(AppTheme.spacingLG)
         .background(Color("cardBackground"))
@@ -385,31 +395,19 @@ struct ThreatActionView: View {
         }
     }
 
-    /// Open the phone app with the saved number (for CALL_SAVED_CONTACT).
+    /// Open FaceTime / Phone to the SAVED number only.
     private func openPhoneApp(with number: String) {
-        // In production, this would open the phone app with the dialer
-        // Pre-fill the saved number, never the incoming number
-        #if os(iOS)
-        if let url = URL(string: "tel://\(number)") {
-            UIApplication.shared.open(url)
-        }
-        #endif
+        _ = number
+        try? HelpSignaler.shared.openPhone()
     }
 
-    /// Perform the family password prompt (for ASK_FAMILY_PASSWORD).
+    /// Show the on-device password. Never transmit it.
     private func performFamilyPasswordPrompt() {
-        // In production, this would show a UI prompt to ask the caller
-        // for the family password without transmitting any information
-        // This is a critical safety rule — no field that transmits the password
-        print("Family password prompt triggered (M6)")
+        showFamilyPassword = true
     }
 
-    /// Trigger a trusted circle alert (for LOOP_TRUSTED_CONTACT / LOOKS_OK_STILL_VERIFY).
+    /// Text the trusted contact a redacted alert.
     private func triggerTrustedCircleAlert() {
-        // In production, this would send a push notification to trusted contacts
-        // Only if the user has opted in (M5)
-        if userOptedIn {
-            print("Trusted circle alert triggered (M5)")
-        }
+        try? HelpSignaler.shared.openPreferred(reason: .verify)
     }
 }
