@@ -51,6 +51,11 @@ class HouseholdStore private constructor(private val prefs: SharedPreferences) {
         get() = prefs.getBoolean(KEY_SCREENING, false)
         set(value) { prefs.edit().putBoolean(KEY_SCREENING, value).apply() }
 
+    /** User opted into notification-based SMS number capture (NLS). */
+    var smsNotificationCaptureEnabled: Boolean
+        get() = prefs.getBoolean(KEY_SMS_NLS, false)
+        set(value) { prefs.edit().putBoolean(KEY_SMS_NLS, value).apply() }
+
     var hasCompletedOnboarding: Boolean
         get() = prefs.getBoolean(KEY_ONBOARDED, false)
         set(value) { prefs.edit().putBoolean(KEY_ONBOARDED, value).apply() }
@@ -124,6 +129,7 @@ class HouseholdStore private constructor(private val prefs: SharedPreferences) {
         private const val KEY_SILENCE = "silence"
         private const val KEY_CARRIER = "carrier"
         private const val KEY_SCREENING = "screening"
+        private const val KEY_SMS_NLS = "sms_nls"
         private const val KEY_ONBOARDED = "onboarded"
         private const val KEY_HELP_COUNT = "help_count"
         private const val KEY_LAST_HELP = "last_help"

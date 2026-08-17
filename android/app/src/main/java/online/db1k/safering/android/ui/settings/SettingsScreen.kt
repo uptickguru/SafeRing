@@ -25,6 +25,7 @@ import online.db1k.safering.android.service.HouseholdStore
 import online.db1k.safering.android.service.PhoneRoles
 import online.db1k.safering.android.service.SignalChannel
 import online.db1k.safering.android.service.TripwireNotifier
+import online.db1k.safering.android.service.SmsNotificationListener
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,11 +72,11 @@ fun SettingsScreen() {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 OutlinedTextField(value = owner, onValueChange = { owner = it; household.ownerDisplayName = it }, label = { Text("Your name") }, modifier = Modifier.fillMaxWidth())
-                Spacer(Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(value = trustedName, onValueChange = { trustedName = it; household.trustedContactName = it }, label = { Text("Trusted person name") }, modifier = Modifier.fillMaxWidth())
-                Spacer(Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(value = trustedNumber, onValueChange = { trustedNumber = it; household.trustedContactNumber = it }, label = { Text("Trusted person number") }, modifier = Modifier.fillMaxWidth())
-                Spacer(Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Text("How to reach them", style = MaterialTheme.typography.titleSmall)
                 SignalChannel.entries.forEach { option ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -115,6 +116,44 @@ fun SettingsScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Text("Text alerts (Android)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                val nlsOn = SmsNotificationListener.isEnabled(context)
+                SettingToggle(
+                    "Capture numbers from text alerts",
+                    "Best-effort. Reads Messages notifications only when you turn on Notification access. Stores a private fingerprint, not the full inbox.",
+                    household.smsNotificationCaptureEnabled && nlsOn
+                ) { on ->
+                    household.smsNotificationCaptureEnabled = on
+                    if (on && !nlsOn) {
+                        SmsNotificationListener.openSettings(context)
+                    }
+                    setupTick++
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    if (nlsOn) "Notification access: ON" else "Notification access: OFF — tap Open Settings",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                if (!nlsOn) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = {
+                            household.smsNotificationCaptureEnabled = true
+                            SmsNotificationListener.openSettings(context)
+                            setupTick++
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Open Notification access") }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
         Text(
             text = "Give the phone permission",
             modifier = Modifier.testTag("call_screening_section"),
@@ -132,13 +171,13 @@ fun SettingsScreen() {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = { roleLauncher.launch(PhoneRoles.requestCallScreeningIntent(context)) },
                     modifier = Modifier.fillMaxWidth()
                 ) { Text(if (screeningOn) "Change spam app" else "Make SafeRing the spam app") }
 
-                Spacer(Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(if (contactsOn) "Contacts: allowed" else "Contacts: needed")
                 Text(
                     "So your people still ring. We do not upload the address book.",
@@ -146,14 +185,14 @@ fun SettingsScreen() {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(if (notifyOn) "Notifications: allowed" else "Notifications: needed")
                 Text(
                     "After we silence an unknown call, you get Get my person without opening the app.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedButton(
                     onClick = {
                         val needed = buildList {
@@ -168,7 +207,7 @@ fun SettingsScreen() {
                     modifier = Modifier.fillMaxWidth()
                 ) { Text("Allow Contacts and notifications") }
 
-                Spacer(Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     "Suspicious texts: in Messages, tap Share → SafeRing. We do not read your SMS inbox.",
                     style = MaterialTheme.typography.bodySmall,

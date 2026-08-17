@@ -20,6 +20,7 @@ object TripwireNotifier {
 
     const val CHANNEL_ID = "safering.tripwire"
     const val NOTIF_UNKNOWN_CALL = 7101
+    const val NOTIF_SUSPICIOUS_SMS = 7102
 
     const val EXTRA_HELP_REASON = "help_reason"
     const val EXTRA_SHARED_TEXT = "shared_text"
@@ -95,6 +96,46 @@ object TripwireNotifier {
 
     fun cancelUnknownCall(context: Context) {
         NotificationManagerCompat.from(context.applicationContext).cancel(NOTIF_UNKNOWN_CALL)
+    }
+
+
+    fun notifySuspiciousSms(context: Context, hasNumber: Boolean) {
+        ensureChannel(context)
+        if (!canNotify(context)) return
+        val app = context.applicationContext
+        val trusted = HouseholdStore.get(app).trustedContactName.ifBlank { "your person" }
+        val open = pendingActivity(
+            app,
+            11,
+            Intent(app, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+        )
+        val help = pendingBroadcast(
+            app,
+            12,
+            Intent(app, HelpActionReceiver::class.java).setAction(HelpActionReceiver.ACTION_HELP)
+                .putExtra(EXTRA_HELP_REASON, HelpReason.PASTE_SCAM.name)
+        )
+        val body = if (hasNumber) {
+            "A text looked like a scam. We saved a private fingerprint of the number for filtering. Get $trusted if money was mentioned."
+        } else {
+            "A text looked like a scam (no phone number in the alert). Get $trusted if money was mentioned."
+        }
+        val notification = NotificationCompat.Builder(app, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.stat_sys_warning)
+            .setContentTitle("Suspicious text")
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setContentIntent(open)
+            .addAction(0, "Get $trusted", help)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .build()
+        try {
+            NotificationManagerCompat.from(app).notify(NOTIF_SUSPICIOUS_SMS, notification)
+        } catch (_: SecurityException) {
+        }
     }
 
     fun canNotify(context: Context): Boolean {
