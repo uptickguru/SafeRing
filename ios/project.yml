@@ -63,19 +63,12 @@ targets:
       - sdk: MessageUI.framework
       - sdk: ContactsUI.framework
       - sdk: Contacts.framework
-
-  MessageFilterExtension:
-    type: app-extension
-    platform: iOS
-    sources:
-      - MessageFilterExtension
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios.MessageFilterExtension
-        INFOPLIST_FILE: MessageFilterExtension/Info.plist
-        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
-    dependencies:
-      - sdk: IdentityLookup.framework
+      - target: MessageFilterExtension
+        embed: true
+      - target: CallDirectoryHandler
+        embed: true
+      - target: LiveCallerIDLookupHandler
+        embed: true
 
   CallDirectoryHandler:
     type: app-extension
