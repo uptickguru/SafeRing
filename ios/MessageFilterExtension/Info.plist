@@ -23,16 +23,9 @@
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.identitylookup.message-filter</string>
+		<string>com.apple.message-payload-provider</string>
 		<key>NSExtensionPrincipalClass</key>
-		<string>$(PRODUCT_MODULE_NAME).MessageFilterHandler</string>
-		<!-- Optional network assist for exceptional clients. Offline works with this empty. -->
-		<!-- Set ILMessageFilterExtensionNetworkURL in a release flavor when backend is live. -->
-		<key>NSExtensionAttributes</key>
-		<dict>
-			<key>ILMessageFilterExtensionNetworkURL</key>
-			<string>https://safering.deathbyathousand.com/v1/message-filter</string>
-		</dict>
+		<string>$(PRODUCT_MODULE_NAME).MessageFilterExtension</string>
 	</dict>
 </dict>
 </plist>

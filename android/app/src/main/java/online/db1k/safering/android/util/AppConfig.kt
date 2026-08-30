@@ -10,6 +10,10 @@ object AppConfig {
     const val REQUEST_TIMEOUT_SECONDS = 15L
     const val MAX_RETRIES = 2
 
+    // HMAC key for phone number hashing (provisioned at enrollment)
+    // In production, this should be fetched from backend and stored in Keystore
+    val HMAC_KEY: ByteArray = "safering-default-hmac-key-change-in-production".toByteArray()
+
     // Sync
     const val SYNC_INTERVAL_HOURS = 6L
 

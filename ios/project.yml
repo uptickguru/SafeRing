@@ -20,6 +20,7 @@ schemes:
     build:
       targets:
         SafeRing: [run, test, profile, analyze, archive]
+        MessageFilterExtension: [run, archive]
     test:
       targets:
         - SafeRingUITests
@@ -62,6 +63,19 @@ targets:
       - sdk: MessageUI.framework
       - sdk: ContactsUI.framework
       - sdk: Contacts.framework
+
+  MessageFilterExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - MessageFilterExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios.MessageFilterExtension
+        INFOPLIST_FILE: MessageFilterExtension/Info.plist
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    dependencies:
+      - sdk: IdentityLookup.framework
 
   CallDirectoryHandler:
     type: app-extension
