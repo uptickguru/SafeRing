@@ -36,7 +36,7 @@ import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 
 /**
- * Retrofit-based API client for SafeRing backend services.
+ * Retrofit-based API client for GMG Shield backend services.
  *
  * # Security
  * Phone numbers are hashed with **HMAC-SHA256** (not plain SHA-256) before sending.

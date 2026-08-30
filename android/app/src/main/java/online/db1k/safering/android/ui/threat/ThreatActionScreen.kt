@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * ThreatActionScreen — the most critical screen in SafeRing.
+ * ThreatActionScreen — the most critical screen in GMG Shield.
  *
  * # Critical Safety Rule (M4)
  * This screen MUST drive HUMAN ACTION. It MUST NEVER present a "you're safe,

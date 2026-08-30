@@ -1,5 +1,5 @@
 // swift-tools-version: 5.7
-// SafeRing iOS — SPM dependencies
+// GMG Shield iOS — SPM dependencies
 // No external dependency manager; only Apple frameworks used.
 
 import PackageDescription

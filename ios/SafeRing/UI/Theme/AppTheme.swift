@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// Design tokens and theme constants for SafeRing.
+/// Design tokens and theme constants for GMG Shield.
 ///
 /// # Senior-Friendly Design
 /// - Large text sizes (body minimum 17pt)
@@ -108,7 +108,7 @@ extension View {
     }
 }
 
-/// SafeRing visual language — calm, large, high-contrast, fills the phone.
+/// GMG Shield visual language — calm, large, high-contrast, fills the phone.
 
 
 // MARK: - Elegant SafeRing tokens (hard RGB — never muddy asset colors)

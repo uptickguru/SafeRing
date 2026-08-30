@@ -175,7 +175,7 @@ fun SettingsScreen() {
                 Button(
                     onClick = { roleLauncher.launch(PhoneRoles.requestCallScreeningIntent(context)) },
                     modifier = Modifier.fillMaxWidth()
-                ) { Text(if (screeningOn) "Change spam app" else "Make SafeRing the spam app") }
+                ) { Text(if (screeningOn) "Change spam app" else "Make GMG Shield the spam app") }
 
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(if (contactsOn) "Contacts: allowed" else "Contacts: needed")

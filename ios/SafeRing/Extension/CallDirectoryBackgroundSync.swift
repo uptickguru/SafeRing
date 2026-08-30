@@ -81,7 +81,7 @@ final class CallDirectoryBackgroundSync {
     /// Schedules a periodic background sync task.
     ///
     /// This should be called once during app initialization.
-    /// Registration is handled in SafeRingApp.registerBackgroundTasks().
+    /// Registration is handled in GMG ShieldApp.registerBackgroundTasks().
     func schedulePeriodicSync() {
         let request = BGProcessingTaskRequest(identifier: Self.backgroundTaskIdentifier)
         request.requiresNetworkConnectivity = true

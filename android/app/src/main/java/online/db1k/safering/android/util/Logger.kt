@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 /**
- * Unified logging system for SafeRing Android.
+ * Unified logging system for GMG Shield Android.
  *
  * Mirrors the iOS Logger.swift — same categories, same severity levels.
  * All logs go to Logcat (debug) and non-debug levels are forwarded to

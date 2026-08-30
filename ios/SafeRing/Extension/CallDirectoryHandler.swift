@@ -1,7 +1,7 @@
 import Foundation
 import CallKit
 
-/// CallKit Call Directory extension for SafeRing.
+/// CallKit Call Directory extension for GMG Shield.
 ///
 /// # Architecture
 /// This extension reads scam numbers from a shared file-based store in the app group container.

@@ -1,7 +1,7 @@
 import Foundation
 import CallKit
 
-/// CallKit Live Caller ID extension for SafeRing (iOS 18+).
+/// CallKit Live Caller ID extension for GMG Shield (iOS 18+).
 ///
 /// # Architecture
 /// This extension provides network-backed caller ID identification for iOS 18+.

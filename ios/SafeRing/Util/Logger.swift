@@ -1,7 +1,7 @@
 import Foundation
 import OSLog
 
-/// Unified logging system for SafeRing.
+/// Unified logging system for GMG Shield.
 ///
 /// Uses Apple's `os_log` infrastructure for efficient, structured logging
 /// that integrates with the unified logging system (Console.app, Xcode).

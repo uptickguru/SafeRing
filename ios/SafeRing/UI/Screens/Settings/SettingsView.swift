@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// Settings screen for SafeRing.
+/// Settings screen for GMG Shield.
 ///
 /// # Senior-Friendly Design
 /// - Large toggle switches
@@ -78,10 +78,10 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("SMS filter (iPhone)")
                             .font(.headline)
-                        Text("Turns scam texts into Junk using your word list. Apple requires this path — SafeRing cannot read your inbox.")
+                        Text("Turns scam texts into Junk using your word list. Apple requires this path — GMG Shield cannot read your inbox.")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
-                        Text("Settings → Messages → Unknown & Spam → SMS Filtering → SafeRing")
+                        Text("Settings → Messages → Unknown & Spam → SMS Filtering → GMG Shield")
                             .font(.footnote)
                         
                         Button("Edit filter words") { showKeywordEditor = true }
@@ -131,7 +131,7 @@ struct SettingsView: View {
                 Text("Give the iPhone permission")
                     .font(.sectionTitle)
             } footer: {
-                Text("1. Settings → Phone → Silence Unknown Callers.\n2. Settings → Apps → Messages → Unknown & Spam → Filter Unknown Senders.\n3. Contacts: allow SafeRing when it asks, so you can pick your person.\n4. Carrier: T-Mobile Scam Shield, AT&T ActiveArmor, or Verizon Call Filter — turn Block on.\niPhone will not let SafeRing become the system caller-ID app. Silence Unknown + carrier block do the intercept. SafeRing is the family tripwire.")
+                Text("1. Settings → Phone → Silence Unknown Callers.\n2. Settings → Apps → Messages → Unknown & Spam → Filter Unknown Senders.\n3. Contacts: allow GMG Shield when it asks, so you can pick your person.\n4. Carrier: T-Mobile Scam Shield, AT&T ActiveArmor, or Verizon Call Filter — turn Block on.\niPhone will not let SafeRing become the system caller-ID app. Silence Unknown + carrier block do the intercept. GMG Shield is the family tripwire.")
                     .font(.captionText)
             }
 
@@ -216,7 +216,7 @@ struct SettingsView: View {
                 Text("Permissions")
                     .font(.sectionTitle)
             } footer: {
-                Text("SafeRing needs these permissions to protect you. If any were denied during setup, tap Learn More to enable them in Settings.")
+                Text("GMG Shield needs these permissions to protect you. If any were denied during setup, tap Learn More to enable them in Settings.")
                     .font(.captionText)
             }
 
@@ -291,7 +291,7 @@ struct SettingsView: View {
                 Text("Privacy & Data")
                     .font(.sectionTitle)
             } footer: {
-                Text("SafeRing never sends your personal data, phone numbers, or message content to any server. All SMS analysis is on-device.")
+                Text("GMG Shield never sends your personal data, phone numbers, or message content to any server. All SMS analysis is on-device.")
                     .font(.captionText)
             }
 
@@ -348,7 +348,7 @@ struct SettingsView: View {
         .task {
             await checkExtensionStatus()
         }
-        .alert("Reset SafeRing?", isPresented: $showResetConfirmation) {
+        .alert("Reset GMG Shield?", isPresented: $showResetConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("Reset", role: .destructive) {
                 resetApp()

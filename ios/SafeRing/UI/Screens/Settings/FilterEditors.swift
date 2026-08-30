@@ -37,7 +37,7 @@ struct KeywordEditorView: View {
                             persist()
                         }
                     }
-                    Button("Reset to SafeRing defaults") {
+                    Button("Reset to GMG Shield defaults") {
                         keywords = FilterRulesStore.defaultKeywords
                         persist()
                     }

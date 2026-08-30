@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// ThreatActionView — the most critical screen in SafeRing.
+/// ThreatActionView — the most critical screen in GMG Shield.
 ///
 /// # Critical Safety Rule
 /// This view MUST drive HUMAN ACTION. It MUST NEVER present a "you're safe,
@@ -366,7 +366,7 @@ struct ThreatActionView: View {
         case .askFamilyPassword:
             return "This caller may be trying to get your family password."
         case .loopTrustedContact:
-            return "This call has been flagged as suspicious by SafeRing."
+            return "This call has been flagged as suspicious by GMG Shield."
         case .doNotReply:
             return "This message has been flagged as a potential scam."
         case .looksOkStillVerify:

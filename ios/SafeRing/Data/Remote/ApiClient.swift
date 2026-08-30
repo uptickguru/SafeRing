@@ -1,6 +1,6 @@
 import Foundation
 
-/// URLSession-based API client for SafeRing backend services.
+/// URLSession-based API client for GMG Shield backend services.
 ///
 /// # Security
 /// - All network calls use HTTPS only.

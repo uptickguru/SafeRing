@@ -235,7 +235,7 @@ fun HomeScreen(
             if (!screeningOn) {
                 TextButton(onClick = {
                     roleLauncher.launch(PhoneRoles.requestCallScreeningIntent(context))
-                }) { Text("Make SafeRing the spam app") }
+                }) { Text("Make GMG Shield the spam app") }
             }
             val needed = buildList {
                 if (!contactsOn) add(Manifest.permission.READ_CONTACTS)

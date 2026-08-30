@@ -1,6 +1,6 @@
 import Foundation
 
-/// Live Caller ID Lookup extension for SafeRing.
+/// Live Caller ID Lookup extension for GMG Shield.
 ///
 /// # Architecture
 /// This extension provides network-backed caller ID identification for iOS 18+.

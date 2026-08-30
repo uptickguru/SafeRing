@@ -2,7 +2,7 @@ import SwiftUI
 import BackgroundTasks
 import SwiftData
 
-/// SafeRing — AI-powered scam call/sms detection for seniors.
+/// GMG Shield — AI-powered scam call/sms detection for seniors.
 ///
 /// # Zero PII Policy
 /// Phone numbers are **never** sent over the network in plain text.

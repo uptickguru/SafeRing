@@ -1,6 +1,6 @@
 import IdentityLookup
 
-/// SafeRing SMS Message Filter Extension
+/// GMG Shield SMS Message Filter Extension
 ///
 /// This extension intercepts incoming SMS messages before they reach the user's inbox.
 /// It runs in a sandboxed environment with NO network access, so all classification

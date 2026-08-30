@@ -13,7 +13,7 @@ settings:
     DEVELOPMENT_TEAM: "53DRV2V873"
     INFOPLIST_FILE: SafeRing/Info.plist
     PRODUCT_BUNDLE_IDENTIFIER: online.db1k.safering.ios
-    PRODUCT_NAME: SafeRing
+    PRODUCT_NAME: GMG Shield
 
 schemes:
   SafeRing:

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// SafeRing typography — optimized for senior readability.
+/// GMG Shield typography — optimized for senior readability.
 ///
 /// Uses the system Dynamic Type to automatically scale with the user's
 /// preferred reading size. All text styles have a minimum size that
