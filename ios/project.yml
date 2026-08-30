@@ -65,10 +65,6 @@ targets:
       - sdk: Contacts.framework
       - target: MessageFilterExtension
         embed: true
-      - target: CallDirectoryHandler
-        embed: true
-      - target: LiveCallerIDLookupHandler
-        embed: true
 
   CallDirectoryHandler:
     type: app-extension
