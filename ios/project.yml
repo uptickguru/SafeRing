@@ -20,7 +20,6 @@ schemes:
     build:
       targets:
         SafeRing: [run, test, profile, analyze, archive]
-        MessageFilterExtension: [run, archive]
     test:
       targets:
         - SafeRingUITests
