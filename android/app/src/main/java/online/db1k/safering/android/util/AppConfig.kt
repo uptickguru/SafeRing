@@ -27,8 +27,4 @@ object AppConfig {
     const val MAX_CALL_LOGS = 500
     const val MAX_SMS_LOGS = 500
     const val LOG_RETENTION_DAYS = 30L
-
-    // Placeholder only so leftover repository call sites compile.
-    // Free-tier screening does not hash numbers to a server.
-    val HMAC_KEY: ByteArray = "safering-dev-hmac-not-for-production".toByteArray()
 }
