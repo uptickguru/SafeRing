@@ -63,8 +63,6 @@ targets:
       - sdk: MessageUI.framework
       - sdk: ContactsUI.framework
       - sdk: Contacts.framework
-      - target: MessageFilterExtension
-        embed: true
 
   CallDirectoryHandler:
     type: app-extension
