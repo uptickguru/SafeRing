@@ -121,6 +121,8 @@ func main() {
 	statsHandler := handler.NewStatsHandler(reportStore, numberStore, prefixStore, aggregator, logger)
 	eventHandler := handler.NewEventHandler(logger)
 	mfHandler := handler.NewMessageFilterHandler(logger)
+	emailCheckHandler := handler.NewEmailCheckHandler(logger)
+	urlCheckHandler := handler.NewURLCheckHandler(logger)
 
 	// Build router
 	r := chi.NewRouter()
@@ -179,6 +181,13 @@ func main() {
 		// POST /v1/event — Device action telemetry (block/warn/monitor)
 		// No rate limit — essential for operational visibility
 		r.Post("/event", eventHandler.ServeHTTP)
+
+		// POST /v1/check/email — Email phishing analysis (Plus tier feature)
+		// Rate limit: 50/min per IP (metered by entitlement)
+		r.With(handler.RateLimiter(handler.DefaultRateLimit, cfg.Rate.Window)).
+			Post("/check/email", emailCheckHandler.ServeHTTP)
+		r.With(handler.RateLimiter(handler.DefaultRateLimit, cfg.Rate.Window)).
+			Get("/check/url", urlCheckHandler.ServeHTTP)
 
 		// Message filter network + exceptional encrypted OSINT capture
 		r.With(handler.RateLimiter(handler.ModerateRateLimit, cfg.Rate.Window)).

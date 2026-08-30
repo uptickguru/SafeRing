@@ -57,6 +57,9 @@ interface SafeRingApi {
     suspend fun checkNumber(@Query("hash") hash: String): CheckResponse
         // hash is HMAC-SHA256, not plain SHA-256
 
+    @GET("v1/check/url")
+    suspend fun checkURL(@Query("url") url: String): CheckResponse
+
     @GET("v1/prefixes")
     suspend fun fetchPrefixes(): PrefixResponse
 
