@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import online.db1k.safering.android.data.remote.ApiClient
 import online.db1k.safering.android.data.remote.SafeRingApi
 import online.db1k.safering.android.util.Logger
 
@@ -31,7 +30,7 @@ data class QRScannerUiState(
 
 class QRScannerViewModel : ViewModel() {
 
-    private val api: SafeRingApi = ApiClient.create()
+    private val api: SafeRingApi = SafeRingApi.create()
 
     private val _uiState = MutableStateFlow(QRScannerUiState())
     val uiState: StateFlow<QRScannerUiState> = _uiState.asStateFlow()
