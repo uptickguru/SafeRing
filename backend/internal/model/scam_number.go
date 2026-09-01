@@ -1,7 +1,17 @@
 // Package model defines the core data types for the SafeRing backend.
 package model
 
-import "time"
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"time"
+)
+
+// HashPhoneNumber computes SHA-256 hash of a phone number for privacy-preserving storage
+func HashPhoneNumber(phoneNumber string) string {
+	h := sha256.Sum256([]byte(phoneNumber))
+	return hex.EncodeToString(h[:])
+}
 
 // ScamNumber represents a known scam phone number (stored as SHA-256 hash only).
 //

@@ -63,6 +63,21 @@ struct TranscriptCheckResponse: Decodable {
     let riskScore: Double
 }
 
+// MARK: - URL Check
+
+/// Request to check a URL for phishing/scam content.
+struct URLCheckRequest: Encodable {
+    let url: String
+}
+
+/// Response from POST /v1/check/url.
+struct URLCheckResponse: Decodable {
+    let url: String?
+    let isScam: Bool
+    let scamType: String?
+    let risk_score: Double
+}
+
 // MARK: - Consent Notice
 
 /// Notice displayed before the user submits a transcript.

@@ -35,7 +35,11 @@ func NewDB(ctx context.Context, cfg config.DatabaseConfig, logger *zap.Logger) (
 	if cfg.IsSQLite() {
 		driverName = "sqlite3"
 		// Enable WAL mode and foreign keys for SQLite
-		cfg.URL = cfg.URL + "?_journal_mode=WAL&_foreign_keys=on"
+		sep := "?"
+		if strings.Contains(cfg.URL, "?") {
+			sep = "&"
+		}
+		cfg.URL = cfg.URL + sep + "_journal_mode=WAL&_foreign_keys=on"
 	} else {
 		driverName = "postgres"
 		// Use pgx driver for Postgres — register in future when adding pg support

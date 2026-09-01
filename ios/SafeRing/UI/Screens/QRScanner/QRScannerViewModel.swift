@@ -26,7 +26,7 @@ final class QRScannerViewModel: ObservableObject {
         error = nil
         
         do {
-            let response = try await APIClient.shared.checkURL(url: urlString)
+            let response = try await ApiClient.shared.checkURL(url: urlString)
             scannedURL = urlString
             riskScore = response.risk_score
             

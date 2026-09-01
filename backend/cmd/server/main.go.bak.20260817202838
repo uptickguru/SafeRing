@@ -25,12 +25,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
-	"github.com/safering/backend/internal/carrier"
 	"github.com/safering/backend/internal/config"
 	"github.com/safering/backend/internal/handler"
 	"github.com/safering/backend/internal/ml"
-	"github.com/safering/backend/internal/osint"
-	"github.com/safering/backend/internal/phoneintel"
 	"github.com/safering/backend/internal/scraper"
 	"github.com/safering/backend/internal/store"
 )
@@ -77,7 +74,6 @@ func main() {
 	prefixStore := store.NewScamPrefixStore(db)
 	reportStore := store.NewScamReportStore(db)
 	modelStore := store.NewModelStore(db)
-	allowlistStore := store.NewAllowlistStore(db)
 
 	// Initialize ML pipeline
 	mlPipeline := ml.NewPipeline(modelStore, numberStore, reportStore,
@@ -117,43 +113,13 @@ func main() {
 	go aggregator.StartBackground(ctx)
 	go mlTrainer.StartTrainingLoop(ctx, cfg.ML.TrainInterval)
 
-	// Run SignalWire sync (populates allowlist with numbers we own)
-	signalwireSync := scraper.NewSignalWireSync(logger, numberStore, allowlistStore)
-	if signalwireSync.Enabled() {
-		go func() {
-			if _, err := signalwireSync.Run(ctx); err != nil {
-				logger.Warn("initial signalwire sync failed", zap.Error(err))
-			}
-		}()
-	}
-
-	// Initialize phone intelligence service
-	phoneIntelService := phoneintel.New()
-	if err := phoneIntelService.Load(); err != nil {
-		logger.Fatal("failed to load phone intelligence", zap.Error(err))
-	}
-	logger.Info("phone intelligence loaded", zap.Int("prefixes", 922))
-
 	// Initialize handlers
-	checkHandler := handler.NewCheckHandler(numberStore, allowlistStore, logger)
+	checkHandler := handler.NewCheckHandler(numberStore, logger)
 	prefixesHandler := handler.NewPrefixesHandler(prefixStore, logger)
 	modelHandler := handler.NewModelHandler(mlPipeline, logger)
 	reportHandler := handler.NewReportHandler(reportStore, logger)
 	statsHandler := handler.NewStatsHandler(reportStore, numberStore, prefixStore, aggregator, logger)
 	eventHandler := handler.NewEventHandler(logger)
-	mfHandler := handler.NewMessageFilterHandler(logger)
-	emailCheckHandler := handler.NewEmailCheckHandler(logger)
-	urlCheckHandler := handler.NewURLCheckHandler(logger)
-	lookupHandler := handler.NewLookupHandler(numberStore, allowlistStore, phoneIntelService, logger)
-	allowlistHandler := handler.NewAllowlistHandler(allowlistStore, logger)
-
-	// Initialize carrier lookup service
-	carrierLookup := carrier.NewLookupService(logger)
-	logger.Info("carrier lookup", zap.Bool("enabled", carrierLookup.Enabled()))
-
-	// Initialize OSINT enrichment service
-	enrichmentService := osint.NewEnrichmentService(logger, carrierLookup, numberStore, allowlistStore)
-	enrichmentHandler := handler.NewEnrichmentHandler(enrichmentService, logger)
 
 	// Build router
 	r := chi.NewRouter()
@@ -212,45 +178,6 @@ func main() {
 		// POST /v1/event — Device action telemetry (block/warn/monitor)
 		// No rate limit — essential for operational visibility
 		r.Post("/event", eventHandler.ServeHTTP)
-
-		// Admin: Allowlist management
-		// GET /v1/admin/allowlist — list all allowlisted numbers
-		// POST /v1/admin/allowlist — add a number to allowlist
-		// DELETE /v1/admin/allowlist/{hash} — remove from allowlist
-		// GET /v1/admin/allowlist/stats — allowlist statistics
-		r.Route("/admin/allowlist", func(r chi.Router) {
-			r.Get("/", allowlistHandler.List)
-			r.Post("/", allowlistHandler.Add)
-			r.Delete("/{hash}", allowlistHandler.Remove)
-			r.Get("/stats", allowlistHandler.Stats)
-		})
-
-		// POST /v1/check/email — Email phishing analysis (Plus tier feature)
-		// Rate limit: 50/min per IP (metered by entitlement)
-		r.With(handler.RateLimiter(handler.DefaultRateLimit, cfg.Rate.Window)).
-			Post("/check/email", emailCheckHandler.ServeHTTP)
-		r.With(handler.RateLimiter(handler.DefaultRateLimit, cfg.Rate.Window)).
-			Get("/check/url", urlCheckHandler.ServeHTTP)
-
-		// POST /v1/lookup — Phone number intelligence + scam database lookup
-		// Rate limit: 200/min per IP (higher because it fires on every call)
-		r.With(handler.RateLimiter(handler.LookupRateLimit, cfg.Rate.Window)).
-			Post("/lookup", lookupHandler.ServeHTTP)
-
-		// POST /v1/enrich — OSINT carrier lookup + abuse reporting
-		// Rate limit: 20/min per IP (expensive carrier API calls)
-		r.With(handler.RateLimiter(handler.ModerateRateLimit, cfg.Rate.Window)).
-			Post("/enrich", enrichmentHandler.ServeHTTP)
-
-		// Message filter network + exceptional encrypted OSINT capture
-		r.With(handler.RateLimiter(handler.ModerateRateLimit, cfg.Rate.Window)).
-			Post("/message-filter", mfHandler.ServeMessageFilter)
-		r.With(handler.RateLimiter(handler.ModerateRateLimit, cfg.Rate.Window)).
-			Post("/exceptional/capture", mfHandler.ServeExceptionalCapture)
-		r.With(handler.RateLimiter(handler.LowRateLimit, cfg.Rate.Window)).
-			Get("/exceptional/cases", mfHandler.ServeExceptionalCases)
-		r.With(handler.RateLimiter(handler.ModerateRateLimit, cfg.Rate.Window)).
-			Post("/exceptional/confirm-block", mfHandler.ServeConfirmBlock)
 
 		// Agent coordination endpoints (for distributed scraper agents)
 		// No rate limiting — agents are internal (Tailscale)

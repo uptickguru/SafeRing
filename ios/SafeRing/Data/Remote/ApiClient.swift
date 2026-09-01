@@ -25,6 +25,10 @@ import Foundation
 ///
 final class ApiClient {
 
+    // MARK: - Singleton
+
+    static let shared = ApiClient()
+
     // MARK: - Properties
 
     private let session: URLSession
@@ -480,6 +484,43 @@ final class ApiClient {
             throw ApiError.rateLimitExceeded
         case 404:
             throw ApiError.notFound
+        case 500...599:
+            throw ApiError.serverError(statusCode: httpResponse.statusCode)
+        default:
+            throw ApiError.unexpectedStatusCode(httpResponse.statusCode)
+        }
+    }
+
+    // MARK: - URL Check
+
+    /// Checks a URL for scam/phishing content.
+    /// - Parameter url: The URL string to check.
+    /// - Returns: URLCheckResponse with risk assessment.
+    /// - Throws: ApiError if the request fails.
+    func checkURL(url: String) async throws -> URLCheckResponse {
+        try checkRateLimit(for: "/check/url", maxRequests: 50, windowSeconds: 60)
+
+        let endpoint = baseURL.appendingPathComponent("v1/check/url")
+        var request = URLRequest(url: endpoint)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.timeoutInterval = 15
+
+        let body = ["url": url]
+        request.httpBody = try encoder.encode(body)
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ApiError.invalidResponse
+        }
+
+        switch httpResponse.statusCode {
+        case 200:
+            return try decoder.decode(URLCheckResponse.self, from: data)
+        case 429:
+            throw ApiError.rateLimitExceeded
         case 500...599:
             throw ApiError.serverError(statusCode: httpResponse.statusCode)
         default:

@@ -20,8 +20,8 @@ func NewScamNumberStore(db *DB) *ScamNumberStore {
 	return &ScamNumberStore{db: db, now: time.Now}
 }
 
-// GetByHash looks up a scam number by its SHA-256 hash.
-// Returns model.ErrNotFound if the hash is not in the database.
+// GetByHash looks up a scam number by its hash.
+// Returns (nil, nil) if the hash is not found for the current tenant.
 func (s *ScamNumberStore) GetByHash(ctx context.Context, hash string) (*model.ScamNumber, error) {
 	query := `
 		SELECT id, number_hash, source, scam_type, risk_score,
@@ -35,7 +35,7 @@ func (s *ScamNumberStore) GetByHash(ctx context.Context, hash string) (*model.Sc
 		&sn.ReportCount, &sn.FirstSeen, &sn.LastUpdated, &sn.ExpiresAt,
 	)
 	if err == sql.ErrNoRows {
-		return nil, model.ErrNotFound
+		return nil, nil
 	}
 	if err != nil {
 		return nil, fmt.Errorf("query scam number: %w", err)
@@ -53,7 +53,7 @@ func (s *ScamNumberStore) Upsert(ctx context.Context, sn *model.ScamNumber) erro
 		INSERT INTO scam_numbers (number_hash, tenant_id, source, scam_type, risk_score,
 		                          report_count, first_seen, last_updated, expires_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-		ON CONFLICT(number_hash) DO UPDATE SET
+		ON CONFLICT(number_hash, tenant_id) DO UPDATE SET
 			risk_score   = excluded.risk_score,
 			source       = CASE WHEN scam_numbers.source = 'unknown' THEN excluded.source ELSE scam_numbers.source END,
 			scam_type    = COALESCE(NULLIF(excluded.scam_type, ''), scam_numbers.scam_type),
@@ -159,7 +159,7 @@ func (s *ScamNumberStore) GetHighRisk(ctx context.Context, threshold float64, li
 // GetCount returns the total number of scam numbers in the database.
 func (s *ScamNumberStore) GetCount(ctx context.Context) (int, error) {
 	var count int
-	err := s.db.QueryRowContext(ctx, "SELECT COUNT(ctx, s.db.TenantID(*) FROM scam_numbers WHERE tenant_id = ?").Scan(&count)
+	err := s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM scam_numbers WHERE tenant_id = ?", s.db.TenantID).Scan(&count)
 	return count, err
 }
 
@@ -171,4 +171,32 @@ func (s *ScamNumberStore) DeleteExpired(ctx context.Context) (int, error) {
 	}
 	n, _ := result.RowsAffected()
 	return int(n), nil
+}
+
+// FindByPrefixAndType finds scam numbers matching an NXX prefix and scam type within a time window
+func (s *ScamNumberStore) FindByPrefixAndType(ctx context.Context, nxxPrefix, scamType string, window time.Duration) ([]*model.ScamNumber, error) {
+	cutoff := s.now().Add(-window)
+	query := `
+		SELECT id, number_hash, source, scam_type, risk_score,
+		       report_count, first_seen, last_updated, expires_at
+		FROM scam_numbers
+		WHERE nxx_prefix = ? AND scam_type = ? AND last_updated >= ?
+		ORDER BY last_updated DESC`
+
+	rows, err := s.db.QueryContext(ctx, query, nxxPrefix, scamType, cutoff)
+	if err != nil {
+		return nil, fmt.Errorf("query by prefix and type: %w", err)
+	}
+	defer rows.Close()
+
+	var results []*model.ScamNumber
+	for rows.Next() {
+		var sn model.ScamNumber
+		if err := rows.Scan(&sn.ID, &sn.NumberHash, &sn.Source, &sn.ScamType, &sn.RiskScore,
+			&sn.ReportCount, &sn.FirstSeen, &sn.LastUpdated, &sn.ExpiresAt); err != nil {
+			return nil, fmt.Errorf("scan row: %w", err)
+		}
+		results = append(results, &sn)
+	}
+	return results, rows.Err()
 }
