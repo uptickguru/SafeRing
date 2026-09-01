@@ -20,6 +20,9 @@ schemes:
     build:
       targets:
         SafeRing: [run, test, profile, analyze, archive]
+        MessageFilterExtension: [run, test, profile, analyze, archive]
+        CallDirectoryHandler: [run, test, profile, analyze, archive]
+        LiveCallerIDLookupHandler: [run, test, profile, analyze, archive]
     test:
       targets:
         - SafeRingUITests
@@ -62,6 +65,12 @@ targets:
       - sdk: MessageUI.framework
       - sdk: ContactsUI.framework
       - sdk: Contacts.framework
+      - target: MessageFilterExtension
+        embed: true
+      - target: CallDirectoryHandler
+        embed: true
+      - target: LiveCallerIDLookupHandler
+        embed: true
 
   CallDirectoryHandler:
     type: app-extension
