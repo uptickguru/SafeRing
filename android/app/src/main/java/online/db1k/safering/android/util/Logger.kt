@@ -25,7 +25,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
  */
 object Logger {
 
-    private const val TAG = "SafeRing"
+    private const val TAG = "GMG Shield"
 
     enum class Category(val tag: String) {
         APP("App"),

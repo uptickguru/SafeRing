@@ -82,7 +82,7 @@ object ExceptionalCaptureService {
             val conn = (url.openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 setRequestProperty("Content-Type", "application/json")
-                setRequestProperty("X-SafeRing-Exceptional", "1")
+                setRequestProperty("X-GMG Shield-Exceptional", "1")
                 doOutput = true
                 connectTimeout = 15000
                 readTimeout = 20000

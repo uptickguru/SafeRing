@@ -75,7 +75,7 @@ object TripwireNotifier {
             .setContentText("If anyone asked for money, passwords, or secrecy, get $trusted.")
             .setStyle(
                 NotificationCompat.BigTextStyle().bigText(
-                    "SafeRing silenced a number that is not in Contacts and is not your person. " +
+                    "GMG Shield silenced a number that is not in Contacts and is not your person. " +
                         "We do not show the number. If it felt wrong, get $trusted on their saved number."
                 )
             )

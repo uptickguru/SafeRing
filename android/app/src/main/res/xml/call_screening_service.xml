@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     CallScreeningService metadata filter.
-    This configures which calls SafeRing's screening service will process.
+    This configures which calls GMG Shield's screening service will process.
 
-    SafeRing screens ALL incoming calls by default. The service runs a
+    GMG Shield screens ALL incoming calls by default. The service runs a
     lightweight local database lookup first, then queries the server if
     the number is not in the local cache. The entire process takes <100ms
     in the common case.

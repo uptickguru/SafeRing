@@ -32,7 +32,7 @@ class WeeklySummaryWorker(
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notification = android.app.Notification.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("📊 SafeRing Weekly Summary")
+            .setContentTitle("📊 GMG Shield Weekly Summary")
             .setContentText("$blockedCalls calls screened · $filteredSms SMS analyzed · $blockedCount blocked")
             .setAutoCancel(true)
             .setStyle(android.app.Notification.BigTextStyle()
@@ -40,7 +40,7 @@ class WeeklySummaryWorker(
                     "• $blockedCalls calls screened\n" +
                     "• $filteredSms SMS messages analyzed\n" +
                     "• $blockedCount calls blocked\n" +
-                    "SafeRing is keeping you protected."))
+                    "GMG Shield is keeping you protected."))
             .build()
 
         notificationManager.notify(1001, notification)
@@ -57,7 +57,7 @@ class WeeklySummaryWorker(
                 "Weekly Summary",
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = "Weekly protection summary from SafeRing"
+                description = "Weekly protection summary from GMG Shield"
             }
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)

@@ -21,7 +21,7 @@ class HelpSignaler(
         val name = household.ownerDisplayName.ifBlank { "Your person" }
         val trusted = household.trustedContactName.ifBlank { "there" }
         return """
-            SafeRing alert for $trusted:
+            GMG Shield alert for $trusted:
 
             $name — ${reason.shortLabel}.
 

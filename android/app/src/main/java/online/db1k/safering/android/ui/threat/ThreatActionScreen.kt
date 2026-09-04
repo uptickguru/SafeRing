@@ -421,7 +421,7 @@ private fun threatDescription(action: ThreatAction): String = when (action) {
     is ThreatAction.DoNotReply ->
         "This message has been flagged as a potential scam. Do not respond."
     is ThreatAction.LooksOkStillVerify ->
-        "This call looks okay, but SafeRing recommends verification."
+        "This call looks okay, but GMG Shield recommends verification."
 }
 
 private fun guidanceText(action: ThreatAction): String = when (action) {

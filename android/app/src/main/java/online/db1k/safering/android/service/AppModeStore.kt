@@ -6,14 +6,14 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 
 /**
- * Switchable Senior / Caretaker shell + Free plan (Protect + 1 trusted contact).
- * Senior lock: 6-digit PIN in encrypted prefs — required to leave Senior mode.
+ * Switchable Personal / Trusted contact shell + Free plan (Protect + 1 trusted contact).
+ * Personal lock: 6-digit PIN in encrypted prefs — required to leave Personal mode.
  */
 class AppModeStore private constructor(private val prefs: SharedPreferences) {
 
     enum class Role(val key: String, val title: String, val subtitle: String) {
-        SENIOR("senior", "Senior", "Big HELP, Protect Call, one person to call."),
-        CARETAKER("caretaker", "Caretaker", "Watch for alerts, approve talk, manage people.");
+        SENIOR("senior", "Personal", "This is your phone — big HELP, Protect, one person to reach."),
+        CARETAKER("caretaker", "Trusted contact", "You're their backup — alerts, approve talk, stay in the loop.");
 
         companion object {
             fun fromKey(key: String?): Role =
@@ -66,7 +66,7 @@ class AppModeStore private constructor(private val prefs: SharedPreferences) {
         return pin.filter { it.isDigit() } == stored
     }
 
-    /** Try to switch role. Returns false if Senior lock blocks (need PIN). */
+    /** Try to switch role. Returns false if Personal lock blocks (need PIN). */
     fun trySetRole(newRole: Role, pin: String? = null): Boolean {
         if (newRole == role) return true
         if (role == Role.SENIOR && seniorLockEnabled && hasSeniorLockPin) {

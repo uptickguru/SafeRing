@@ -140,8 +140,8 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                     }
                     if (role == AppModeStore.Role.SENIOR) {
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Senior lock (6 digits)", fontWeight = FontWeight.SemiBold)
-                        Text("Stops someone switching this phone out of Senior mode.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Personal lock (6 digits)", fontWeight = FontWeight.SemiBold)
+                        Text("Stops someone switching this phone out of Personal mode.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         OutlinedTextField(value = seniorPin, onValueChange = { if (it.filter(Char::isDigit).length <= 6) seniorPin = it.filter(Char::isDigit) }, label = { Text("New 6-digit code") }, modifier = Modifier.fillMaxWidth())
                         OutlinedTextField(value = seniorPin2, onValueChange = { if (it.filter(Char::isDigit).length <= 6) seniorPin2 = it.filter(Char::isDigit) }, label = { Text("Confirm code") }, modifier = Modifier.fillMaxWidth())
                         Button(
@@ -155,10 +155,10 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                             },
                             enabled = seniorPin.length == 6,
                             modifier = Modifier.fillMaxWidth()
-                        ) { Text("Save Senior lock code") }
+                        ) { Text("Save Personal lock code") }
                         if (mode.hasSeniorLockPin) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("Senior lock on")
+                                Text("Personal lock on")
                                 Spacer(modifier = Modifier.weight(1f))
                                 Switch(checked = mode.seniorLockEnabled, onCheckedChange = { mode.seniorLockEnabled = it })
                             }
@@ -167,7 +167,7 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                                 clearLockAfterUnlock = true
                                 unlockPin = ""
                                 showUnlock = true
-                            }) { Text("Remove Senior lock") }
+                            }) { Text("Remove Personal lock") }
                         }
                     }
                     modeError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -360,7 +360,7 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
 
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    "Suspicious texts: in Messages, tap Share → SafeRing. We do not read your SMS inbox.",
+                    "Suspicious texts: in Messages, tap Share → GMG Shield. We do not read your SMS inbox.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -579,10 +579,10 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
     if (showUnlock) {
         AlertDialog(
             onDismissRequest = { showUnlock = false },
-            title = { Text("Enter Senior lock code") },
+            title = { Text("Enter Personal lock code") },
             text = {
                 Column {
-                    Text("This phone is locked in Senior mode.")
+                    Text("This phone is locked in Personal mode.")
                     OutlinedTextField(
                         value = unlockPin,
                         onValueChange = { if (it.filter(Char::isDigit).length <= 6) unlockPin = it.filter(Char::isDigit) },
@@ -605,7 +605,7 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                         unlockPin = ""
                         modeError = null
                     } else {
-                        modeError = "Wrong code. Senior mode stays locked."
+                        modeError = "Wrong code. Personal mode stays locked."
                         showUnlock = false
                     }
                 }) { Text("Unlock") }
@@ -711,7 +711,7 @@ private fun openCallScreeningSettings(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS).apply {
             // On most devices, this opens the default apps settings
-            // Users need to navigate to Call Screening > SafeRing
+            // Users need to navigate to Call Screening > GMG Shield
         }
         context.startActivity(intent)
     }

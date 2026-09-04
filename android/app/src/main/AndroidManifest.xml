@@ -87,7 +87,7 @@
         <activity android:name=".ui.settings.FeatureDemoActivity" android:exported="false" android:label="Feature demo" />
         <activity android:name=".ui.settings.ProtectionCardActivity" android:exported="false" android:label="Printable card" />
         <activity android:name=".ui.settings.InvestigateReportActivity" android:exported="false" android:label="Investigate" />
-        <activity android:name=".ui.settings.SeniorSafetyActivity" android:exported="false" android:label="Senior safety" />
+        <activity android:name=".ui.settings.SeniorSafetyActivity" android:exported="false" android:label="Falls and safety" />
         <activity android:name=".ui.home.ProtectCallActivity" android:exported="false" android:label="Protect Call" android:theme="@style/Theme.SafeRing" />
     
         <provider

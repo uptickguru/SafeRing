@@ -37,7 +37,7 @@ fun CaretakerHomeScreen() {
     @Suppress("UNUSED_VARIABLE")
     val refresh = tick
 
-    val seniorName = household.ownerDisplayName.ifBlank { "Senior" }
+    val seniorName = household.ownerDisplayName.ifBlank { "your person" }
     val person = household.trustedContactName.ifBlank { "trusted contact" }
 
     Column(
@@ -50,7 +50,7 @@ fun CaretakerHomeScreen() {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("GMG SHIELD", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 2.sp, color = SoftGold)
-                Text("Caretaker", fontSize = 24.sp, color = Ink)
+                Text("Trusted contact", fontSize = 24.sp, color = Ink)
             }
             AssistChip(
                 onClick = {},
@@ -75,15 +75,15 @@ fun CaretakerHomeScreen() {
         Spacer(Modifier.height(16.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp)) {
-                Text("Your senior", fontWeight = FontWeight.SemiBold)
-                Text("$seniorName · this phone is Caretaker mode. Free = Protect + one trusted contact.", color = Mute)
+                Text("Their phone", fontWeight = FontWeight.SemiBold)
+                Text("$seniorName · this phone is Trusted contact mode. Free = Protect + one trusted contact.", color = Mute)
             }
         }
         Spacer(Modifier.height(12.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp)) {
                 Text("Waiting for alerts", fontWeight = FontWeight.SemiBold)
-                Text("When SafeCall is live, unknown attempts show for Approve / Deny. Until then, senior uses HELP and Protect on their phone.", color = Mute)
+                Text("When SafeCall is live, unknown attempts show for Approve / Deny. Until then, they use HELP and Protect on their phone.", color = Mute)
             }
         }
         Spacer(Modifier.height(16.dp))
@@ -115,6 +115,6 @@ fun CaretakerHomeScreen() {
         }
 
         Spacer(Modifier.height(16.dp))
-        Text("Switch to Senior mode in Settings if this is the senior’s phone.", color = Mute, fontSize = 13.sp)
+        Text("Switch to Personal mode in Settings if this is their everyday phone.", color = Mute, fontSize = 13.sp)
     }
 }

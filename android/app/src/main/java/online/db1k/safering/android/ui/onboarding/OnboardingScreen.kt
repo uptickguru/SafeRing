@@ -184,7 +184,7 @@ private fun WelcomePane() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("SafeRing", fontSize = 40.sp, fontWeight = FontWeight.Black)
+        Text("GMG Shield", fontSize = 40.sp, fontWeight = FontWeight.Black)
         Spacer(Modifier.height(16.dp))
         Text(
             "Texts someone you trust\nwhen something feels wrong.",

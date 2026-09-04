@@ -419,7 +419,7 @@ private fun familyPasswordContent() {
             modifier = Modifier.fillMaxWidth(),
             icon = "📱",
             title = "Use the App to Check",
-            body = "When in doubt, use SafeRing to check the number first."
+            body = "When in doubt, use GMG Shield to check the number first."
         )
 
         SuccessCard(
