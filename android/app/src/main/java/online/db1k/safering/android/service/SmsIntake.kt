@@ -10,6 +10,7 @@ import online.db1k.safering.android.data.local.models.ScamNumberEntity
 import online.db1k.safering.android.data.local.models.SmsLogEntity
 import online.db1k.safering.android.util.AppConfig
 import online.db1k.safering.android.util.HmacHashUtils
+import online.db1k.safering.android.util.DeviceComms
 import online.db1k.safering.android.util.Logger
 import online.db1k.safering.android.util.PhoneNumberUtils
 
@@ -146,6 +147,14 @@ object SmsIntake {
                     )
                 }
 
+                DeviceComms.log(
+                    app,
+                    entryPoint = "sms-notification",
+                    channel = "sms",
+                    action = verdict.name.lowercase(),
+                    sender = hash.take(16),
+                    meta = mapOf("score" to score, "pkg" to packageName)
+                )
                 Logger.info(
                     "SMS notif pkg=$packageName hash=${hash.take(8)}… sender=${sender != null} score=$score",
                     Logger.Category.SMS

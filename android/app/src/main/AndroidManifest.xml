@@ -82,6 +82,19 @@
             </intent-filter>
         </receiver>
 
+    
+        <activity android:name=".ui.settings.FeatureDemoActivity" android:exported="false" android:label="Feature demo" />
+        <activity android:name=".ui.settings.ProtectionCardActivity" android:exported="false" android:label="Printable card" />
+        <activity android:name=".ui.settings.InvestigateReportActivity" android:exported="false" android:label="Investigate" />
+        <activity android:name=".ui.settings.SeniorSafetyActivity" android:exported="false" android:label="Senior safety" />
+    
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

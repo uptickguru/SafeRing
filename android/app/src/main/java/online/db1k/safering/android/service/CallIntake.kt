@@ -9,6 +9,7 @@ import online.db1k.safering.android.data.local.AppDatabase
 import online.db1k.safering.android.data.local.models.CallLogEntity
 import online.db1k.safering.android.util.AppConfig
 import online.db1k.safering.android.util.HmacHashUtils
+import online.db1k.safering.android.util.DeviceComms
 import online.db1k.safering.android.util.Logger
 import online.db1k.safering.android.util.PhoneNumberUtils
 
@@ -73,6 +74,14 @@ object CallIntake {
                 Logger.info(
                     "Call logged hash=${hash.take(8)}… disp=${disposition.name} silenced=$silenced",
                     Logger.Category.CALL
+                )
+                DeviceComms.log(
+                    app,
+                    entryPoint = "call-screening",
+                    channel = "voice",
+                    action = disposition.name.lowercase(),
+                    sender = hash.take(16),
+                    meta = mapOf("silenced" to silenced, "stir" to stirStatus)
                 )
             } catch (e: Exception) {
                 Logger.debug("CallIntake failed: ${e.message}", Logger.Category.CALL)

@@ -41,6 +41,16 @@ class SafeRingCallScreeningService : CallScreeningService() {
             0
         }
 
+        val blocked = FilterRulesStore.isBlocked(this, raw) || FilterRulesStore.isBlocked(this, incoming)
+        if (blocked && !isTrusted && !isContact) {
+            household.recordUnknownCall()
+            CallIntake.record(this, raw.ifBlank { incoming }, CallIntake.Disposition.SILENCED, silenced = true, stirStatus = verification)
+            respondToCall(details, silence())
+            TripwireNotifier.notifyUnknownCallSilenced(this)
+            Logger.info("Blocked list incoming", Logger.Category.CALL)
+            return
+        }
+
         if (isTrusted || isContact) {
             val disp = if (isTrusted) CallIntake.Disposition.TRUSTED else CallIntake.Disposition.CONTACT
             CallIntake.record(this, raw.ifBlank { incoming }, disp, silenced = false, stirStatus = verification)

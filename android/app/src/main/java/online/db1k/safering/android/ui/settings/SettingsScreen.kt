@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,10 +23,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.testTag
 import androidx.core.content.ContextCompat
 import online.db1k.safering.android.service.HouseholdStore
+import online.db1k.safering.android.service.FilterRulesStore
+import online.db1k.safering.android.service.SafeCallCaretaker
+import online.db1k.safering.android.MainActivity
 import online.db1k.safering.android.service.PhoneRoles
 import online.db1k.safering.android.service.SignalChannel
 import online.db1k.safering.android.service.TripwireNotifier
 import online.db1k.safering.android.service.SmsNotificationListener
+import online.db1k.safering.android.util.ShieldAnalytics
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +56,19 @@ fun SettingsScreen() {
     var trustedNumber by remember { mutableStateOf(household.trustedContactNumber) }
     var password by remember { mutableStateOf("") }
     var channel by remember { mutableStateOf(household.preferredChannel) }
+    val scope = rememberCoroutineScope()
+    var keywordDraft by remember { mutableStateOf("") }
+    var blockDraft by remember { mutableStateOf("") }
+    var keywords by remember { mutableStateOf(FilterRulesStore.keywords(context)) }
+    var blocks by remember { mutableStateOf(FilterRulesStore.blockDigits(context).toList().sorted()) }
+    var safeCallSummary by remember { mutableStateOf("Tap refresh") }
+    var safeCallBusy by remember { mutableStateOf(false) }
+    var showResetConfirm by remember { mutableStateOf(false) }
+    fun reloadFilters() {
+        keywords = FilterRulesStore.keywords(context)
+        blocks = FilterRulesStore.blockDigits(context).toList().sorted()
+        setupTick++
+    }
 
     Column(
         modifier = Modifier
@@ -108,7 +126,7 @@ fun SettingsScreen() {
         Spacer(modifier = Modifier.height(8.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
-                SettingToggle("SafeRing is call screening app", "Contacts ring. Unknown is silenced.", household.callScreeningConfirmed) { household.callScreeningConfirmed = it }
+                SettingToggle("GMG Shield is call screening app", "Contacts ring. Unknown is silenced.", household.callScreeningConfirmed) { household.callScreeningConfirmed = it }
                 SettingToggle("Carrier scam block is on", "T-Mobile Scam Shield, AT&T ActiveArmor, Verizon Call Filter", household.carrierProtectionConfirmed) { household.carrierProtectionConfirmed = it }
                 SettingToggle("Silence unknown is OK", "Unknown callers should not ring", household.silenceUnknownConfirmed) { household.silenceUnknownConfirmed = it }
             }
@@ -167,7 +185,7 @@ fun SettingsScreen() {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(if (screeningOn) "Caller ID & spam: on" else "Caller ID & spam: off")
                 Text(
-                    "Settings → Default apps → Caller ID & spam → SafeRing. Contacts still ring. Unknown is silenced.",
+                    "Settings → Default apps → Caller ID & spam → GMG Shield. Contacts still ring. Unknown is silenced.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -216,7 +234,180 @@ fun SettingsScreen() {
             }
         }
 
+        
         Spacer(modifier = Modifier.height(16.dp))
+
+        Text("Filter words (like iOS Message Filter)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    "Used on shared texts and notification snippets. Android has no system Junk folder for third-party apps.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                keywords.take(40).forEach { w ->
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                        Text(w, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { FilterRulesStore.removeKeyword(context, w); reloadFilters() }) { Text("Remove") }
+                    }
+                }
+                OutlinedTextField(value = keywordDraft, onValueChange = { keywordDraft = it }, label = { Text("Add filter word") }, modifier = Modifier.fillMaxWidth())
+                Button(
+                    onClick = {
+                        FilterRulesStore.addKeyword(context, keywordDraft)
+                        keywordDraft = ""
+                        reloadFilters()
+                        ShieldAnalytics.event(context, "filter_keyword_add")
+                    },
+                    enabled = keywordDraft.trim().length >= 2,
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Add word") }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Block list (calls)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    "Silences these when GMG Shield is Caller ID & spam app (Android Call Screening ≈ iOS Call Directory).",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text("Blocked: ${blocks.size}", style = MaterialTheme.typography.titleSmall)
+                blocks.take(30).forEach { d ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(d, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { FilterRulesStore.removeBlockDigits(context, d); reloadFilters() }) { Text("Remove") }
+                    }
+                }
+                OutlinedTextField(value = blockDraft, onValueChange = { blockDraft = it }, label = { Text("Add number to block") }, modifier = Modifier.fillMaxWidth())
+                Button(
+                    onClick = {
+                        FilterRulesStore.addBlockDigits(context, blockDraft)
+                        blockDraft = ""
+                        reloadFilters()
+                        ShieldAnalytics.event(context, "block_list_add")
+                    },
+                    enabled = blockDraft.filter { it.isDigit() }.length >= 10,
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Add to block list") }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Investigate & report", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SettingToggle(
+                    "Exceptional investigation",
+                    "Family OSINT assist — paste number + full message. Seeds local block.",
+                    household.exceptionalCaptureEnabled
+                ) { household.exceptionalCaptureEnabled = it; setupTick++ }
+                Button(
+                    onClick = {
+                        ShieldAnalytics.event(context, "investigate_open")
+                        context.startActivity(Intent(context, InvestigateReportActivity::class.java))
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Investigate a number / report full message") }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("SafeCall (caretaker)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    "Lab: Android = caretaker, iPhone = senior. Status / Approve / Drop on live edge.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(safeCallSummary, style = MaterialTheme.typography.bodyMedium)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(
+                        onClick = {
+                            safeCallBusy = true
+                            scope.launch {
+                                val s = SafeCallCaretaker.fetchStatus(context)
+                                safeCallSummary = s.summary + if (s.pending) " · pending" else ""
+                                safeCallBusy = false
+                            }
+                        },
+                        enabled = !safeCallBusy,
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Refresh") }
+                    Button(
+                        onClick = {
+                            safeCallBusy = true
+                            scope.launch {
+                                val r = SafeCallCaretaker.approve(context)
+                                safeCallSummary = r.fold({ "Approved" }, { "Approve failed: ${it.message}" })
+                                safeCallBusy = false
+                            }
+                        },
+                        enabled = !safeCallBusy,
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Approve") }
+                }
+                OutlinedButton(
+                    onClick = {
+                        safeCallBusy = true
+                        scope.launch {
+                            val r = SafeCallCaretaker.drop(context)
+                            safeCallSummary = r.fold({ "Drop sent" }, { "Drop failed: ${it.message}" })
+                            safeCallBusy = false
+                        }
+                    },
+                    enabled = !safeCallBusy,
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Drop / hang up bridge") }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Learn and print", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = { ShieldAnalytics.event(context, "feature_demo_open"); context.startActivity(Intent(context, FeatureDemoActivity::class.java)) },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Feature demo — how each tool works") }
+                OutlinedButton(
+                    onClick = { ShieldAnalytics.event(context, "print_card_open"); context.startActivity(Intent(context, ProtectionCardActivity::class.java)) },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Print protection card") }
+                OutlinedButton(
+                    onClick = {
+                        ShieldAnalytics.event(context, "falls_tips_open")
+                        context.startActivity(Intent(context, SeniorSafetyActivity::class.java))
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Falls & senior safety") }
+                Text(
+                    "Cheap Android: screen lock ON, Caller ID role ON, Play Protect ON, install only from family.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Account", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                OutlinedButton(onClick = { showResetConfirm = true }, modifier = Modifier.fillMaxWidth()) {
+                    Text("Start over — clear and onboard again")
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         // ─── About Section ───────────────────────────────────────
         Text(
@@ -229,12 +420,39 @@ fun SettingsScreen() {
 
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
-                InfoRow("Version", "1.0.17")
+                val ver = try {
+                    context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.0.21"
+                } catch (_: Exception) { "1.0.21" }
+                InfoRow("Version", ver)
+                InfoRow("Edge", "safering.gulfmeridiangroup.com")
                 InfoRow("Privacy", "Family password and trusted number stay on this phone. Help texts are redacted.")
             }
         }
     }
+
+    if (showResetConfirm) {
+        AlertDialog(
+            onDismissRequest = { showResetConfirm = false },
+            title = { Text("Start over?") },
+            text = { Text("Clears household setup on this phone so you can onboard again.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    household.reset()
+                    showResetConfirm = false
+                    ShieldAnalytics.event(context, "onboarding_reset")
+                    val i = Intent(context, MainActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    context.startActivity(i)
+                }) { Text("Clear") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetConfirm = false }) { Text("Cancel") }
+            }
+        )
+    }
 }
+
 
 @Composable
 private fun SettingToggle(
