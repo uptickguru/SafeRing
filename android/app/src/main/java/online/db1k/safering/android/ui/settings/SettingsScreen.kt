@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.testTag
 import androidx.core.content.ContextCompat
+import online.db1k.safering.android.service.AppModeStore
 import online.db1k.safering.android.service.HouseholdStore
 import online.db1k.safering.android.service.FilterRulesStore
 import online.db1k.safering.android.service.SafeCallCaretaker
@@ -34,9 +35,19 @@ import online.db1k.safering.android.util.ShieldAnalytics
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) {
     val context = LocalContext.current
     val household = remember { HouseholdStore.get(context) }
+    val mode = remember { AppModeStore.get(context) }
+    var role by remember { mutableStateOf(mode.role) }
+    var plan by remember { mutableStateOf(mode.plan) }
+    var seniorPin by remember { mutableStateOf("") }
+    var seniorPin2 by remember { mutableStateOf("") }
+    var unlockPin by remember { mutableStateOf("") }
+    var showUnlock by remember { mutableStateOf(false) }
+    var pendingRole by remember { mutableStateOf(AppModeStore.Role.CARETAKER) }
+    var modeError by remember { mutableStateOf<String?>(null) }
+    var clearLockAfterUnlock by remember { mutableStateOf(false) }
     var owner by remember { mutableStateOf(household.ownerDisplayName) }
     var setupTick by remember { mutableIntStateOf(0) }
     @Suppress("UNUSED_VARIABLE")
@@ -84,6 +95,85 @@ fun SettingsScreen() {
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        if (!peopleOnly) {
+            Text("Phone mode", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            Spacer(modifier = Modifier.height(8.dp))
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("I am using this phone as")
+                    AppModeStore.Role.entries.forEach { r ->
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            RadioButton(
+                                selected = role == r,
+                                onClick = {
+                                    if (r == role) return@RadioButton
+                                    if (role == AppModeStore.Role.SENIOR && mode.seniorLockEnabled && mode.hasSeniorLockPin && r != AppModeStore.Role.SENIOR) {
+                                        pendingRole = r
+                                        clearLockAfterUnlock = false
+                                        unlockPin = ""
+                                        showUnlock = true
+                                    } else {
+                                        mode.role = r
+                                        role = r
+                                        onModeChanged()
+                                    }
+                                }
+                            )
+                            Column {
+                                Text(r.title)
+                                Text(r.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Plan")
+                    AppModeStore.Plan.entries.forEach { pl ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(selected = plan == pl, onClick = { plan = pl; mode.plan = pl })
+                            Column {
+                                Text(pl.title)
+                                Text(pl.blurb, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                    if (role == AppModeStore.Role.SENIOR) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Senior lock (6 digits)", fontWeight = FontWeight.SemiBold)
+                        Text("Stops someone switching this phone out of Senior mode.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        OutlinedTextField(value = seniorPin, onValueChange = { if (it.filter(Char::isDigit).length <= 6) seniorPin = it.filter(Char::isDigit) }, label = { Text("New 6-digit code") }, modifier = Modifier.fillMaxWidth())
+                        OutlinedTextField(value = seniorPin2, onValueChange = { if (it.filter(Char::isDigit).length <= 6) seniorPin2 = it.filter(Char::isDigit) }, label = { Text("Confirm code") }, modifier = Modifier.fillMaxWidth())
+                        Button(
+                            onClick = {
+                                modeError = null
+                                if (seniorPin.length == 6 && seniorPin == seniorPin2) {
+                                    if (mode.setSeniorLockPin(seniorPin)) {
+                                        seniorPin = ""; seniorPin2 = ""
+                                    } else modeError = "Could not save code"
+                                } else modeError = "Enter the same 6 digits twice"
+                            },
+                            enabled = seniorPin.length == 6,
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Save Senior lock code") }
+                        if (mode.hasSeniorLockPin) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("Senior lock on")
+                                Spacer(modifier = Modifier.weight(1f))
+                                Switch(checked = mode.seniorLockEnabled, onCheckedChange = { mode.seniorLockEnabled = it })
+                            }
+                            TextButton(onClick = {
+                                pendingRole = role
+                                clearLockAfterUnlock = true
+                                unlockPin = ""
+                                showUnlock = true
+                            }) { Text("Remove Senior lock") }
+                        }
+                    }
+                    modeError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+        }
 
         Text("Your person", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
@@ -430,6 +520,47 @@ fun SettingsScreen() {
         }
     }
 
+
+    if (showUnlock) {
+        AlertDialog(
+            onDismissRequest = { showUnlock = false },
+            title = { Text("Enter Senior lock code") },
+            text = {
+                Column {
+                    Text("This phone is locked in Senior mode.")
+                    OutlinedTextField(
+                        value = unlockPin,
+                        onValueChange = { if (it.filter(Char::isDigit).length <= 6) unlockPin = it.filter(Char::isDigit) },
+                        label = { Text("6-digit code") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (mode.verifySeniorLockPin(unlockPin)) {
+                        if (clearLockAfterUnlock) {
+                            mode.clearSeniorLockPin()
+                        } else {
+                            mode.role = pendingRole
+                            role = pendingRole
+                            onModeChanged()
+                        }
+                        showUnlock = false
+                        unlockPin = ""
+                        modeError = null
+                    } else {
+                        modeError = "Wrong code. Senior mode stays locked."
+                        showUnlock = false
+                    }
+                }) { Text("Unlock") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUnlock = false }) { Text("Cancel") }
+            }
+        )
+    }
+
     if (showResetConfirm) {
         AlertDialog(
             onDismissRequest = { showResetConfirm = false },
@@ -437,6 +568,7 @@ fun SettingsScreen() {
             text = { Text("Clears household setup on this phone so you can onboard again.") },
             confirmButton = {
                 TextButton(onClick = {
+                    AppModeStore.get(context).reset()
                     household.reset()
                     showResetConfirm = false
                     ShieldAnalytics.event(context, "onboarding_reset")

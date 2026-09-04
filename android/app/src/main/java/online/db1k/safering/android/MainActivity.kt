@@ -9,11 +9,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -22,6 +28,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -40,11 +47,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import online.db1k.safering.android.service.HelpReason
 import online.db1k.safering.android.service.HelpSignaler
+import online.db1k.safering.android.service.AppModeStore
 import online.db1k.safering.android.service.HouseholdStore
 import online.db1k.safering.android.service.TripwireNotifier
 import online.db1k.safering.android.ui.check.PasteCheckScreen
 import online.db1k.safering.android.ui.history.CallHistoryScreen
 import online.db1k.safering.android.ui.home.HomeScreen
+import online.db1k.safering.android.ui.home.CaretakerHomeScreen
 import online.db1k.safering.android.ui.onboarding.OnboardingScreen
 import online.db1k.safering.android.ui.settings.SettingsScreen
 import online.db1k.safering.android.ui.theme.Ivory
@@ -67,6 +76,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             SafeRingTheme {
                 val household = remember { HouseholdStore.get(this@MainActivity) }
+                val mode = remember { AppModeStore.get(this@MainActivity) }
+                var modeTick by remember { mutableIntStateOf(0) }
+                @Suppress("UNUSED_VARIABLE") val modeRefresh = modeTick + mode.role.ordinal
                 val signaler = remember { HelpSignaler(this@MainActivity, household) }
                 var onboarded by remember { mutableStateOf(household.hasCompletedOnboarding && household.isConfigured) }
                 var selectedTab by remember { mutableIntStateOf(0) }
@@ -154,6 +166,7 @@ class MainActivity : ComponentActivity() {
                                 unselectedTextColor = Mute,
                                 indicatorColor = SoftGold.copy(alpha = 0.12f)
                             )
+                            val isCaretaker = mode.role == AppModeStore.Role.CARETAKER
                             NavigationBarItem(
                                 selected = selectedTab == 0,
                                 onClick = { selectedTab = 0 },
@@ -162,33 +175,70 @@ class MainActivity : ComponentActivity() {
                                 colors = colors,
                                 modifier = Modifier.testTag("tab_home")
                             )
-                            NavigationBarItem(
-                                selected = selectedTab == 1,
-                                onClick = { selectedTab = 1 },
-                                icon = { Icon(Icons.Default.Phone, contentDescription = "History") },
-                                label = { Text("History") },
-                                colors = colors,
-                                modifier = Modifier.testTag("tab_history")
-                            )
-                            NavigationBarItem(
-                                selected = selectedTab == 2,
-                                onClick = { selectedTab = 2 },
-                                icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                                label = { Text("Settings") },
-                                colors = colors,
-                                modifier = Modifier.testTag("tab_settings")
-                            )
+                            if (isCaretaker) {
+                                NavigationBarItem(
+                                    selected = selectedTab == 1,
+                                    onClick = { selectedTab = 1 },
+                                    icon = { Icon(Icons.Default.Person, contentDescription = "People") },
+                                    label = { Text("People") },
+                                    colors = colors,
+                                    modifier = Modifier.testTag("tab_people")
+                                )
+                                NavigationBarItem(
+                                    selected = selectedTab == 2,
+                                    onClick = { selectedTab = 2 },
+                                    icon = { Icon(Icons.Default.Notifications, contentDescription = "Activity") },
+                                    label = { Text("Activity") },
+                                    colors = colors,
+                                    modifier = Modifier.testTag("tab_activity")
+                                )
+                                NavigationBarItem(
+                                    selected = selectedTab == 3,
+                                    onClick = { selectedTab = 3 },
+                                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+                                    label = { Text("Settings") },
+                                    colors = colors,
+                                    modifier = Modifier.testTag("tab_settings")
+                                )
+                            } else {
+                                NavigationBarItem(
+                                    selected = selectedTab == 1,
+                                    onClick = { selectedTab = 1 },
+                                    icon = { Icon(Icons.Default.Phone, contentDescription = "History") },
+                                    label = { Text("History") },
+                                    colors = colors,
+                                    modifier = Modifier.testTag("tab_history")
+                                )
+                                NavigationBarItem(
+                                    selected = selectedTab == 2,
+                                    onClick = { selectedTab = 2 },
+                                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+                                    label = { Text("Settings") },
+                                    colors = colors,
+                                    modifier = Modifier.testTag("tab_settings")
+                                )
+                            }
                         }
                     }
                 ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
-                        when (selectedTab) {
-                            0 -> HomeScreen(
+                        val isCaretaker = mode.role == AppModeStore.Role.CARETAKER
+                        when {
+                            selectedTab == 0 && isCaretaker -> CaretakerHomeScreen()
+                            selectedTab == 0 -> HomeScreen(
                                 onOpenCheck = { showCheck = true },
-                                onOpenSettings = { selectedTab = 2 }
+                                onOpenSettings = { selectedTab = if (isCaretaker) 3 else 2 }
                             )
-                            1 -> CallHistoryScreen()
-                            else -> SettingsScreen()
+                            selectedTab == 1 && isCaretaker -> SettingsScreen(peopleOnly = true, onModeChanged = { selectedTab = 0; modeTick++ })
+                            selectedTab == 1 -> CallHistoryScreen()
+                            selectedTab == 2 && isCaretaker -> {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("Activity", style = MaterialTheme.typography.headlineSmall)
+                                    Spacer(Modifier.height(8.dp))
+                                    Text("No pending alerts. When SafeCall notifies this caretaker, Approve / Deny appears here.")
+                                }
+                            }
+                            else -> SettingsScreen(onModeChanged = { selectedTab = 0; modeTick++ })
                         }
                     }
                 }

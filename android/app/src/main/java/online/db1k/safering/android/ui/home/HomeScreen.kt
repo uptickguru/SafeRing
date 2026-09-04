@@ -1,6 +1,7 @@
 package online.db1k.safering.android.ui.home
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -54,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import online.db1k.safering.android.service.HelpReason
 import online.db1k.safering.android.service.HelpSignaler
+import online.db1k.safering.android.service.AppModeStore
 import online.db1k.safering.android.service.HouseholdStore
 import online.db1k.safering.android.service.PhoneRoles
 import online.db1k.safering.android.service.TripwireNotifier
@@ -77,6 +79,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val household = remember { HouseholdStore.get(context) }
+    val mode = remember { AppModeStore.get(context) }
     val signaler = remember { HelpSignaler(context, household) }
     var showPassword by remember { mutableStateOf(false) }
     var tick by remember { mutableIntStateOf(0) }
@@ -136,6 +139,16 @@ fun HomeScreen(
                 )
             }
             StatusChip(text = statusLine, ok = statusOk)
+        }
+
+        if (mode.isFree) {
+            Text(
+                "Free · Protect + 1 trusted contact",
+                color = SoftGold,
+                fontWeight = FontWeight.Medium,
+                fontSize = 13.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
         }
 
         Divider(
@@ -199,6 +212,21 @@ fun HomeScreen(
             Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
             Text("Call $person", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        }
+
+        Spacer(Modifier.height(10.dp))
+        Button(
+            onClick = {
+                context.startActivity(Intent(context, ProtectCallActivity::class.java))
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = HelpBurgundy, contentColor = Color.White),
+            shape = RoundedCornerShape(14.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp)
+                .testTag("home_protect")
+        ) {
+            Text("Protect Call", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
 
         Spacer(Modifier.height(10.dp))

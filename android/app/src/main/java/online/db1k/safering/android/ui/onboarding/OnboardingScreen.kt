@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import online.db1k.safering.android.service.AppModeStore
 import online.db1k.safering.android.service.HouseholdStore
 
 private val Green = Color(0xFF2E7D32)
@@ -35,6 +36,7 @@ private val Green = Color(0xFF2E7D32)
 fun OnboardingScreen(onFinished: () -> Unit) {
     val context = LocalContext.current
     val household = remember { HouseholdStore.get(context) }
+    val mode = remember { AppModeStore.get(context) }
     var step by remember { mutableIntStateOf(0) }
     var owner by remember { mutableStateOf(household.ownerDisplayName) }
     var trustedName by remember { mutableStateOf(household.trustedContactName) }
@@ -47,7 +49,7 @@ fun OnboardingScreen(onFinished: () -> Unit) {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { }
 
-    val total = 4
+    val total = 5
 
     Column(
         modifier = Modifier
@@ -83,8 +85,9 @@ fun OnboardingScreen(onFinished: () -> Unit) {
         ) {
             when (step) {
                 0 -> WelcomePane()
-                1 -> NamePane(owner) { owner = it }
-                2 -> PersonPane(
+                1 -> RolePane(selected = mode.role, onSelect = { mode.role = it })
+                2 -> NamePane(owner) { owner = it }
+                3 -> PersonPane(
                     name = trustedName,
                     number = trustedNumber,
                     onName = { trustedName = it },
@@ -115,21 +118,22 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                 error = null
                 when (step) {
                     0 -> step = 1
-                    1 -> {
+                    1 -> step = 2 // role already set by taps; default Senior
+                    2 -> {
                         if (owner.trim().length < 2) {
                             error = "Type your name."
                         } else {
                             household.ownerDisplayName = owner.trim()
-                            step = 2
+                            step = 3
                         }
                     }
-                    2 -> {
+                    3 -> {
                         if (HouseholdStore.normalizeToE164(trustedNumber).filter { it.isDigit() }.length < 10) {
                             error = "Enter a real phone number."
                         } else {
                             household.trustedContactName = trustedName.ifBlank { "My person" }
                             household.trustedContactNumber = trustedNumber
-                            step = 3
+                            step = 4
                         }
                     }
                     else -> {
@@ -290,5 +294,31 @@ private fun PasswordPane(
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
+    }
+}
+
+
+@Composable
+private fun RolePane(selected: AppModeStore.Role, onSelect: (AppModeStore.Role) -> Unit) {
+    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+        Text("Who is this phone for?", fontSize = 26.sp, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "You can switch later in Settings. Free includes Protect and one trusted contact.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 18.sp
+        )
+        Spacer(Modifier.height(16.dp))
+        AppModeStore.Role.entries.forEach { r ->
+            OutlinedButton(
+                onClick = { onSelect(r) },
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+            ) {
+                Column(Modifier.fillMaxWidth()) {
+                    Text(r.title + if (selected == r) "  ✓" else "", fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                    Text(r.subtitle, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
     }
 }
