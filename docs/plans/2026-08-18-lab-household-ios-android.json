@@ -1,0 +1,31 @@
+{
+  "senior_e164": "+12248098889",
+  "trusted_e164": "+12147087808",
+  "senior_last4": "8889",
+  "trusted_last4": "7808",
+  "ios": "senior grandma",
+  "android": "caretaker",
+  "did": "+18336524143",
+  "api": "https://safering.gulfmeridiangroup.com",
+  "onboard": {
+    "ok": true,
+    "client_hash": "408bb3f946368500",
+    "trusted_count": 1,
+    "trusted_hashes": [
+      "41e722a13da00991"
+    ],
+    "assigned_800": "+18336524143",
+    "message": "Onboarded with trusted contacts list. Companion app can now send direct messages. 800 number assigned.",
+    "status": "encrypted"
+  },
+  "endpoints_live": [
+    "POST /v1/safecall/onboard",
+    "POST /v1/safecall/sw/inbound",
+    "POST /v1/safecall/sw/code",
+    "POST /v1/safecall/notify-trusted",
+    "POST /v1/safecall/companion/message",
+    "POST /v1/safecall/approve"
+  ],
+  "ios_sim": "19B5A1FE-FEEF-4525-BF86-37AE96D5DC52",
+  "android_apk": "android/app/build/outputs/apk/debug/app-debug.apk"
+}

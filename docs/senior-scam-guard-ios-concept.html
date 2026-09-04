@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<title>Senior Scam Guard — iOS Concept</title>
+<style>
+  :root {
+    --ivory: #f7f6f4;
+    --ink: #1c1b19;
+    --mute: #6b6560;
+    --line: #e0dcd4;
+    --help: #7a3840;
+    --help-d: #5c2a30;
+    --go: #2f5d50;
+    --caution: #8b6914;
+    --danger: #8b2e2e;
+    --safe: #1f6b4a;
+    --gold: #a68b4b;
+    --surface: #ffffff;
+    --hit: 72px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #121212; color: #eee;
+    padding: 20px 12px 60px;
+  }
+  h1 { font-size: 1.2rem; margin: 0 0 6px; font-weight: 650; }
+  .meta { color: #999; font-size: 0.85rem; margin-bottom: 20px; max-width: 900px; line-height: 1.45; }
+  .meta strong { color: #ddd; }
+  .strip { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
+  .phone-wrap { width: 300px; }
+  .caption {
+    text-align: center; font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.06em; color: #aaa; margin-bottom: 10px; text-transform: uppercase;
+  }
+  .phone {
+    width: 300px; height: 640px; border-radius: 40px;
+    background: var(--ivory); color: var(--ink);
+    border: 3px solid #333; overflow: hidden; position: relative;
+    box-shadow: 0 24px 60px rgba(0,0,0,.45);
+    display: flex; flex-direction: column;
+  }
+  .notch {
+    height: 28px; display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 2px; font-size: 11px; font-weight: 600; flex-shrink: 0;
+  }
+  .body { flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 8px 16px 0; }
+  .tabbar {
+    height: 56px; border-top: 1px solid var(--line); background: var(--ivory);
+    display: flex; flex-shrink: 0;
+  }
+  .tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: var(--mute); gap: 2px;
+  }
+  .tab.on { color: var(--ink); }
+  .tab .ic { font-size: 18px; }
+  .home-ind {
+    height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .home-ind span {
+    width: 110px; height: 4px; border-radius: 2px; background: #222; opacity: 0.35;
+  }
+
+  /* User home */
+  .brand { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; color: var(--gold); }
+  .title { font-size: 26px; font-weight: 500; margin: 2px 0 10px; }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
+    font-size: 13px; font-weight: 600; background: var(--surface);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--safe); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .btn-huge {
+    background: var(--help); color: #fff; border: none; border-radius: 20px;
+    min-height: 120px; width: 100%; font-size: 22px; font-weight: 700;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    box-shadow: 0 8px 20px rgba(122,56,64,.25);
+  }
+  .btn-huge small { font-size: 14px; font-weight: 500; opacity: 0.92; }
+  .btn-sec {
+    background: var(--go); color: #fff; border: none; border-radius: 14px;
+    height: var(--hit); width: 100%; font-size: 17px; font-weight: 650;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-tile {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    height: 64px; font-size: 15px; font-weight: 650; color: var(--ink);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .help-bar {
+    margin-top: auto; margin-bottom: 8px;
+    background: var(--caution); color: #fff; border-radius: 14px;
+    height: 56px; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700;
+  }
+
+  /* Protect mode */
+  .protect-bg { background: #1a1214; color: #fff; }
+  .protect-bg .notch { color: #fff; }
+  .warn {
+    background: #3a1c1c; border: 1px solid #8b2e2e; border-radius: 14px;
+    padding: 14px; font-size: 15px; line-height: 1.35; margin: 8px 0 16px;
+  }
+  .warn strong { color: #ffb4b4; display: block; margin-bottom: 4px; font-size: 13px; letter-spacing: 0.08em; }
+  .cta-record {
+    background: var(--help); border: none; color: #fff; border-radius: 22px;
+    min-height: 140px; width: 100%; font-size: 22px; font-weight: 800;
+    box-shadow: 0 0 0 6px rgba(122,56,64,.35);
+  }
+  .live-status {
+    margin-top: 18px; text-align: center; font-size: 15px; color: #ccc;
+  }
+  .pulse {
+    display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+    background: #e74c3c; margin-right: 8px; animation: p 1s infinite;
+  }
+  @keyframes p { 50% { opacity: 0.3; } }
+  .keyword-hit {
+    margin-top: 16px; background: #4a1515; border-radius: 12px; padding: 12px;
+    font-size: 16px; font-weight: 700; color: #ffcccc; text-align: center;
+  }
+
+  /* Result */
+  .verdict {
+    margin: 20px 0; border-radius: 20px; padding: 28px 16px; text-align: center;
+  }
+  .verdict.danger { background: #fde8e8; color: var(--danger); }
+  .verdict.safe { background: #e6f5ee; color: var(--safe); }
+  .verdict.sus { background: #f8f0d8; color: #7a5a10; }
+  .verdict .big { font-size: 28px; font-weight: 800; margin: 8px 0; }
+  .verdict p { color: var(--ink); font-size: 15px; margin: 8px 0 0; line-height: 1.4; }
+
+  /* Widgets mock */
+  .ls-widget {
+    background: #2a2a2c; color: #fff; border-radius: 16px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px; margin: 40px 12px;
+  }
+  .ls-widget .sh { font-size: 28px; }
+  .ls-widget .t1 { font-size: 16px; font-weight: 800; letter-spacing: 0.04em; }
+  .ls-widget .t2 { font-size: 12px; color: #aaa; margin-top: 2px; }
+
+  .hs-widget {
+    background: linear-gradient(160deg, #fff 0%, #f0ebe4 100%);
+    border-radius: 22px; padding: 16px; border: 1px solid var(--line);
+    margin: 24px 10px;
+  }
+  .hs-widget .name { font-size: 13px; font-weight: 700; color: var(--mute); margin-bottom: 12px; }
+  .hs-main {
+    background: var(--help); color: #fff; border-radius: 16px; height: 72px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 800;
+  }
+  .hs-row { display: flex; gap: 8px; margin-top: 10px; }
+  .hs-row div {
+    flex: 1; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; height: 44px; display: flex; align-items: center;
+    justify-content: center; font-size: 12px; font-weight: 700;
+  }
+
+  /* Caregiver */
+  .cg-header { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+  .alert-card {
+    background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--danger);
+    border-radius: 12px; padding: 12px; margin-bottom: 10px;
+  }
+  .alert-card .when { font-size: 11px; color: var(--mute); font-weight: 600; }
+  .alert-card .what { font-size: 15px; font-weight: 700; margin: 4px 0; }
+  .alert-card .who { font-size: 13px; color: var(--mute); }
+
+  .legend {
+    max-width: 920px; margin: 36px auto 0; padding: 18px 20px;
+    background: #1e1e1e; border-radius: 14px; border-left: 4px solid var(--gold);
+    font-size: 0.88rem; line-height: 1.5; color: #bbb;
+  }
+  .legend strong { color: #fff; }
+  table { width: 100%; max-width: 920px; margin: 24px auto 0; border-collapse: collapse; font-size: 0.82rem; }
+  th, td { border: 1px solid #333; padding: 10px; text-align: left; }
+  th { background: #252525; }
+  td { background: #1a1a1a; color: #ccc; }
+  code { background: #333; padding: 1px 6px; border-radius: 4px; font-size: 0.85em; }
+</style>
+</head>
+<body>
+  <h1>Senior Scam Guard — iOS Concept (v1.0 spec)</h1>
+  <p class="meta">
+    Built from your product spec (2026-08-17). Maps onto <strong>SafeRing</strong> monorepo as the senior User Mode shell.
+    Privacy: on-device first · no transcripts by default · honest CallKit limits (widget / Back Tap activation, not Phone overlay).
+    Target: iPhone 14+ · Alzheimer-capable hit targets 60–80pt.
+  </p>
+
+  <div class="strip">
+    <!-- HOME -->
+    <div class="phone-wrap">
+      <div class="caption">User Mode · Home</div>
+      <div class="phone">
+        <div class="notch">9:41</div>
+        <div class="body">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div class="brand">SCAM GUARD</div>
+              <div class="title">Protection</div>
+            </div>
+            <div class="status-pill"><span class="dot"></span> Ready</div>
+          </div>
+
+          <button class="btn-huge" type="button">
+            🛡️
+            PROTECT CALL
+            <small>Tap when you are on a call</small>
+          </button>
+
+          <div class="grid2" style="margin-top:12px">
+            <div class="btn-tile">💬 Scan Text</div>
+            <div class="btn-tile">✉️ Scan Mail</div>
+          </div>
+
+          <button class="btn-sec" type="button" style="margin-top:12px">📞 Call My Caregiver</button>
+
+          <div class="help-bar">🆘 I NEED HELP</div>
+        </div>
+        <div class="tabbar">
+          <div class="tab on"><span class="ic">🏠</span>Home</div>
+          <div class="tab"><span class="ic">🕐</span>Alerts</div>
+          <div class="tab"><span class="ic">⚙️</span>Settings</div>
+        </div>
+        <div class="home-ind"><span></span></div>
+      </div>
+    </div>
+
+    <!-- PROTECT -->
+    <div class="phone-wrap">
+      <div class="caption">ProtectModeView · Active</div>
+      <div class="phone protect-bg">
+        <div class="notch">9:41</div>
+        <div class="body">
+          <div class="brand" style="color:#c4a574">PROTECT MODE</div>
+          <div style="font-size:24px;font-weight:600;margin:4px 0 12px">We’re listening on this phone</div>
+
+          <div class="warn">
+            <strong>WARNING</strong>
+            This may be a scam. Hang up if they ask for money, gift cards, or secrecy.
+          </div>
+
+          <button class="cta-record" type="button">● Start Recording &amp; Protect</button>
+
+          <div class="live-status"><span class="pulse"></span>On-device STT · keywords active</div>
+          <div class="keyword-hit">⚠ Phrase match: “gift card”</div>
+
+          <div style="margin-top:auto;margin-bottom:16px;display:flex;gap:10px">
+            <div style="flex:1;background:#333;border-radius:14px;height:56px;display:flex;align-items:center;justify-content:center;font-weight:700">End</div>
+            <div style="flex:1;background:var(--help);border-radius:14px;height:56px;display:flex;align-items:center;justify-content:center;font-weight:700">HELP</div>
+          </div>
+        </div>
+        <div class="home-ind"><span style="background:#fff"></span></div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="phone-wrap">
+      <div class="caption">After call · Verdict</div>
+      <div class="phone">
+        <div class="notch">9:41</div>
+        <div class="body">
+          <div class="brand">CALL SUMMARY</div>
+          <div class="verdict danger">
+            <div style="font-size:36px">⚠</div>
+            <div class="big">High Risk</div>
+            <p>Scam language detected. Caregiver was notified. You can ignore this number.</p>
+          </div>
+          <button class="btn-sec" type="button" style="background:var(--ink)">Ignore this number</button>
+          <button class="btn-sec" type="button" style="margin-top:10px">Call My Caregiver</button>
+          <div class="help-bar">Done</div>
+        </div>
+        <div class="home-ind"><span></span></div>
+      </div>
+    </div>
+
+    <!-- LOCK WIDGET -->
+    <div class="phone-wrap">
+      <div class="caption">Lock Screen Widget</div>
+      <div class="phone" style="background:#000">
+        <div class="notch" style="color:#fff">9:41</div>
+        <div class="ls-widget">
+          <div class="sh">🛡️</div>
+          <div>
+            <div class="t1">PROTECT CALL</div>
+            <div class="t2">Scam Guard · Ready</div>
+          </div>
+        </div>
+        <div style="color:#555;text-align:center;font-size:12px;padding:0 20px;line-height:1.4">
+          Tap → <code style="background:#222">scamguard://protect</code><br/>
+          No unlock required (Lock Screen)
+        </div>
+      </div>
+    </div>
+
+    <!-- HOME WIDGET -->
+    <div class="phone-wrap">
+      <div class="caption">Home Widget · Medium</div>
+      <div class="phone">
+        <div class="notch">9:41</div>
+        <div class="hs-widget">
+          <div class="name">🛡️ Senior Scam Guard</div>
+          <div class="hs-main">PROTECT THIS CALL</div>
+          <div class="hs-row">
+            <div>Scan Text</div>
+            <div>Scan Mail</div>
+          </div>
+        </div>
+        <div style="padding:12px 16px;font-size:13px;color:var(--mute);line-height:1.45">
+          Deep links:<br/>
+          <code>scamguard://protect</code><br/>
+          <code>scamguard://scan-text</code><br/>
+          <code>scamguard://scan-mail</code><br/>
+          <code>scamguard://help</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAREGIVER -->
+    <div class="phone-wrap">
+      <div class="caption">Caregiver Mode · Alerts</div>
+      <div class="phone">
+        <div class="notch">9:41</div>
+        <div class="body">
+          <div class="cg-header">Helen · Alerts</div>
+          <div class="alert-card">
+            <div class="when">TODAY · 2:14 PM</div>
+            <div class="what">Possible scam call</div>
+            <div class="who">Gift-card language · caregiver SMS sent</div>
+          </div>
+          <div class="alert-card" style="border-left-color:var(--caution)">
+            <div class="when">YESTERDAY · 11:02 AM</div>
+            <div class="what">Suspicious SMS</div>
+            <div class="who">Unknown sender · filtered to Junk</div>
+          </div>
+          <div class="alert-card" style="border-left-color:var(--go)">
+            <div class="when">SETUP</div>
+            <div class="what">Widgets + Back Tap</div>
+            <div class="who">Lock Screen Protect · Double Back Tap</div>
+          </div>
+          <div class="help-bar" style="background:var(--ink)">Open senior device setup</div>
+        </div>
+        <div class="tabbar">
+          <div class="tab on"><span class="ic">🔔</span>Alerts</div>
+          <div class="tab"><span class="ic">👥</span>People</div>
+          <div class="tab"><span class="ic">📋</span>Lists</div>
+        </div>
+        <div class="home-ind"><span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>Spec piece</th><th>Concept screen</th><th>SafeRing today</th><th>Build next</th></tr>
+    <tr><td>User Mode home</td><td>Home</td><td>HELP-centric home (close)</td><td>Add Protect / Scan Mail tiles</td></tr>
+    <tr><td>Protect Call</td><td>ProtectModeView</td><td>After-call check-in only</td><td>Widget → protect + on-device STT path</td></tr>
+    <tr><td>SMS</td><td>—</td><td>Message Filter + keywords</td><td>Core ML classifier tier</td></tr>
+    <tr><td>Snail mail</td><td>—</td><td>Not built</td><td>Vision OCR flow</td></tr>
+    <tr><td>Caregiver / Grandma Mode</td><td>Alerts</td><td>Trusted person HELP SMS</td><td>1–3 contacts + alert feed</td></tr>
+    <tr><td>Widgets / Back Tap</td><td>Lock + Home widgets</td><td>None</td><td>WidgetKit + App Intents + deep links</td></tr>
+    <tr><td>Deep links</td><td>scamguard://*</td><td>None</td><td>URL scheme + onOpenURL</td></tr>
+  </table>
+
+  
+  <div class="legend">
+    <strong>Protect Call — sliding window (shipped code 139):</strong>
+    Mic → SFSpeechRecognizer partial results → ~12s rolling text window → keyword scan
+    (defaults + Message Filter words). <em>No audio file archive.</em>
+    Restarts recognition when a segment finalizes so the window stays fresh.
+    Honest limit: mic/room (speakerphone), not Apple Phone private audio path.
+    Deep links: <code>scamguard://protect</code>, <code>safering://protect</code>.
+    Shortcuts / Back Tap: App Intent “Protect Call”.
+    Widget sources in repo <code>ProtectWidget/</code> (extension target next).
+  </div>
+<div class="legend">
+    <strong>Honest limits (from spec §7):</strong> No UI injected into native cellular Call screen.
+    No forced foreground from ring alone. No side-button hijack.
+    Activation = Lock Screen widget → Home widget → Back Tap → in-app.
+    Recording path uses native iOS announcement where required; analysis on-device; high-tier = scrubbed number/links only.
+    <br/><br/>
+    <strong>File:</strong> open this HTML locally for review. Next engineering step = WidgetKit + <code>scamguard://protect</code> into SafeRing iOS (build 139+), not a greenfield rewrite.
+  </div>
+</body>
+</html>

@@ -31,6 +31,7 @@ import online.db1k.safering.android.service.PhoneRoles
 import online.db1k.safering.android.service.SignalChannel
 import online.db1k.safering.android.service.TripwireNotifier
 import online.db1k.safering.android.service.SmsNotificationListener
+import online.db1k.safering.android.util.AppConfig
 import online.db1k.safering.android.util.ShieldAnalytics
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -516,6 +517,18 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                 InfoRow("Version", ver)
                 InfoRow("Edge", "safering.gulfmeridiangroup.com")
                 InfoRow("Privacy", "Family password and trusted number stay on this phone. Help texts are redacted.")
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Human in the loop: Approve / HELP / money decisions stay with people.", style = MaterialTheme.typography.bodySmall)
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(onClick = {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppConfig.LEGAL_PRIVACY)))
+                }, modifier = Modifier.fillMaxWidth()) { Text("Privacy Policy") }
+                OutlinedButton(onClick = {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppConfig.LEGAL_TERMS)))
+                }, modifier = Modifier.fillMaxWidth()) { Text("Terms of Use") }
+                OutlinedButton(onClick = {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppConfig.LEGAL_SUPPORT)))
+                }, modifier = Modifier.fillMaxWidth()) { Text("Help & Support") }
             }
         }
     }

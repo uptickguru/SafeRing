@@ -6,6 +6,9 @@ package online.db1k.safering.android.util
 object AppConfig {
     /** Live Caruso edge — never deathbyathousand. */
     const val DEFAULT_BASE_URL = "https://safering.gulfmeridiangroup.com"
+    const val LEGAL_PRIVACY = "https://safering.gulfmeridiangroup.com/legal/privacy.html"
+    const val LEGAL_TERMS = "https://safering.gulfmeridiangroup.com/legal/terms.html"
+    const val LEGAL_SUPPORT = "https://safering.gulfmeridiangroup.com/legal/support.html"
     const val API_VERSION = "v1"
     const val REQUEST_TIMEOUT_SECONDS = 15L
     const val MAX_RETRIES = 2
