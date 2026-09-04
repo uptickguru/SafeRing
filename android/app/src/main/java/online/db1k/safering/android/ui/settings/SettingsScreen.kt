@@ -225,38 +225,80 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Text alerts (Android)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Text("Text alerts (Android) — optional", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 val nlsOn = SmsNotificationListener.isEnabled(context)
-                SettingToggle(
-                    "Capture numbers from text alerts",
-                    "Best-effort. Reads Messages notifications only when you turn on Notification access. Stores a private fingerprint, not the full inbox.",
-                    household.smsNotificationCaptureEnabled && nlsOn
-                ) { on ->
-                    household.smsNotificationCaptureEnabled = on
-                    if (on && !nlsOn) {
-                        SmsNotificationListener.openSettings(context)
+                // Keep local flag true only when OS actually granted access
+                LaunchedEffect(nlsOn) {
+                    if (!nlsOn && household.smsNotificationCaptureEnabled) {
+                        household.smsNotificationCaptureEnabled = false
                     }
-                    setupTick++
                 }
-                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    if (nlsOn) "Notification access: ON" else "Notification access: OFF — tap Open Settings",
+                    "GMG Shield works without this. Call screening, HELP, Protect, and Investigate do not need Notification access.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                if (!nlsOn) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    if (nlsOn) "Notification access: ON — optional SMS sender capture active"
+                    else "Notification access: OFF (normal on sideload / Firebase installs)",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Android often blocks “Notification read / reply” for apps not from Play until you unlock restricted settings:",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    "1) Tap Allow restricted settings → Apps → GMG Shield → ⋮ → Allow restricted settings\n" +
+                        "2) Tap Open Notification access → turn GMG Shield ON\n" +
+                        "3) If the pink “denied access” screen appears, do step 1 first, then try again",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Button(
+                    onClick = {
+                        SmsNotificationListener.openAppDetails(context)
+                        setupTick++
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("1. Allow restricted settings") }
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = {
+                        // Only mark enabled after user returns with NLS on (checked on next recomposition)
+                        SmsNotificationListener.openSettings(context)
+                        setupTick++
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("2. Open Notification access") }
+                Spacer(modifier = Modifier.height(8.dp))
+                if (nlsOn) {
+                    SettingToggle(
+                        "Use notification capture",
+                        "When ON, we may fingerprint sender numbers from Messages alerts. Not required for Protect or HELP.",
+                        household.smsNotificationCaptureEnabled
+                    ) { on ->
+                        household.smsNotificationCaptureEnabled = on
+                        setupTick++
+                    }
+                } else {
+                    Text(
+                        "Skip this section if Android won’t allow it. Use Settings → Investigate a number for shady texts instead.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     OutlinedButton(
                         onClick = {
-                            household.smsNotificationCaptureEnabled = true
-                            SmsNotificationListener.openSettings(context)
-                            setupTick++
+                            context.startActivity(Intent(context, InvestigateReportActivity::class.java))
                         },
                         modifier = Modifier.fillMaxWidth()
-                    ) { Text("Open Notification access") }
+                    ) { Text("Investigate a number (no Notification access)") }
                 }
             }
         }

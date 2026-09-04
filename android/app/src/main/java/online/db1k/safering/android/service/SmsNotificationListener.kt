@@ -107,13 +107,54 @@ class SmsNotificationListener : NotificationListenerService() {
             }
         }
 
+        /**
+         * Opens the best available system screen for Notification access.
+         * Sideload/FAD builds often need Apps → GMG Shield → ⋮ → Allow restricted settings first.
+         */
         fun openSettings(context: Context) {
-            val intent = android.content.Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            val cn = ComponentName(context, SmsNotificationListener::class.java)
+            val attempts = mutableListOf<android.content.Intent>()
+            // API 30+: per-app notification listener detail
+            if (android.os.Build.VERSION.SDK_INT >= 30) {
+                try {
+                    val detail = android.content.Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS)
+                        .putExtra(Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME, cn.flattenToString())
+                        .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                    attempts.add(detail)
+                } catch (_: Throwable) { }
+            }
+            attempts.add(
+                android.content.Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+            // App details — user can ⋮ Allow restricted settings here on many OEMs
+            attempts.add(
+                android.content.Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = android.net.Uri.fromParts("package", context.packageName, null)
+                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            )
+            for (intent in attempts) {
+                try {
+                    context.startActivity(intent)
+                    return
+                } catch (e: Exception) {
+                    Logger.debug("NLS open failed ${intent.action}: ${e.message}", Logger.Category.SMS)
+                }
+            }
+        }
+
+        /** App info screen — step 1 for "Allow restricted settings" on Android 13+. */
+        fun openAppDetails(context: Context) {
             try {
-                context.startActivity(intent)
+                context.startActivity(
+                    android.content.Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = android.net.Uri.fromParts("package", context.packageName, null)
+                        addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                )
             } catch (e: Exception) {
-                Logger.debug("NLS settings open failed: ${e.message}", Logger.Category.SMS)
+                Logger.debug("App details open failed: ${e.message}", Logger.Category.SMS)
             }
         }
     }

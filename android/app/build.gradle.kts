@@ -15,8 +15,8 @@ android {
         applicationId = "online.db1k.safering.android"
         minSdk = 26
         targetSdk = 34
-        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 23
-        versionName = "1.0.23"
+        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 24
+        versionName = "1.0.24"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
