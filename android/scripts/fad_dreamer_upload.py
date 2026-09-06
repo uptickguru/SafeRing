@@ -136,8 +136,10 @@ def main() -> None:
         out_cfg.write_bytes(body)
         print("config_bytes", out_cfg.stat().st_size)
         import base64 as _b64
+        b64 = _b64.b64encode(body).decode("ascii")
         print("CONFIG_B64_START")
-        print(_b64.b64encode(body).decode("ascii"))
+        for i in range(0, len(b64), 80):
+            print("CONFIG_B64_CHUNK " + b64[i : i + 80])
         print("CONFIG_B64_END")
 
     if os.environ.get("DREAMER_FAD_CONFIG_ONLY") == "1":
