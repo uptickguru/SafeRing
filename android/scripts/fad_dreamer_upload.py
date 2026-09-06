@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Upload Dreamer APK to Firebase App Distribution (same SA as SafeRing CI)."""
+"""Upload Dreamer APK to Firebase App Distribution (SafeRing CI SA)."""
 from __future__ import annotations
 
 import json
@@ -32,6 +32,18 @@ def sa_path() -> Path:
     return Path(p)
 
 
+def ensure_venv() -> Path:
+    root = Path(tempfile.gettempdir()) / "dreamer-fad-venv"
+    py = root / "bin" / "python"
+    if not py.exists():
+        subprocess.check_call([sys.executable, "-m", "venv", str(root)])
+        pip = root / "bin" / "pip"
+        subprocess.check_call(
+            [str(pip), "install", "--quiet", "google-auth", "requests"]
+        )
+    return py
+
+
 def main() -> None:
     sa = sa_path()
     data = json.loads(sa.read_text())
@@ -39,10 +51,11 @@ def main() -> None:
     print("project=", project)
     print("sa_email=", data.get("client_email"))
 
-    # deps
-    subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "--quiet", "google-auth", "requests"]
-    )
+    py = ensure_venv()
+    # Re-exec inside venv so imports work
+    if Path(sys.executable).resolve() != py.resolve():
+        os.execv(str(py), [str(py), str(Path(__file__).resolve()), *sys.argv[1:]])
+
     from google.auth.transport.requests import AuthorizedSession
     from google.oauth2 import service_account
 
@@ -61,17 +74,15 @@ def main() -> None:
     if not app:
         print("Creating Firebase Android app", PACKAGE)
         cr = sess.post(url, json={"packageName": PACKAGE, "displayName": DISPLAY})
-        print("create", cr.status_code, cr.text[:400])
+        print("create", cr.status_code, cr.text[:500])
         cr.raise_for_status()
         app = cr.json()
     app_id = app["appId"]
     print("appId=", app_id)
 
-    # config json for monorepo wiring
     cfg = sess.get(f"https://firebase.googleapis.com/v1beta1/{app['name']}/config")
     out_cfg = Path(tempfile.gettempdir()) / "dreamer-google-services.json"
     if cfg.status_code == 200:
-        # API returns binary config file content in JSON field sometimes
         body = cfg.content
         try:
             j = cfg.json()
@@ -82,7 +93,7 @@ def main() -> None:
         except Exception:
             pass
         out_cfg.write_bytes(body)
-        print("config_bytes", out_cfg.stat().st_size, "path", out_cfg)
+        print("config_bytes", out_cfg.stat().st_size)
 
     apk_url = os.environ.get("DREAMER_APK_URL", DEFAULT_APK_URL)
     apk = Path(tempfile.gettempdir()) / "dreamer-release.apk"
@@ -90,13 +101,10 @@ def main() -> None:
     urllib.request.urlretrieve(apk_url, apk)
     print("apk_bytes", apk.stat().st_size)
 
-    # firebase-tools distribute
     env = os.environ.copy()
     env["GOOGLE_APPLICATION_CREDENTIALS"] = str(sa)
-    subprocess.check_call(
-        ["npm", "install", "-g", "firebase-tools@13"],
-        env=env,
-    )
+    # npm may already exist on runner
+    subprocess.check_call(["npm", "install", "-g", "firebase-tools@13"], env=env)
     cmd = [
         "firebase",
         "appdistribution:distribute",
@@ -110,14 +118,13 @@ def main() -> None:
         "--project",
         project,
     ]
-    print("running", " ".join(cmd))
+    print("running", " ".join(cmd[:6]), "...")
     proc = subprocess.run(cmd, env=env, text=True, capture_output=True)
     sys.stdout.write(proc.stdout or "")
     sys.stderr.write(proc.stderr or "")
     if proc.returncode != 0:
         raise SystemExit(proc.returncode)
 
-    # friendly links
     print("DREAMER_FAD_APP_ID=", app_id)
     print(
         "DREAMER_FAD_CONSOLE=",
