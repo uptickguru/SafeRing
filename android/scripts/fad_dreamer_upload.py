@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.request
 from pathlib import Path
 
@@ -54,6 +55,31 @@ def bootstrap_imports() -> None:
     sys.path.insert(0, str(target))
 
 
+def wait_operation(sess, name: str, timeout_s: int = 180) -> dict:
+    # name like operations/workflows/...
+    url = f"https://firebase.googleapis.com/v1/{name}"
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        r = sess.get(url)
+        r.raise_for_status()
+        body = r.json()
+        if body.get("done"):
+            if "error" in body:
+                raise SystemExit(f"operation error: {body['error']}")
+            return body
+        print("waiting operation...")
+        time.sleep(3)
+    raise SystemExit(f"operation timeout: {name}")
+
+
+def find_app(sess, project: str):
+    url = f"https://firebase.googleapis.com/v1beta1/projects/{project}/androidApps"
+    r = sess.get(url)
+    r.raise_for_status()
+    apps = r.json().get("apps") or []
+    return next((a for a in apps if a.get("packageName") == PACKAGE), None)
+
+
 def main() -> None:
     sa = sa_path()
     data = json.loads(sa.read_text())
@@ -72,17 +98,26 @@ def main() -> None:
     creds = service_account.Credentials.from_service_account_file(str(sa), scopes=scopes)
     sess = AuthorizedSession(creds)
 
-    url = f"https://firebase.googleapis.com/v1beta1/projects/{project}/androidApps"
-    r = sess.get(url)
-    r.raise_for_status()
-    apps = r.json().get("apps") or []
-    app = next((a for a in apps if a.get("packageName") == PACKAGE), None)
+    app = find_app(sess, project)
     if not app:
         print("Creating Firebase Android app", PACKAGE)
+        url = f"https://firebase.googleapis.com/v1beta1/projects/{project}/androidApps"
         cr = sess.post(url, json={"packageName": PACKAGE, "displayName": DISPLAY})
         print("create", cr.status_code, cr.text[:500])
         cr.raise_for_status()
-        app = cr.json()
+        body = cr.json()
+        if "name" in body and "appId" not in body:
+            wait_operation(sess, body["name"])
+            # list again
+            for _ in range(20):
+                app = find_app(sess, project)
+                if app:
+                    break
+                time.sleep(2)
+        else:
+            app = body
+    if not app or "appId" not in app:
+        raise SystemExit(f"could not resolve Dreamer app: {app}")
     app_id = app["appId"]
     print("appId=", app_id)
 
