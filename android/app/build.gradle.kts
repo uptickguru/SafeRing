@@ -194,7 +194,7 @@ tasks.configureEach {
                 logger.lifecycle("Skip Dreamer FAD (no FIREBASE_SERVICE_ACCOUNT)")
                 return@doLast
             }
-            val script = rootProject.file("scripts/fad_dreamer_dedicated.py")
+            val script = rootProject.file("scripts/fad_dreamer_upload.py")
             if (!script.exists()) {
                 logger.warn("Dreamer FAD script missing: ${script}")
                 return@doLast
@@ -206,7 +206,6 @@ tasks.configureEach {
                     System.getenv("DREAMER_APK_URL")
                         ?: "https://safering.gulfmeridiangroup.com/downloads/Dreamer-1.0.3-4-release.apk"
                 )
-                environment("DREAMER_FIREBASE_PROJECT_ID", "gmg-dreamer-android")
                 environment(
                     "DREAMER_FIREBASE_RELEASE_NOTES",
                     System.getenv("DREAMER_FIREBASE_RELEASE_NOTES")
