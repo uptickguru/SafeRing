@@ -15,12 +15,12 @@ PACKAGE = "com.kevinasbury.dreamer"
 DISPLAY = "Dreamer"
 GROUP = "beta-testers"
 DEFAULT_APK_URL = (
-    "https://safering.gulfmeridiangroup.com/downloads/Dreamer-1.0.3-4-release.apk"
+    "https://safering.gulfmeridiangroup.com/downloads/Dreamer-1.0.3-5-release.apk"
 )
 NOTES = os.environ.get(
     "DREAMER_FIREBASE_RELEASE_NOTES",
-    "Dreamer 1.0.3 (4): Aim confirm+history, Goals P1-P5 + 15-min 10X board, "
-    "selectable chimes, section help.",
+    "Dreamer 1.0.3 (5): hamburger nav — Today/Goals/Morning/Noon/Evening tabs; "
+    "Journal/Week/Aim/Settings in menu. Aim B + Goals 10X + chimes retained.",
 )
 
 

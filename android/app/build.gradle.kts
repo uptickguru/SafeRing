@@ -204,12 +204,12 @@ tasks.configureEach {
                 environment(
                     "DREAMER_APK_URL",
                     System.getenv("DREAMER_APK_URL")
-                        ?: "https://safering.gulfmeridiangroup.com/downloads/Dreamer-1.0.3-4-release.apk"
+                        ?: "https://safering.gulfmeridiangroup.com/downloads/Dreamer-1.0.3-5-release.apk"
                 )
                 environment(
                     "DREAMER_FIREBASE_RELEASE_NOTES",
                     System.getenv("DREAMER_FIREBASE_RELEASE_NOTES")
-                        ?: (System.getenv("FIREBASE_RELEASE_NOTES") ?: "Dreamer Android beta")
+                        ?: "Dreamer 1.0.3 (5): hamburger nav (5 day tabs + menu). Aim B + Goals 10X + chimes."
                 )
                 commandLine("python3", script.absolutePath)
             }
