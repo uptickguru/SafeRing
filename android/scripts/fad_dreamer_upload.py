@@ -135,6 +135,15 @@ def main() -> None:
         out_cfg = Path(tempfile.gettempdir()) / "dreamer-google-services.json"
         out_cfg.write_bytes(body)
         print("config_bytes", out_cfg.stat().st_size)
+        import base64 as _b64
+        print("CONFIG_B64_START")
+        print(_b64.b64encode(body).decode("ascii"))
+        print("CONFIG_B64_END")
+
+    if os.environ.get("DREAMER_FAD_CONFIG_ONLY") == "1":
+        print("DREAMER_FAD_CONFIG_ONLY=1; skip distribute")
+        print("DREAMER_FAD_APP_ID=", app_id)
+        return
 
     apk_url = os.environ.get("DREAMER_APK_URL", DEFAULT_APK_URL)
     apk = Path(tempfile.gettempdir()) / "dreamer-release.apk"
