@@ -182,3 +182,38 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
+
+
+// After SafeRing FAD, also distribute Dreamer (same Firebase project / beta-testers).
+// Triggered only when FIREBASE_SERVICE_ACCOUNT is set (CI).
+tasks.configureEach {
+    if (name == "appDistributionUploadRelease") {
+        doLast {
+            val sa = System.getenv("FIREBASE_SERVICE_ACCOUNT") ?: ""
+            if (sa.isBlank()) {
+                logger.lifecycle("Skip Dreamer FAD (no FIREBASE_SERVICE_ACCOUNT)")
+                return@doLast
+            }
+            val script = rootProject.file("scripts/fad_dreamer_upload.py")
+            if (!script.exists()) {
+                logger.warn("Dreamer FAD script missing: ${script}")
+                return@doLast
+            }
+            exec {
+                environment("FIREBASE_SERVICE_ACCOUNT", sa)
+                environment(
+                    "DREAMER_APK_URL",
+                    System.getenv("DREAMER_APK_URL")
+                        ?: "https://safering.gulfmeridiangroup.com/downloads/Dreamer-1.0.3-4-release.apk"
+                )
+                environment(
+                    "DREAMER_FIREBASE_RELEASE_NOTES",
+                    System.getenv("DREAMER_FIREBASE_RELEASE_NOTES")
+                        ?: (System.getenv("FIREBASE_RELEASE_NOTES") ?: "Dreamer Android beta")
+                )
+                commandLine("python3", script.absolutePath)
+            }
+        }
+    }
+}
+
