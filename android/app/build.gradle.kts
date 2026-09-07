@@ -15,8 +15,8 @@ android {
         applicationId = "online.db1k.safering.android"
         minSdk = 26
         targetSdk = 34
-        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 26
-        versionName = "1.0.26"
+        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 27
+        versionName = "1.0.27"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -182,38 +182,3 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
-
-
-// After SafeRing FAD, also distribute Dreamer (same Firebase project / beta-testers).
-// Triggered only when FIREBASE_SERVICE_ACCOUNT is set (CI).
-tasks.configureEach {
-    if (name == "appDistributionUploadRelease") {
-        doLast {
-            val sa = System.getenv("FIREBASE_SERVICE_ACCOUNT") ?: ""
-            if (sa.isBlank()) {
-                logger.lifecycle("Skip Dreamer FAD (no FIREBASE_SERVICE_ACCOUNT)")
-                return@doLast
-            }
-            val script = rootProject.file("scripts/fad_dreamer_upload.py")
-            if (!script.exists()) {
-                logger.warn("Dreamer FAD script missing: ${script}")
-                return@doLast
-            }
-            exec {
-                environment("FIREBASE_SERVICE_ACCOUNT", sa)
-                environment(
-                    "DREAMER_APK_URL",
-                    System.getenv("DREAMER_APK_URL")
-                        ?: "https://safering.gulfmeridiangroup.com/downloads/Dreamer-1.0.3-5-release.apk"
-                )
-                environment(
-                    "DREAMER_FIREBASE_RELEASE_NOTES",
-                    System.getenv("DREAMER_FIREBASE_RELEASE_NOTES")
-                        ?: "Dreamer 1.0.3 (5): hamburger nav (5 day tabs + menu). Aim B + Goals 10X + chimes."
-                )
-                commandLine("python3", script.absolutePath)
-            }
-        }
-    }
-}
-
