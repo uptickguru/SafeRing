@@ -1,6 +1,7 @@
 package online.db1k.safering.android.service
 
 import android.content.Context
+import online.db1k.safering.android.util.ShieldAnalytics
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -32,6 +33,7 @@ class HelpSignaler(
     }
 
     fun send(reason: HelpReason) {
+        ShieldAnalytics.event(context, "help_request", mapOf("reason" to reason.name))
         when (household.preferredChannel) {
             SignalChannel.SMS -> openSms(reason)
             SignalChannel.WHATSAPP -> openWhatsApp(reason)
@@ -42,6 +44,7 @@ class HelpSignaler(
     }
 
     fun openSms(reason: HelpReason) {
+        ShieldAnalytics.event(context, "help_sms")
         val number = household.e164Number
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("smsto:$number")
@@ -52,6 +55,7 @@ class HelpSignaler(
     }
 
     fun callSaved() {
+        ShieldAnalytics.event(context, "help_call")
         val number = household.e164Number
         val intent = Intent(Intent.ACTION_DIAL).apply {
             data = Uri.parse("tel:$number")

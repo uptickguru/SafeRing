@@ -26,7 +26,7 @@ object AppConfig {
 
     const val DEVICE_COMMS_PATH = "/v1/device-comms"
     const val UNWANTED_REPORT_PATH = "/v1/unwanted-report"
-    const val EXCEPTIONAL_PATH = "/v1/exceptional/capture"
+    const val EXCEPTIONAL_PATH = "/v1/exceptional-capture"
     const val MESSAGE_FILTER_PATH = "/v1/message-filter"
     const val SAFECALL_STATUS_PATH = "/v1/safecall/status"
 }

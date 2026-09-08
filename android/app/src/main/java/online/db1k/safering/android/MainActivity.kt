@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalComposeUiApi::class)
 
 package online.db1k.safering.android
+import online.db1k.safering.android.util.LabCommsFire
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import android.content.Intent
@@ -274,6 +275,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun consumeIntent(intent: Intent?) {
+        if (intent?.getStringExtra("lab_fire_comms") == "1" || intent?.getBooleanExtra("lab_fire_comms", false) == true) {
+            LabCommsFire.runAll(this)
+        }
         if (intent == null) return
         val shared = intent.getStringExtra(Intent.EXTRA_TEXT)
             ?: intent.getStringExtra(TripwireNotifier.EXTRA_SHARED_TEXT)

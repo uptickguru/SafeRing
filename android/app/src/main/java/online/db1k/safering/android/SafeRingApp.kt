@@ -1,6 +1,8 @@
 package online.db1k.safering.android
 
 import online.db1k.safering.android.util.ShieldAnalytics
+import online.db1k.safering.android.util.BlocklistSync
+import online.db1k.safering.android.util.ProtectionStatusReporter
 
 import android.app.Application
 import com.google.firebase.FirebaseApp
@@ -39,6 +41,8 @@ class SafeRingApp : Application() {
         TripwireNotifier.ensureChannel(this)
         Logger.info("App initialized — Firebase Crashlytics + Analytics active", Logger.Category.APP)
         ShieldAnalytics.event(this, "app_launch")
+        BlocklistSync.runOnLaunch(this)
+        ProtectionStatusReporter.reportOnLaunch(this)
 
         // Set report context (temporary — will use DI later)
         reportContext = this

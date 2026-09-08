@@ -75,14 +75,27 @@ object CallIntake {
                     "Call logged hash=${hash.take(8)}… disp=${disposition.name} silenced=$silenced",
                     Logger.Category.CALL
                 )
+                // Edge gets real digits for lab/forensics; History UI stays hash-only.
                 DeviceComms.log(
                     app,
                     entryPoint = "call-screening",
                     channel = "voice",
                     action = disposition.name.lowercase(),
-                    sender = hash.take(16),
-                    meta = mapOf("silenced" to silenced, "stir" to stirStatus)
+                    sender = if (PhoneNumberUtils.isPlausibleE164(e164)) e164 else hash.take(16),
+                    meta = mapOf(
+                        "silenced" to silenced,
+                        "stir" to stirStatus,
+                        "disposition" to disposition.name.lowercase(),
+                        "number_hash8" to hash.take(8)
+                    )
                 )
+                // Contribute silenced unknowns into fleet blocklist for other phones
+                if (silenced && PhoneNumberUtils.isPlausibleE164(e164)) {
+                    try {
+                        val body = org.json.JSONObject().put("number", e164).put("source", "android_call_screening")
+                        online.db1k.safering.android.util.DeviceComms.postJson("/v1/blocklist", body)
+                    } catch (_: Exception) { }
+                }
             } catch (e: Exception) {
                 Logger.debug("CallIntake failed: ${e.message}", Logger.Category.CALL)
             }
