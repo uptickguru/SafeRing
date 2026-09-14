@@ -157,24 +157,63 @@ fun HomeScreen(
             color = Color.Black.copy(alpha = 0.08f)
         )
 
-        Button(
-            onClick = { signaler.send(HelpReason.MONEY); tick++ },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = HelpBurgundy,
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(20.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .defaultMinSize(minHeight = 160.dp)
-                .shadow(8.dp, RoundedCornerShape(20.dp), ambientColor = Color.Black.copy(0.08f))
-                .testTag("home_help")
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("HELP", fontSize = 36.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 3.sp)
-                Spacer(Modifier.height(10.dp))
-                Text("Text $person", fontSize = 17.sp, fontWeight = FontWeight.Normal)
+        if (!mode.isEasyHome) {
+            Text(
+                "${mode.displayDensity.title} · ${mode.role.title}",
+                color = Mute,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Button(
+                onClick = {
+                    context.startActivity(Intent(context, ProtectCallActivity::class.java))
+                    tick++
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = CallSage, contentColor = Color.White),
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier.fillMaxWidth().height(52.dp)
+            ) {
+                Text("Protect Call", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            }
+            Spacer(Modifier.height(10.dp))
+        }
+
+        if (mode.isEasyHome) {
+            Button(
+                onClick = { signaler.send(HelpReason.MONEY); tick++ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = HelpBurgundy,
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .defaultMinSize(minHeight = 160.dp)
+                    .shadow(8.dp, RoundedCornerShape(20.dp), ambientColor = Color.Black.copy(0.08f))
+                    .testTag("home_help")
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("HELP", fontSize = 36.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 3.sp)
+                    Spacer(Modifier.height(10.dp))
+                    Text("Text $person", fontSize = 17.sp, fontWeight = FontWeight.Normal)
+                }
+            }
+        } else {
+            Button(
+                onClick = { signaler.send(HelpReason.MONEY); tick++ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = HelpBurgundy,
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .testTag("home_help")
+            ) {
+                Text("HELP · Text $person", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp)
             }
         }
 

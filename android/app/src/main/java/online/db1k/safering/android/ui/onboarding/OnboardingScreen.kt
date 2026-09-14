@@ -49,7 +49,7 @@ fun OnboardingScreen(onFinished: () -> Unit) {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { }
 
-    val total = 5
+    val total = 6
 
     Column(
         modifier = Modifier
@@ -85,9 +85,13 @@ fun OnboardingScreen(onFinished: () -> Unit) {
         ) {
             when (step) {
                 0 -> WelcomePane()
-                1 -> RolePane(selected = mode.role, onSelect = { mode.role = it })
-                2 -> NamePane(owner) { owner = it }
-                3 -> PersonPane(
+                1 -> RolePane(selected = mode.role, onSelect = {
+                    mode.role = it
+                    mode.suggestDensityForCurrentRole()
+                })
+                2 -> DensityPane(selected = mode.displayDensity, role = mode.role, onSelect = { mode.displayDensity = it })
+                3 -> NamePane(owner) { owner = it }
+                4 -> PersonPane(
                     name = trustedName,
                     number = trustedNumber,
                     onName = { trustedName = it },
@@ -118,22 +122,26 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                 error = null
                 when (step) {
                     0 -> step = 1
-                    1 -> step = 2 // role already set by taps; default Senior
-                    2 -> {
+                    1 -> {
+                        mode.suggestDensityForCurrentRole()
+                        step = 2
+                    }
+                    2 -> step = 3 // density already set
+                    3 -> {
                         if (owner.trim().length < 2) {
                             error = "Type your name."
                         } else {
                             household.ownerDisplayName = owner.trim()
-                            step = 3
+                            step = 4
                         }
                     }
-                    3 -> {
+                    4 -> {
                         if (HouseholdStore.normalizeToE164(trustedNumber).filter { it.isDigit() }.length < 10) {
                             error = "Enter a real phone number."
                         } else {
                             household.trustedContactName = trustedName.ifBlank { "My person" }
                             household.trustedContactNumber = trustedNumber
-                            step = 4
+                            step = 5
                         }
                     }
                     else -> {
@@ -297,6 +305,43 @@ private fun PasswordPane(
     }
 }
 
+
+
+@Composable
+private fun DensityPane(
+    selected: AppModeStore.DisplayDensity,
+    role: AppModeStore.Role,
+    onSelect: (AppModeStore.DisplayDensity) -> Unit
+) {
+    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+        Text("How should this phone look?", fontSize = 26.sp, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "Pick what feels easiest. Change anytime in Settings. Free — not a paid upgrade.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 18.sp
+        )
+        Spacer(Modifier.height(16.dp))
+        AppModeStore.DisplayDensity.entries.forEach { d ->
+            val suggested = (role == AppModeStore.Role.SENIOR && d == AppModeStore.DisplayDensity.EASY) ||
+                (role == AppModeStore.Role.CARETAKER && d == AppModeStore.DisplayDensity.STANDARD)
+            val label = buildString {
+                append(d.title)
+                if (selected == d) append("  ✓")
+                if (suggested) append("  · Suggested")
+            }
+            OutlinedButton(
+                onClick = { onSelect(d) },
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+            ) {
+                Column(Modifier.fillMaxWidth()) {
+                    Text(label, fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
+                    Text(d.subtitle, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+    }
+}
 
 @Composable
 private fun RolePane(selected: AppModeStore.Role, onSelect: (AppModeStore.Role) -> Unit) {

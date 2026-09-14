@@ -42,6 +42,7 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
     val mode = remember { AppModeStore.get(context) }
     var role by remember { mutableStateOf(mode.role) }
     var plan by remember { mutableStateOf(mode.plan) }
+    var density by remember { mutableStateOf(mode.displayDensity) }
     var seniorPin by remember { mutableStateOf("") }
     var seniorPin2 by remember { mutableStateOf("") }
     var unlockPin by remember { mutableStateOf("") }
@@ -135,6 +136,24 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                             Column {
                                 Text(pl.title)
                                 Text(pl.blurb, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                    Text("Display", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 12.dp))
+                    Text("Chosen at signup. Free — not a paid upgrade.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    AppModeStore.DisplayDensity.entries.forEach { d ->
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            RadioButton(
+                                selected = density == d,
+                                onClick = {
+                                    mode.displayDensity = d
+                                    density = d
+                                    onModeChanged()
+                                }
+                            )
+                            Column(Modifier.padding(start = 4.dp)) {
+                                Text(d.title, fontWeight = FontWeight.Medium)
+                                Text(d.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }

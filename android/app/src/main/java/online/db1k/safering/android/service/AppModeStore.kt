@@ -31,6 +31,16 @@ class AppModeStore private constructor(private val prefs: SharedPreferences) {
         }
     }
 
+    enum class DisplayDensity(val key: String, val title: String, val subtitle: String) {
+        EASY("easy", "Easy", "Giant HELP. Fewer choices on the home screen."),
+        STANDARD("standard", "Standard", "More tools on home — Protect and status first. Clean modern look.");
+
+        companion object {
+            fun fromKey(key: String?): DisplayDensity =
+                entries.firstOrNull { it.key == key } ?: EASY
+        }
+    }
+
     var role: Role
         get() = Role.fromKey(prefs.getString(KEY_ROLE, null))
         set(value) { prefs.edit().putString(KEY_ROLE, value.key).apply() }
@@ -38,6 +48,16 @@ class AppModeStore private constructor(private val prefs: SharedPreferences) {
     var plan: Plan
         get() = Plan.fromKey(prefs.getString(KEY_PLAN, null))
         set(value) { prefs.edit().putString(KEY_PLAN, value.key).apply() }
+
+    var displayDensity: DisplayDensity
+        get() = DisplayDensity.fromKey(prefs.getString(KEY_DENSITY, null))
+        set(value) { prefs.edit().putString(KEY_DENSITY, value.key).apply() }
+
+    val isEasyHome: Boolean get() = displayDensity == DisplayDensity.EASY
+
+    fun suggestDensityForCurrentRole() {
+        displayDensity = if (role == Role.SENIOR) DisplayDensity.EASY else DisplayDensity.STANDARD
+    }
 
     var seniorLockEnabled: Boolean
         get() = prefs.getBoolean(KEY_LOCK_ON, false)
@@ -80,6 +100,7 @@ class AppModeStore private constructor(private val prefs: SharedPreferences) {
         prefs.edit()
             .remove(KEY_ROLE)
             .remove(KEY_PLAN)
+            .remove(KEY_DENSITY)
             .remove(KEY_PIN)
             .remove(KEY_LOCK_ON)
             .apply()
@@ -89,6 +110,7 @@ class AppModeStore private constructor(private val prefs: SharedPreferences) {
         private const val PREFS = "gmg_app_mode"
         private const val KEY_ROLE = "role"
         private const val KEY_PLAN = "plan"
+        private const val KEY_DENSITY = "display_density"
         private const val KEY_PIN = "senior_pin"
         private const val KEY_LOCK_ON = "senior_lock_on"
 
