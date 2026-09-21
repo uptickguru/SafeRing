@@ -167,7 +167,7 @@ class MainActivity : ComponentActivity() {
                                 unselectedTextColor = Mute,
                                 indicatorColor = SoftGold.copy(alpha = 0.12f)
                             )
-                            val isCaretaker = mode.role == AppModeStore.Role.CARETAKER
+                            val isCaretaker = mode.role == AppModeStore.Role.CARETAKER /* solo uses personal shell */
                             NavigationBarItem(
                                 selected = selectedTab == 0,
                                 onClick = { selectedTab = 0 },
@@ -223,7 +223,7 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
-                        val isCaretaker = mode.role == AppModeStore.Role.CARETAKER
+                        val isCaretaker = mode.role == AppModeStore.Role.CARETAKER /* solo uses personal shell */
                         when {
                             selectedTab == 0 && isCaretaker -> CaretakerHomeScreen()
                             selectedTab == 0 -> HomeScreen(

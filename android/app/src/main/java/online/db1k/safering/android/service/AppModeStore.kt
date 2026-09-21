@@ -6,14 +6,17 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 
 /**
- * Switchable Personal / Trusted contact shell + Free plan (Protect + 1 trusted contact).
- * Personal lock: 6-digit PIN in encrypted prefs — required to leave Personal mode.
+ * Personal / Just me / Trusted contact + Free plan.
+ * Just me = screen calls & junk only — no trusted person required.
  */
 class AppModeStore private constructor(private val prefs: SharedPreferences) {
 
     enum class Role(val key: String, val title: String, val subtitle: String) {
         SENIOR("senior", "Personal", "This is your phone — big HELP, Protect, one person to reach."),
+        SOLO("solo", "Just me", "Screen calls & junk mail only — no trusted person to set up."),
         CARETAKER("caretaker", "Trusted contact", "You're their backup — alerts, approve talk, stay in the loop.");
+
+        val requiresTrustedContact: Boolean get() = this != SOLO
 
         companion object {
             fun fromKey(key: String?): Role =
@@ -22,7 +25,7 @@ class AppModeStore private constructor(private val prefs: SharedPreferences) {
     }
 
     enum class Plan(val key: String, val title: String, val blurb: String) {
-        FREE("free", "Free", "Protect Call, HELP, filters, and one trusted contact — free."),
+        FREE("free", "Free", "Protect Call, call/SMS filters free. Add a person anytime for HELP."),
         FAMILY("family", "Family", "More trusted contacts + full SafeCall trunk when unlocked.");
 
         companion object {
@@ -54,9 +57,13 @@ class AppModeStore private constructor(private val prefs: SharedPreferences) {
         set(value) { prefs.edit().putString(KEY_DENSITY, value.key).apply() }
 
     val isEasyHome: Boolean get() = displayDensity == DisplayDensity.EASY
+    val isSolo: Boolean get() = role == Role.SOLO
 
     fun suggestDensityForCurrentRole() {
-        displayDensity = if (role == Role.SENIOR) DisplayDensity.EASY else DisplayDensity.STANDARD
+        displayDensity = when (role) {
+            Role.SENIOR -> DisplayDensity.EASY
+            Role.SOLO, Role.CARETAKER -> DisplayDensity.STANDARD
+        }
     }
 
     var seniorLockEnabled: Boolean
@@ -68,7 +75,12 @@ class AppModeStore private constructor(private val prefs: SharedPreferences) {
 
     val isFree: Boolean get() = plan == Plan.FREE
     val protectIncluded: Boolean get() = true
-    val maxTrustedContacts: Int get() = if (isFree) 1 else 8
+    val maxTrustedContacts: Int
+        get() = when {
+            role == Role.SOLO -> 0
+            isFree -> 1
+            else -> 8
+        }
 
     fun setSeniorLockPin(pin: String): Boolean {
         val digits = pin.filter { it.isDigit() }
@@ -86,7 +98,6 @@ class AppModeStore private constructor(private val prefs: SharedPreferences) {
         return pin.filter { it.isDigit() } == stored
     }
 
-    /** Try to switch role. Returns false if Personal lock blocks (need PIN). */
     fun trySetRole(newRole: Role, pin: String? = null): Boolean {
         if (newRole == role) return true
         if (role == Role.SENIOR && seniorLockEnabled && hasSeniorLockPin) {

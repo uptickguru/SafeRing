@@ -132,7 +132,20 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                             error = "Type your name."
                         } else {
                             household.ownerDisplayName = owner.trim()
-                            step = 4
+                            if (mode.isSolo) {
+                                // Just me: skip trusted person + password
+                                val needed = buildList {
+                                    add(Manifest.permission.READ_CONTACTS)
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                        add(Manifest.permission.POST_NOTIFICATIONS)
+                                    }
+                                }
+                                runtimePermissions.launch(needed.toTypedArray())
+                                household.hasCompletedOnboarding = true
+                                onFinished()
+                            } else {
+                                step = 4
+                            }
                         }
                     }
                     4 -> {
@@ -171,7 +184,7 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                 .height(64.dp)
         ) {
             Text(
-                if (step == total - 1) "Start" else "Next",
+                if (step == total - 1 || (mode.isSolo && step == 3)) "Start" else "Next",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -195,7 +208,7 @@ private fun WelcomePane() {
         Text("GMG Shield", fontSize = 40.sp, fontWeight = FontWeight.Black)
         Spacer(Modifier.height(16.dp))
         Text(
-            "Texts someone you trust\nwhen something feels wrong.",
+            "Screens junk calls and texts.\nAdd a person only if you want HELP.",
             fontSize = 24.sp,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
@@ -324,7 +337,7 @@ private fun DensityPane(
         Spacer(Modifier.height(16.dp))
         AppModeStore.DisplayDensity.entries.forEach { d ->
             val suggested = (role == AppModeStore.Role.SENIOR && d == AppModeStore.DisplayDensity.EASY) ||
-                (role == AppModeStore.Role.CARETAKER && d == AppModeStore.DisplayDensity.STANDARD)
+                (role == AppModeStore.Role.CARETAKER || role == AppModeStore.Role.SOLO) && d == AppModeStore.DisplayDensity.STANDARD
             val label = buildString {
                 append(d.title)
                 if (selected == d) append("  ✓")

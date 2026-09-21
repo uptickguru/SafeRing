@@ -80,9 +80,17 @@ class HouseholdStore private constructor(private val prefs: SharedPreferences) {
         get() = familyPassword.isNotBlank()
 
     val isConfigured: Boolean
-        get() = normalizeToE164(trustedContactNumber).filter { it.isDigit() }.length >= 10 &&
-            hasFamilyPassword &&
-            ownerDisplayName.trim().length >= 2
+        get() {
+            // Just me: no trusted person required.
+            val ctx = Companion.appContext
+            if (ctx != null && AppModeStore.get(ctx).isSolo) return true
+            return normalizeToE164(trustedContactNumber).filter { it.isDigit() }.length >= 10 &&
+                hasFamilyPassword &&
+                ownerDisplayName.trim().length >= 2
+        }
+
+    val hasTrustedContact: Boolean
+        get() = normalizeToE164(trustedContactNumber).filter { it.isDigit() }.length >= 10
 
     val osChecklistComplete: Boolean
         get() = silenceUnknownConfirmed && carrierProtectionConfirmed && callScreeningConfirmed
@@ -141,8 +149,11 @@ class HouseholdStore private constructor(private val prefs: SharedPreferences) {
         private const val KEY_LAST_UNKNOWN = "last_unknown"
 
         @Volatile private var instance: HouseholdStore? = null
+        @Volatile var appContext: Context? = null
+            private set
 
         fun get(context: Context): HouseholdStore {
+            appContext = context.applicationContext
             return instance ?: synchronized(this) {
                 instance ?: HouseholdStore(createPrefs(context.applicationContext)).also { instance = it }
             }
