@@ -73,6 +73,8 @@ fun CaretakerHomeScreen() {
             }
         }
         Spacer(Modifier.height(16.dp))
+        UpgradeNotice()
+        Spacer(Modifier.height(12.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp)) {
                 Text("Their phone", fontWeight = FontWeight.SemiBold)
@@ -116,5 +118,28 @@ fun CaretakerHomeScreen() {
 
         Spacer(Modifier.height(16.dp))
         Text("Switch to Personal mode in Settings if this is their everyday phone.", color = Mute, fontSize = 13.sp)
+    }
+}
+
+@Composable
+private fun UpgradeNotice() {
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("humananswer_notice", android.content.Context.MODE_PRIVATE) }
+    var open by remember { mutableStateOf(!prefs.getBoolean("upgrade_notice_dismissed", false)) }
+    if (!open) return
+    Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+        Column(Modifier.padding(16.dp)) {
+            Text("New features are coming", fontWeight = FontWeight.SemiBold, color = Ink)
+            Spacer(Modifier.height(6.dp))
+            Text(
+                "Safety check-ins — a fall, no movement, a crash — will be an upgrade on this phone only. Their phone stays free. No price today.",
+                color = Mute
+            )
+            Spacer(Modifier.height(10.dp))
+            TextButton(onClick = {
+                prefs.edit().putBoolean("upgrade_notice_dismissed", true).apply()
+                open = false
+            }) { Text("Got it") }
+        }
     }
 }
