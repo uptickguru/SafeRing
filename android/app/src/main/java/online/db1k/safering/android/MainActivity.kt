@@ -76,6 +76,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SafeRingTheme {
+                var showSplash by remember { mutableStateOf(true) }
+                if (showSplash) {
+                    online.db1k.safering.android.ui.splash.OpeningSplash(onDone = { showSplash = false })
+                    return@SafeRingTheme
+                }
                 val household = remember { HouseholdStore.get(this@MainActivity) }
                 val mode = remember { AppModeStore.get(this@MainActivity) }
                 var modeTick by remember { mutableIntStateOf(0) }
