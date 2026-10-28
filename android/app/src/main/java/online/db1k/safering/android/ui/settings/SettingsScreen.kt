@@ -129,6 +129,7 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
+                    if (!online.db1k.safering.android.BuildConfig.FREE_ONLY) {
                     Text("Plan")
                     AppModeStore.Plan.entries.forEach { pl ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -139,8 +140,9 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                             }
                         }
                     }
+                    }
                     Text("Display", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 12.dp))
-                    Text("Chosen at signup. Free — not a paid upgrade.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Free.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     AppModeStore.DisplayDensity.entries.forEach { d ->
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                             RadioButton(

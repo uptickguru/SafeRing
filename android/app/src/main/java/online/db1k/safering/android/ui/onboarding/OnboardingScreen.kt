@@ -330,7 +330,7 @@ private fun DensityPane(
         Text("How should this phone look?", fontSize = 26.sp, fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(8.dp))
         Text(
-            "Pick what feels easiest. Change anytime in Settings. Free — not a paid upgrade.",
+            "Pick what feels easiest. Change anytime in Settings. Free.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 18.sp
         )

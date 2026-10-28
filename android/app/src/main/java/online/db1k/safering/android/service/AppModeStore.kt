@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import online.db1k.safering.android.BuildConfig
 
 /**
  * Personal / Just me / Trusted contact + Free plan.
@@ -49,8 +50,11 @@ class AppModeStore private constructor(private val prefs: SharedPreferences) {
         set(value) { prefs.edit().putString(KEY_ROLE, value.key).apply() }
 
     var plan: Plan
-        get() = Plan.fromKey(prefs.getString(KEY_PLAN, null))
-        set(value) { prefs.edit().putString(KEY_PLAN, value.key).apply() }
+        get() = if (BuildConfig.FREE_ONLY) Plan.FREE else Plan.fromKey(prefs.getString(KEY_PLAN, null))
+        set(value) {
+            val stored = if (BuildConfig.FREE_ONLY) Plan.FREE else value
+            prefs.edit().putString(KEY_PLAN, stored.key).apply()
+        }
 
     var displayDensity: DisplayDensity
         get() = DisplayDensity.fromKey(prefs.getString(KEY_DENSITY, null))
