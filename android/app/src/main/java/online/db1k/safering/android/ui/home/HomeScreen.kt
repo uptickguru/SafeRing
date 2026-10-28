@@ -143,7 +143,7 @@ fun HomeScreen(
 
         if (mode.isFree) {
             Text(
-                "Free · Protect + 1 trusted contact",
+                "Call safety · one person",
                 color = SoftGold,
                 fontWeight = FontWeight.Medium,
                 fontSize = 13.sp,

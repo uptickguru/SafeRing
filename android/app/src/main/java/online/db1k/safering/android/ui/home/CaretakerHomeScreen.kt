@@ -66,7 +66,7 @@ fun CaretakerHomeScreen() {
         ) {
             Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    if (mode.isFree) "Free · Protect + 1 trusted contact" else "Family plan",
+                    if (mode.isFree) "Call safety · one person" else "Family plan",
                     fontWeight = FontWeight.Medium,
                     color = Ink
                 )
