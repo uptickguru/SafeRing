@@ -49,7 +49,7 @@ fun CaretakerHomeScreen() {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("GMG SHIELD", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 2.sp, color = SoftGold)
+                Text("HUMANANSWER", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 2.sp, color = SoftGold)
                 Text("Trusted contact", fontSize = 24.sp, color = Ink)
             }
             AssistChip(

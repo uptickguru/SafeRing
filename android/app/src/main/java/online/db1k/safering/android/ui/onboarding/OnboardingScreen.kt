@@ -205,10 +205,10 @@ private fun WelcomePane() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("GMG Shield", fontSize = 40.sp, fontWeight = FontWeight.Black)
+        Text("HumanAnswer", fontSize = 36.sp, fontWeight = FontWeight.Black)
         Spacer(Modifier.height(16.dp))
         Text(
-            "Screens junk calls and texts.\nAdd a person only if you want HELP.",
+            "No AI, period, because AI can't be trusted to catch AI.",
             fontSize = 24.sp,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,

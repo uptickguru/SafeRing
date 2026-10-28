@@ -108,7 +108,7 @@ fun ProtectionCardScreen(onClose: () -> Unit) {
         Column(Modifier.padding(pad).padding(16.dp).verticalScroll(rememberScrollState())) {
             Surface(shape = RoundedCornerShape(12.dp), color = ivory, tonalElevation = 2.dp, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {
-                    Text("GMG SHIELD", color = gold, fontWeight = FontWeight.SemiBold, letterSpacing = 2.sp, fontSize = 13.sp)
+                    Text("HUMANANSWER", color = gold, fontWeight = FontWeight.SemiBold, letterSpacing = 2.sp, fontSize = 13.sp)
                     Divider(modifier = Modifier.padding(vertical = 8.dp), color = gold.copy(alpha = 0.4f))
                     Text("What this phone watches", fontWeight = FontWeight.SemiBold, color = ink)
                     Spacer(Modifier.height(8.dp))
@@ -151,7 +151,7 @@ fun shareProtectionCardPdf(context: android.content.Context) {
     val body = Paint().apply { textSize = 12f; color = android.graphics.Color.rgb(41, 38, 36) }
     var y = 36f
     c.drawColor(android.graphics.Color.rgb(247, 246, 244))
-    c.drawText("GMG SHIELD", 24f, y, title); y += 28f
+    c.drawText("HUMANANSWER", 24f, y, title); y += 28f
     c.drawText("What this phone watches", 24f, y, head); y += 22f
     listOf(
         "Unknown calls silenced when screening ON",
