@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -77,10 +78,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             SafeRingTheme {
                 var showSplash by remember { mutableStateOf(true) }
-                if (showSplash) {
-                    online.db1k.safering.android.ui.splash.OpeningSplash(onDone = { showSplash = false })
-                    return@SafeRingTheme
-                }
+                Box(Modifier.fillMaxSize()) {
                 val household = remember { HouseholdStore.get(this@MainActivity) }
                 val mode = remember { AppModeStore.get(this@MainActivity) }
                 var modeTick by remember { mutableIntStateOf(0) }
@@ -268,6 +266,10 @@ class MainActivity : ComponentActivity() {
                             TextButton(onClick = { showAfterCall = false }) { Text("It was fine") }
                         }
                     )
+                }
+                if (showSplash) {
+                    online.db1k.safering.android.ui.splash.OpeningSplash(onDone = { showSplash = false })
+                }
                 }
             }
         }
