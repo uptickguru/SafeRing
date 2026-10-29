@@ -34,12 +34,7 @@ class HelpSignaler(
 
     fun send(reason: HelpReason) {
         ShieldAnalytics.event(context, "help_request", mapOf("reason" to reason.name))
-        when (household.preferredChannel) {
-            SignalChannel.SMS -> openSms(reason)
-            SignalChannel.WHATSAPP -> openWhatsApp(reason)
-            SignalChannel.SIGNAL -> openSignal()
-            SignalChannel.PHONE -> callSaved()
-        }
+        openSms(reason)
         household.recordHelpSent()
     }
 

@@ -31,7 +31,6 @@ import online.db1k.safering.android.MainActivity
 import online.db1k.safering.android.service.PhoneRoles
 import online.db1k.safering.android.service.SignalChannel
 import online.db1k.safering.android.service.TripwireNotifier
-import online.db1k.safering.android.service.SmsNotificationListener
 import online.db1k.safering.android.util.ShieldAnalytics
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -206,19 +205,15 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                 OutlinedTextField(value = trustedNumber, onValueChange = { trustedNumber = it; household.trustedContactNumber = it }, label = { Text("Trusted person number") }, modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(8.dp))
                 Text("How to reach them", style = MaterialTheme.typography.titleSmall)
-                SignalChannel.entries.forEach { option ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = channel == option,
-                            onClick = {
-                                channel = option
-                                household.preferredChannel = option
-                            }
-                        )
-                        Column {
-                            Text(option.title)
-                            Text(option.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
+                Text(
+                    "Text only. The message opens in the phone's text app. No other apps.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                LaunchedEffect(Unit) {
+                    if (household.preferredChannel != SignalChannel.SMS) {
+                        household.preferredChannel = SignalChannel.SMS
+                        channel = SignalChannel.SMS
                     }
                 }
                 OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("New family password") }, modifier = Modifier.fillMaxWidth())
@@ -239,86 +234,6 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                 SettingToggle("HumanAnswer is call screening app", "Contacts ring. Unknown is silenced.", household.callScreeningConfirmed) { household.callScreeningConfirmed = it }
                 SettingToggle("Carrier scam block is on", "T-Mobile Scam Shield, AT&T ActiveArmor, Verizon Call Filter", household.carrierProtectionConfirmed) { household.carrierProtectionConfirmed = it }
                 SettingToggle("Silence unknown is OK", "Unknown callers should not ring", household.silenceUnknownConfirmed) { household.silenceUnknownConfirmed = it }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Text alerts (Android) — optional", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-        Spacer(modifier = Modifier.height(8.dp))
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                val nlsOn = SmsNotificationListener.isEnabled(context)
-                // Keep local flag true only when OS actually granted access
-                LaunchedEffect(nlsOn) {
-                    if (!nlsOn && household.smsNotificationCaptureEnabled) {
-                        household.smsNotificationCaptureEnabled = false
-                    }
-                }
-                Text(
-                    "HumanAnswer works without this. Call screening, HELP, Protect, and Investigate do not need Notification access.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    if (nlsOn) "Notification access: ON — optional SMS sender capture active"
-                    else "Notification access: OFF (normal on sideload / Firebase installs)",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "Android often blocks “Notification read / reply” for apps not from Play until you unlock restricted settings:",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    "1) Tap Allow restricted settings → Apps → HumanAnswer → ⋮ → Allow restricted settings\n" +
-                        "2) Tap Open Notification access → turn HumanAnswer ON\n" +
-                        "3) If the pink “denied access” screen appears, do step 1 first, then try again",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Button(
-                    onClick = {
-                        SmsNotificationListener.openAppDetails(context)
-                        setupTick++
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("1. Allow restricted settings") }
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedButton(
-                    onClick = {
-                        // Only mark enabled after user returns with NLS on (checked on next recomposition)
-                        SmsNotificationListener.openSettings(context)
-                        setupTick++
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("2. Open Notification access") }
-                Spacer(modifier = Modifier.height(8.dp))
-                if (nlsOn) {
-                    SettingToggle(
-                        "Use notification capture",
-                        "When ON, we may fingerprint sender numbers from Messages alerts. Not required for Protect or HELP.",
-                        household.smsNotificationCaptureEnabled
-                    ) { on ->
-                        household.smsNotificationCaptureEnabled = on
-                        setupTick++
-                    }
-                } else {
-                    Text(
-                        "Skip this section if Android won’t allow it. Use Settings → Investigate a number for shady texts instead.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    OutlinedButton(
-                        onClick = {
-                            context.startActivity(Intent(context, InvestigateReportActivity::class.java))
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text("Investigate a number (no Notification access)") }
-                }
             }
         }
 
