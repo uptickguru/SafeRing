@@ -120,6 +120,7 @@ fun CaretakerHomeScreen() {
         Spacer(Modifier.height(16.dp))
         Text("Switch to Personal mode in Settings if this is their everyday phone.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
     }
+    SetupGate(trustedContactHome = true)
 }
 
 @Composable

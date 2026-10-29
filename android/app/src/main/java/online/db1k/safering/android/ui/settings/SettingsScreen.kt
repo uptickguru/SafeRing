@@ -343,7 +343,9 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
-                    onClick = { roleLauncher.launch(PhoneRoles.requestCallScreeningIntent(context)) },
+                    onClick = {
+                        PhoneRoles.requestCallScreeningIntent(context)?.let { roleLauncher.launch(it) }
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) { Text(if (screeningOn) "Change spam app" else "Make HumanAnswer the spam app") }
 

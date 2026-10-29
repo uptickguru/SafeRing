@@ -4,8 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -93,13 +91,6 @@ fun HomeScreen(
         context,
         Manifest.permission.READ_CONTACTS
     ) == PackageManager.PERMISSION_GRANTED
-
-    val roleLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { tick++ }
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { tick++ }
 
     val person = household.trustedContactName.ifBlank { "my person" }
     val ready = household.isConfigured
@@ -289,35 +280,9 @@ fun HomeScreen(
             )
         }
 
-        if (!setupDone || !ready) {
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = "Phone setup → Settings",
-                fontSize = 15.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .clickable(onClick = onOpenSettings)
-                    .padding(6.dp)
-            )
-            if (!screeningOn) {
-                TextButton(onClick = {
-                    roleLauncher.launch(PhoneRoles.requestCallScreeningIntent(context))
-                }) { Text("Make HumanAnswer the spam app") }
-            }
-            val needed = buildList {
-                if (!contactsOn) add(Manifest.permission.READ_CONTACTS)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notifyOn) {
-                    add(Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
-            if (needed.isNotEmpty()) {
-                TextButton(onClick = { permissionLauncher.launch(needed.toTypedArray()) }) {
-                    Text("Allow contacts / notifications")
-                }
-            }
-        }
     }
+
+    SetupGate(trustedContactHome = false)
 
     if (showPassword) {
         AlertDialog(
