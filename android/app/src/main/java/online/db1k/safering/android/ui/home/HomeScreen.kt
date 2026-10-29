@@ -155,13 +155,13 @@ fun HomeScreen(
         Divider(
             modifier = Modifier.padding(vertical = 12.dp),
             thickness = 1.dp,
-            color = Color.Black.copy(alpha = 0.08f)
+            color = MaterialTheme.colorScheme.outline
         )
 
         if (!mode.isEasyHome) {
             Text(
                 "${mode.displayDensity.title} · ${mode.role.title}",
-                color = Mute,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -294,7 +294,7 @@ fun HomeScreen(
             Text(
                 text = "Phone setup → Settings",
                 fontSize = 15.sp,
-                color = Mute,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .clickable(onClick = onOpenSettings)

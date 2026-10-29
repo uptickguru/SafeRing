@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -143,7 +144,7 @@ fun ProtectCallScreen(onClose: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Ivory)
+            .background(MaterialTheme.colorScheme.background)
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -156,14 +157,14 @@ fun ProtectCallScreen(onClose: () -> Unit) {
             Spacer(Modifier.width(48.dp))
         }
         Spacer(Modifier.height(12.dp))
-        Text(status, color = Mute, textAlign = TextAlign.Center)
+        Text(status, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
         Spacer(Modifier.height(16.dp))
 
         when (phase) {
             ProtectPhase.COACH -> {
                 Text(
                     "We play a short warning first so the other person can hear it. Then this phone listens in the room. Audio is not saved.",
-                    color = Ink,
+                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
                 )
                 Spacer(Modifier.height(12.dp))
@@ -189,11 +190,11 @@ fun ProtectCallScreen(onClose: () -> Unit) {
             ProtectPhase.ANNOUNCING -> {
                 CircularProgressIndicator(color = SoftGold)
                 Spacer(Modifier.height(8.dp))
-                Text("Playing warning… listening starts after it finishes.", color = Mute, textAlign = TextAlign.Center)
+                Text("Playing warning… listening starts after it finishes.", color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
             }
             ProtectPhase.LISTENING -> {
                 if (lastHeard.isNotBlank()) {
-                    Text("Heard: $lastHeard", color = Mute, modifier = Modifier.fillMaxWidth())
+                    Text("Heard: $lastHeard", color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.fillMaxWidth())
                 }
                 Spacer(Modifier.height(12.dp))
                 OutlinedButton(onClick = { stopAll() }, modifier = Modifier.fillMaxWidth()) {
@@ -212,9 +213,9 @@ fun ProtectCallScreen(onClose: () -> Unit) {
 
         Spacer(Modifier.weight(1f))
         Text(
-            "Does not secretly tap a normal cell call. Uses this phone’s microphone in the room. Free plan includes Protect.",
+            "Does not secretly tap a normal cell call. Uses this phone’s microphone in the room.",
             fontSize = 12.sp,
-            color = Mute,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
     }

@@ -76,7 +76,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
-        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(0xFF161412.toInt()))
         enableEdgeToEdge()
         consumeIntent(intent)
         online.db1k.safering.android.ui.theme.Appearance.load(this)

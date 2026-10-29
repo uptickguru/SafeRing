@@ -330,7 +330,7 @@ private fun DensityPane(
         Text("How should this phone look?", fontSize = 26.sp, fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(8.dp))
         Text(
-            "Pick what feels easiest. Change anytime in Settings. Free.",
+            "Pick what feels easiest. Change anytime in Settings.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 18.sp
         )
@@ -362,7 +362,7 @@ private fun RolePane(selected: AppModeStore.Role, onSelect: (AppModeStore.Role) 
         Text("Who is this phone for?", fontSize = 26.sp, fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(8.dp))
         Text(
-            "You can switch later in Settings. Free includes Protect and one trusted contact.",
+            "You can switch later in Settings.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 18.sp
         )

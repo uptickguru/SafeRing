@@ -70,7 +70,7 @@ fun CallHistoryScreen() {
         Text(
             text = "Labels only — numbers stay private on this phone.",
             style = MaterialTheme.typography.bodySmall,
-            color = Mute,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
         )
 
@@ -147,7 +147,7 @@ private fun CallRow(row: CallLogEntity) {
                 Text(
                     "ref ${row.numberHash.take(8)}…",
                     style = MaterialTheme.typography.labelSmall,
-                    color = Mute.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
             }
             Text(
@@ -173,14 +173,14 @@ private fun SmsRow(row: SmsLogEntity) {
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             Text(row.riskLabel, fontWeight = FontWeight.SemiBold, color = accent)
-            Text(formatTime(row.timestamp), style = MaterialTheme.typography.bodySmall, color = Mute)
+            Text(formatTime(row.timestamp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             row.scamType?.let {
                 Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground)
             }
             Text(
                 "ref ${row.numberHash.take(8)}…",
                 style = MaterialTheme.typography.labelSmall,
-                color = Mute.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
         }
     }

@@ -5,8 +5,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
+import android.graphics.drawable.ColorDrawable
 
 // Timeless / senior palette (parity with iOS SR tokens)
 val Ivory = Color(0xFFF7F6F4)
@@ -84,9 +90,23 @@ fun SafeRingTheme(
     val forceLight = Appearance.forceLight.value
     val darkTheme = !forceLight && isSystemInDarkTheme()
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val activity = view.context as? android.app.Activity ?: return@SideEffect
+            val bg = if (darkTheme) 0xFF161412.toInt() else 0xFFF7F6F4.toInt()
+            activity.window.setBackgroundDrawable(ColorDrawable(bg))
+        }
+    }
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography(),
-        content = content
-    )
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = colorScheme.background,
+            contentColor = colorScheme.onBackground,
+            content = content
+        )
+    }
 }

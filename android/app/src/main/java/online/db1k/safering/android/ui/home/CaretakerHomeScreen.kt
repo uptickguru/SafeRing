@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -60,7 +61,7 @@ fun CaretakerHomeScreen() {
         Spacer(Modifier.height(12.dp))
         Surface(
             shape = RoundedCornerShape(12.dp),
-            color = Color.White.copy(alpha = 0.7f),
+            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -78,14 +79,14 @@ fun CaretakerHomeScreen() {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp)) {
                 Text("Their phone", fontWeight = FontWeight.SemiBold)
-                Text("$seniorName · this phone is Trusted contact mode. Free = Protect + one trusted contact.", color = Mute)
+                Text("$seniorName · this phone is Trusted contact mode. Call safety includes one person.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         Spacer(Modifier.height(12.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp)) {
                 Text("Waiting for alerts", fontWeight = FontWeight.SemiBold)
-                Text("When SafeCall is live, unknown attempts show for Approve / Deny. Until then, they use HELP and Protect on their phone.", color = Mute)
+                Text("When SafeCall is live, unknown attempts show for Approve / Deny. Until then, they use HELP and Protect on their phone.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         Spacer(Modifier.height(16.dp))
@@ -117,7 +118,7 @@ fun CaretakerHomeScreen() {
         }
 
         Spacer(Modifier.height(16.dp))
-        Text("Switch to Personal mode in Settings if this is their everyday phone.", color = Mute, fontSize = 13.sp)
+        Text("Switch to Personal mode in Settings if this is their everyday phone.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
     }
 }
 
