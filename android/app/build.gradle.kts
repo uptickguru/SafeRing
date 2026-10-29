@@ -15,8 +15,8 @@ android {
         applicationId = "online.db1k.safering.android"
         minSdk = 26
         targetSdk = 34
-        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 41
-        versionName = "1.0.41"
+        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 42
+        versionName = "1.0.42"
         buildConfigField("boolean", "FREE_ONLY", "true")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
