@@ -236,7 +236,7 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
         Spacer(modifier = Modifier.height(8.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
-                SettingToggle("GMG Shield is call screening app", "Contacts ring. Unknown is silenced.", household.callScreeningConfirmed) { household.callScreeningConfirmed = it }
+                SettingToggle("HumanAnswer is call screening app", "Contacts ring. Unknown is silenced.", household.callScreeningConfirmed) { household.callScreeningConfirmed = it }
                 SettingToggle("Carrier scam block is on", "T-Mobile Scam Shield, AT&T ActiveArmor, Verizon Call Filter", household.carrierProtectionConfirmed) { household.carrierProtectionConfirmed = it }
                 SettingToggle("Silence unknown is OK", "Unknown callers should not ring", household.silenceUnknownConfirmed) { household.silenceUnknownConfirmed = it }
             }
@@ -256,7 +256,7 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                     }
                 }
                 Text(
-                    "GMG Shield works without this. Call screening, HELP, Protect, and Investigate do not need Notification access.",
+                    "HumanAnswer works without this. Call screening, HELP, Protect, and Investigate do not need Notification access.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -273,8 +273,8 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    "1) Tap Allow restricted settings → Apps → GMG Shield → ⋮ → Allow restricted settings\n" +
-                        "2) Tap Open Notification access → turn GMG Shield ON\n" +
+                    "1) Tap Allow restricted settings → Apps → HumanAnswer → ⋮ → Allow restricted settings\n" +
+                        "2) Tap Open Notification access → turn HumanAnswer ON\n" +
                         "3) If the pink “denied access” screen appears, do step 1 first, then try again",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -337,7 +337,7 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(if (screeningOn) "Caller ID & spam: on" else "Caller ID & spam: off")
                 Text(
-                    "Settings → Default apps → Caller ID & spam → GMG Shield. Contacts still ring. Unknown is silenced.",
+                    "Settings → Default apps → Caller ID & spam → HumanAnswer. Contacts still ring. Unknown is silenced.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -345,7 +345,7 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                 Button(
                     onClick = { roleLauncher.launch(PhoneRoles.requestCallScreeningIntent(context)) },
                     modifier = Modifier.fillMaxWidth()
-                ) { Text(if (screeningOn) "Change spam app" else "Make GMG Shield the spam app") }
+                ) { Text(if (screeningOn) "Change spam app" else "Make HumanAnswer the spam app") }
 
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(if (contactsOn) "Contacts: allowed" else "Contacts: needed")
@@ -379,7 +379,7 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
 
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    "Suspicious texts: in Messages, tap Share → GMG Shield. We do not read your SMS inbox.",
+                    "Suspicious texts: in Messages, tap Share → HumanAnswer. We do not read your SMS inbox.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -687,7 +687,7 @@ private fun openCallScreeningSettings(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS).apply {
             // On most devices, this opens the default apps settings
-            // Users need to navigate to Call Screening > GMG Shield
+            // Users need to navigate to Call Screening > HumanAnswer
         }
         context.startActivity(intent)
     }

@@ -38,8 +38,8 @@ private val ink = Color(0xFF292624)
 private val burgundy = Color(0xFF7A383D)
 
 val gmgDemoPages = listOf(
-    DemoPage("What Shield watches", "GMG Shield watches for scams on this phone — unknown callers, suspicious SMS, and HELP to your person. It does not take over the dialer while a call is ringing.", "Open the app once after every update."),
-    DemoPage("Call screening (Android strength)", "When Shield is the Caller ID and spam app, unknown callers can be silenced while contacts still ring. This is stronger than iPhone for stopping the first ring.", "Settings → Apps → Special app access → Caller ID and spam → GMG Shield."),
+    DemoPage("What Shield watches", "HumanAnswer watches for scams on this phone — unknown callers, suspicious SMS, and HELP to your person. It does not take over the dialer while a call is ringing.", "Open the app once after every update."),
+    DemoPage("Call screening (Android strength)", "When Shield is the Caller ID and spam app, unknown callers can be silenced while contacts still ring. This is stronger than iPhone for stopping the first ring.", "Settings → Apps → Special app access → Caller ID and spam → HumanAnswer."),
     DemoPage("SMS tripwire", "Optional Notification access can catch plain SMS senders. Cheap phones often need Allow restricted settings first. Investigate a number always works without NLS.", "Prefer Investigate if the OS blocks notification access."),
     DemoPage("HELP and Call person", "Giant HELP texts your trusted person. Call uses the real phone number so Android and iPhone families both work.", "Set your person under Settings. Tap HELP or Call on Home."),
     DemoPage("Reporting", "Report junk so the family network can log the full message when the phone sends it.", "Use Investigate or report in Settings."),
@@ -122,14 +122,14 @@ fun ProtectionCardScreen(onClose: () -> Unit) {
                     Spacer(Modifier.height(10.dp))
                     Text("Turn on (once)", fontWeight = FontWeight.SemiBold, color = ink)
                     listOf(
-                        "1. Caller ID and spam app = GMG Shield",
+                        "1. Caller ID and spam app = HumanAnswer",
                         "2. Contacts permission ON",
                         "3. Notifications ON",
                         "4. Screen lock PIN/pattern ON",
                         "5. Open Shield once after updates"
                     ).forEach { Text(it, fontSize = 12.sp, color = ink, modifier = Modifier.padding(vertical = 2.dp)) }
                     Spacer(Modifier.height(8.dp))
-                    Text("gulfmeridiangroup.com", fontSize = 10.sp, color = Color.Gray)
+                    Text("kevinasbury.com", fontSize = 10.sp, color = Color.Gray)
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -161,16 +161,16 @@ fun shareProtectionCardPdf(context: android.content.Context) {
         "Reports can send full message to family network",
         "",
         "Turn on once:",
-        "1. Caller ID and spam = GMG Shield",
+        "1. Caller ID and spam = HumanAnswer",
         "2. Contacts permission",
         "3. Notifications ON",
         "4. Screen lock ON",
         "5. Open app after updates",
         "",
-        "gulfmeridiangroup.com"
+        "kevinasbury.com"
     ).forEach { c.drawText(it, 24f, y, body); y += 18f }
     doc.finishPage(page)
-    val file = File(context.cacheDir, "GMG-Shield-protection-card.pdf")
+    val file = File(context.cacheDir, "HumanAnswer-protection-card.pdf")
     FileOutputStream(file).use { doc.writeTo(it) }
     doc.close()
     val uri = FileProvider.getUriForFile(context, context.packageName + ".fileprovider", file)
@@ -178,7 +178,7 @@ fun shareProtectionCardPdf(context: android.content.Context) {
         type = "application/pdf"
         putExtra(Intent.EXTRA_STREAM, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        putExtra(Intent.EXTRA_SUBJECT, "GMG Shield protection card")
+        putExtra(Intent.EXTRA_SUBJECT, "HumanAnswer protection card")
     }
     context.startActivity(Intent.createChooser(intent, "Share / print card"))
 }

@@ -97,7 +97,7 @@ fun InvestigateReportScreen(onClose: () -> Unit) {
                 },
                 enabled = !busy && body.isNotBlank(),
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("Report full message to GMG") }
+            ) { Text("Report full message ") }
             OutlinedButton(
                 onClick = {
                     if (!household.exceptionalCaptureEnabled) {

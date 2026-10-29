@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * ThreatActionScreen — the most critical screen in GMG Shield.
+ * ThreatActionScreen — the most critical screen in HumanAnswer.
  *
  * # Critical Safety Rule (M4)
  * This screen MUST drive HUMAN ACTION. It MUST NEVER present a "you're safe,
@@ -421,7 +421,7 @@ private fun threatDescription(action: ThreatAction): String = when (action) {
     is ThreatAction.DoNotReply ->
         "This message has been flagged as a potential scam. Do not respond."
     is ThreatAction.LooksOkStillVerify ->
-        "This call looks okay, but GMG Shield recommends verification."
+        "This call looks okay, but HumanAnswer recommends verification."
 }
 
 private fun guidanceText(action: ThreatAction): String = when (action) {

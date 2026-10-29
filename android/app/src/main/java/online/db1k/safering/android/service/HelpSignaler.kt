@@ -22,7 +22,7 @@ class HelpSignaler(
         val name = household.ownerDisplayName.ifBlank { "Your person" }
         val trusted = household.trustedContactName.ifBlank { "there" }
         return """
-            GMG Shield alert for $trusted:
+            HumanAnswer alert for $trusted:
 
             $name — ${reason.shortLabel}.
 

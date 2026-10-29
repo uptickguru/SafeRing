@@ -109,7 +109,7 @@ class SmsNotificationListener : NotificationListenerService() {
 
         /**
          * Opens the best available system screen for Notification access.
-         * Sideload/FAD builds often need Apps → GMG Shield → ⋮ → Allow restricted settings first.
+         * Sideload/FAD builds often need Apps → HumanAnswer → ⋮ → Allow restricted settings first.
          */
         fun openSettings(context: Context) {
             val cn = ComponentName(context, SmsNotificationListener::class.java)
