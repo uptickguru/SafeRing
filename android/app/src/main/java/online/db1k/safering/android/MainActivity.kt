@@ -46,6 +46,8 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import online.db1k.safering.android.service.HelpReason
@@ -74,6 +76,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(0xFF161412.toInt()))
         enableEdgeToEdge()
         consumeIntent(intent)
         online.db1k.safering.android.ui.theme.Appearance.load(this)
@@ -128,10 +131,7 @@ class MainActivity : ComponentActivity() {
 
                 if (!onboarded) {
                     OnboardingScreen(onFinished = { onboarded = true })
-                    return@SafeRingTheme
-                }
-
-                if (showCheck) {
+                } else if (showCheck) {
                     PasteCheckScreen(
                         trustedName = household.trustedContactName,
                         initialText = checkText,
@@ -154,10 +154,7 @@ class MainActivity : ComponentActivity() {
                             checkSender = ""
                         }
                     )
-                    return@SafeRingTheme
-                }
-
-                Scaffold(
+                } else Scaffold(
                     modifier = Modifier.semantics { testTagsAsResourceId = true },
                     containerColor = MaterialTheme.colorScheme.background,
                     bottomBar = {
@@ -271,7 +268,17 @@ class MainActivity : ComponentActivity() {
                     )
                 }
                 if (showSplash) {
-                    online.db1k.safering.android.ui.splash.OpeningSplash(onDone = { showSplash = false })
+                    Dialog(
+                        onDismissRequest = { },
+                        properties = DialogProperties(
+                            dismissOnBackPress = false,
+                            dismissOnClickOutside = false,
+                            usePlatformDefaultWidth = false,
+                            decorFitsSystemWindows = false
+                        )
+                    ) {
+                        online.db1k.safering.android.ui.splash.OpeningSplash(onDone = { showSplash = false })
+                    }
                 }
                 }
             }

@@ -100,7 +100,7 @@ fun OpeningSplash(onDone: () -> Unit) {
                     val s = 1.03f - (0.03f * settle.value)
                     scaleX = s
                     scaleY = s
-                    alpha = 0.2f + (0.8f * settle.value)
+                    alpha = if (reduceMotion) 1f else 0.85f + (0.15f * settle.value)
                 },
             contentScale = ContentScale.Crop
         )
