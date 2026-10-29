@@ -157,17 +157,6 @@ fun HomeScreen(
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            Button(
-                onClick = {
-                    context.startActivity(Intent(context, ProtectCallActivity::class.java))
-                    tick++
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = CallSage, contentColor = Color.White),
-                shape = RoundedCornerShape(14.dp),
-                modifier = Modifier.fillMaxWidth().height(52.dp)
-            ) {
-                Text("Protect Call", fontSize = 16.sp, fontWeight = FontWeight.Medium)
-            }
             Spacer(Modifier.height(10.dp))
         }
 
@@ -243,21 +232,6 @@ fun HomeScreen(
             Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
             Text("Call $person", fontSize = 16.sp, fontWeight = FontWeight.Medium)
-        }
-
-        Spacer(Modifier.height(10.dp))
-        Button(
-            onClick = {
-                context.startActivity(Intent(context, ProtectCallActivity::class.java))
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = HelpBurgundy, contentColor = Color.White),
-            shape = RoundedCornerShape(14.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .testTag("home_protect")
-        ) {
-            Text("Protect Call", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
 
         Spacer(Modifier.height(10.dp))

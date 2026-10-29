@@ -2,5 +2,5 @@
 <resources>
     <string name="app_name">HumanAnswer</string>
     <string name="app_description">Scam Call Protection</string>
-    <string name="service_audio_analysis_desc">HumanAnswer analyzes call audio on-device to detect scam speech patterns. Audio is processed ephemerally and never recorded or transmitted.</string>
+    <string name="service_audio_analysis_desc">HumanAnswer does not record calls or listen in the room.</string>
 </resources>

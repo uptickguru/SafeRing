@@ -105,18 +105,6 @@ fun CaretakerHomeScreen() {
             shape = RoundedCornerShape(14.dp)
         ) { Text("Text check-in") }
 
-        Spacer(Modifier.height(10.dp))
-        if (mode.protectIncluded) {
-            Button(
-                onClick = {
-                    context.startActivity(Intent(context, ProtectCallActivity::class.java))
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = HelpBurgundy),
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(14.dp)
-            ) { Text("Protect Call") }
-        }
-
         Spacer(Modifier.height(16.dp))
         Text("Switch to Personal mode in Settings if this is their everyday phone.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
     }
