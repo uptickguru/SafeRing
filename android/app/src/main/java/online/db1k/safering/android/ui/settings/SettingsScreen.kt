@@ -25,13 +25,13 @@ import androidx.core.content.ContextCompat
 import online.db1k.safering.android.service.AppModeStore
 import online.db1k.safering.android.ui.theme.Appearance
 import online.db1k.safering.android.service.HouseholdStore
+import online.db1k.safering.android.service.SubscriptionGate
 import online.db1k.safering.android.service.SafeCallCaretaker
 import online.db1k.safering.android.MainActivity
 import online.db1k.safering.android.service.PhoneRoles
 import online.db1k.safering.android.service.SignalChannel
 import online.db1k.safering.android.service.TripwireNotifier
 import online.db1k.safering.android.service.SmsNotificationListener
-import online.db1k.safering.android.util.AppConfig
 import online.db1k.safering.android.util.ShieldAnalytics
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,7 +120,7 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    if (!online.db1k.safering.android.BuildConfig.FREE_ONLY) {
+                    if (SubscriptionGate.enabled && role == AppModeStore.Role.CARETAKER) {
                     Text("Plan")
                     AppModeStore.Plan.entries.forEach { pl ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -489,13 +489,21 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                     onClick = { ShieldAnalytics.event(context, "print_card_open"); context.startActivity(Intent(context, ProtectionCardActivity::class.java)) },
                     modifier = Modifier.fillMaxWidth()
                 ) { Text("Print protection card") }
-                OutlinedButton(
-                    onClick = {
-                        ShieldAnalytics.event(context, "falls_tips_open")
-                        context.startActivity(Intent(context, SeniorSafetyActivity::class.java))
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("Falls & senior safety") }
+                if (role == AppModeStore.Role.CARETAKER) {
+                    OutlinedButton(
+                        onClick = {
+                            ShieldAnalytics.event(context, "falls_tips_open")
+                            context.startActivity(Intent(context, SeniorSafetyActivity::class.java))
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Fall check-in") }
+                    OutlinedButton(
+                        onClick = {
+                            context.startActivity(Intent(context, TrustedNoticesActivity::class.java))
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Notifications") }
+                }
                 Text(
                     "Cheap Android: screen lock ON, Caller ID role ON, Play Protect ON, install only from family.",
                     style = MaterialTheme.typography.bodySmall,
@@ -531,20 +539,14 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                     context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.0.21"
                 } catch (_: Exception) { "1.0.21" }
                 InfoRow("Version", ver)
-                InfoRow("Edge", "safering.gulfmeridiangroup.com")
+                InfoRow("Support", "kevinasbury.com")
                 InfoRow("Privacy", "Family password and trusted number stay on this phone. Help texts are redacted.")
                 Spacer(modifier = Modifier.height(8.dp))
                 Text("Human in the loop: Approve / HELP / money decisions stay with people.", style = MaterialTheme.typography.bodySmall)
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedButton(onClick = {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppConfig.LEGAL_PRIVACY)))
-                }, modifier = Modifier.fillMaxWidth()) { Text("Privacy Policy") }
-                OutlinedButton(onClick = {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppConfig.LEGAL_TERMS)))
-                }, modifier = Modifier.fillMaxWidth()) { Text("Terms of Use") }
-                OutlinedButton(onClick = {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppConfig.LEGAL_SUPPORT)))
-                }, modifier = Modifier.fillMaxWidth()) { Text("Help & Support") }
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://kevinasbury.com")))
+                }, modifier = Modifier.fillMaxWidth()) { Text("Privacy, terms, and help") }
             }
         }
     }

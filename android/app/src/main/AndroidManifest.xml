@@ -88,6 +88,7 @@
     
         <activity android:name=".ui.settings.FilterWordsActivity" android:exported="false" android:label="Filter words" android:screenOrientation="fullSensor" />
         <activity android:name=".ui.settings.BlockListActivity" android:exported="false" android:label="Block list" android:screenOrientation="fullSensor" />
+        <activity android:name=".ui.settings.TrustedNoticesActivity" android:exported="false" android:label="Notifications" android:screenOrientation="fullSensor" />
         <activity android:name=".ui.settings.FeatureDemoActivity" android:exported="false" android:label="Feature demo" android:screenOrientation="fullSensor" />
         <activity android:name=".ui.settings.ProtectionCardActivity" android:exported="false" android:label="Printable card" android:screenOrientation="fullSensor" />
         <activity android:name=".ui.settings.InvestigateReportActivity" android:exported="false" android:label="Investigate" android:screenOrientation="fullSensor" />

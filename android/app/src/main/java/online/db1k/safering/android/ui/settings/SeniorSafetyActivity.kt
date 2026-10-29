@@ -38,7 +38,7 @@ fun SeniorSafetyScreen(onClose: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Falls & senior safety") },
+                title = { Text("Fall check-in") },
                 navigationIcon = { TextButton(onClick = onClose) { Text("Close") } }
             )
         }
@@ -51,16 +51,16 @@ fun SeniorSafetyScreen(onClose: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                "GMG Shield is for scams and getting your person. Falls use phone/watch tools Apple and Google already built.",
+                "HumanAnswer is for scam calls and getting your person. A fall check-in uses the tools already on the phone and watch. It does not replace them.",
                 style = MaterialTheme.typography.bodyLarge
             )
-            Tip("Apple Watch Fall Detection", "If the senior has an Apple Watch: Settings → SOS → Fall Detection. GMG Shield does not replace this.")
-            Tip("iPhone Crash Detection / Emergency SOS", "Practice side-button SOS with family. Medical ID in Health app.")
-            Tip("Android Medical info", "Settings → Safety & emergency → Medical information + emergency contacts.")
-            Tip("Manual HELP", "Home screen giant HELP texts your person if you can reach the phone.")
-            Tip("Home basics", "Night lights, clear rugs, phone charging by the bed — high impact, no app required.")
+            Tip("Watch fall detection", "If there is a watch: Settings, SOS, Fall Detection. HumanAnswer does not replace this.")
+            Tip("Crash detection", "Practice the side-button emergency call with the family. Medical information stays in the phone's own Health or Safety settings.")
+            Tip("Android medical info", "Settings, Safety and emergency, Medical information and emergency contacts.")
+            Tip("HELP", "The home screen HELP button texts the trusted person if the phone can be reached.")
+            Tip("Home basics", "Night lights, clear rugs, phone charging by the bed.")
             Text(
-                "We do not claim phone-only AI fall detection as a product feature.",
+                "This phone does not claim to detect a fall by itself.",
                 style = MaterialTheme.typography.bodySmall
             )
         }
