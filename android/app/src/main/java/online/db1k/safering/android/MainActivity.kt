@@ -5,6 +5,7 @@ import online.db1k.safering.android.util.LabCommsFire
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -72,6 +73,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
         enableEdgeToEdge()
         consumeIntent(intent)
         online.db1k.safering.android.ui.theme.Appearance.load(this)

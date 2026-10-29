@@ -38,6 +38,8 @@
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
+            android:screenOrientation="fullSensor"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode"
             android:theme="@style/Theme.SafeRing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -84,11 +86,11 @@
         </receiver>
 
     
-        <activity android:name=".ui.settings.FeatureDemoActivity" android:exported="false" android:label="Feature demo" />
-        <activity android:name=".ui.settings.ProtectionCardActivity" android:exported="false" android:label="Printable card" />
-        <activity android:name=".ui.settings.InvestigateReportActivity" android:exported="false" android:label="Investigate" />
-        <activity android:name=".ui.settings.SeniorSafetyActivity" android:exported="false" android:label="Falls and safety" />
-        <activity android:name=".ui.home.ProtectCallActivity" android:exported="false" android:label="Protect Call" android:theme="@style/Theme.SafeRing" />
+        <activity android:name=".ui.settings.FeatureDemoActivity" android:exported="false" android:label="Feature demo" android:screenOrientation="fullSensor" />
+        <activity android:name=".ui.settings.ProtectionCardActivity" android:exported="false" android:label="Printable card" android:screenOrientation="fullSensor" />
+        <activity android:name=".ui.settings.InvestigateReportActivity" android:exported="false" android:label="Investigate" android:screenOrientation="fullSensor" />
+        <activity android:name=".ui.settings.SeniorSafetyActivity" android:exported="false" android:label="Falls and safety" android:screenOrientation="fullSensor" />
+        <activity android:name=".ui.home.ProtectCallActivity" android:exported="false" android:label="Protect Call" android:theme="@style/Theme.SafeRing" android:screenOrientation="fullSensor" />
     
         <provider
             android:name="androidx.core.content.FileProvider"
