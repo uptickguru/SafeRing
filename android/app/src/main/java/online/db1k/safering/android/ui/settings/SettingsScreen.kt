@@ -25,7 +25,6 @@ import androidx.core.content.ContextCompat
 import online.db1k.safering.android.service.AppModeStore
 import online.db1k.safering.android.ui.theme.Appearance
 import online.db1k.safering.android.service.HouseholdStore
-import online.db1k.safering.android.service.FilterRulesStore
 import online.db1k.safering.android.service.SafeCallCaretaker
 import online.db1k.safering.android.MainActivity
 import online.db1k.safering.android.service.PhoneRoles
@@ -71,18 +70,9 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
     var password by remember { mutableStateOf("") }
     var channel by remember { mutableStateOf(household.preferredChannel) }
     val scope = rememberCoroutineScope()
-    var keywordDraft by remember { mutableStateOf("") }
-    var blockDraft by remember { mutableStateOf("") }
-    var keywords by remember { mutableStateOf(FilterRulesStore.keywords(context)) }
-    var blocks by remember { mutableStateOf(FilterRulesStore.blockDigits(context).toList().sorted()) }
     var safeCallSummary by remember { mutableStateOf("Tap refresh") }
     var safeCallBusy by remember { mutableStateOf(false) }
     var showResetConfirm by remember { mutableStateOf(false) }
-    fun reloadFilters() {
-        keywords = FilterRulesStore.keywords(context)
-        blocks = FilterRulesStore.blockDigits(context).toList().sorted()
-        setupTick++
-    }
 
     Column(
         modifier = Modifier
@@ -399,65 +389,20 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
         
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Filter words (like iOS Message Filter)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Text("Filter words", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    "Used on shared texts and notification snippets. Android has no system Junk folder for third-party apps.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                keywords.take(40).forEach { w ->
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                        Text(w, modifier = Modifier.weight(1f))
-                        TextButton(onClick = { FilterRulesStore.removeKeyword(context, w); reloadFilters() }) { Text("Remove") }
-                    }
-                }
-                OutlinedTextField(value = keywordDraft, onValueChange = { keywordDraft = it }, label = { Text("Add filter word") }, modifier = Modifier.fillMaxWidth())
-                Button(
-                    onClick = {
-                        FilterRulesStore.addKeyword(context, keywordDraft)
-                        keywordDraft = ""
-                        reloadFilters()
-                        ShieldAnalytics.event(context, "filter_keyword_add")
-                    },
-                    enabled = keywordDraft.trim().length >= 2,
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("Add word") }
-            }
-        }
+        Button(
+            onClick = { context.startActivity(Intent(context, FilterWordsActivity::class.java)) },
+            modifier = Modifier.fillMaxWidth()
+        ) { Text("Open filter words") }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Block list (calls)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Text("Block list", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    "Silences these when GMG Shield is Caller ID & spam app (Android Call Screening ≈ iOS Call Directory).",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text("Blocked: ${blocks.size}", style = MaterialTheme.typography.titleSmall)
-                blocks.take(30).forEach { d ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(d, modifier = Modifier.weight(1f))
-                        TextButton(onClick = { FilterRulesStore.removeBlockDigits(context, d); reloadFilters() }) { Text("Remove") }
-                    }
-                }
-                OutlinedTextField(value = blockDraft, onValueChange = { blockDraft = it }, label = { Text("Add number to block") }, modifier = Modifier.fillMaxWidth())
-                Button(
-                    onClick = {
-                        FilterRulesStore.addBlockDigits(context, blockDraft)
-                        blockDraft = ""
-                        reloadFilters()
-                        ShieldAnalytics.event(context, "block_list_add")
-                    },
-                    enabled = blockDraft.filter { it.isDigit() }.length >= 10,
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("Add to block list") }
-            }
-        }
+        Button(
+            onClick = { context.startActivity(Intent(context, BlockListActivity::class.java)) },
+            modifier = Modifier.fillMaxWidth()
+        ) { Text("Open block list") }
 
         Spacer(modifier = Modifier.height(16.dp))
         Text("Investigate & report", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
