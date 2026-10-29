@@ -27,6 +27,7 @@ import online.db1k.safering.android.ui.theme.Appearance
 import online.db1k.safering.android.service.HouseholdStore
 import online.db1k.safering.android.service.SubscriptionGate
 import online.db1k.safering.android.service.SafeCallCaretaker
+import online.db1k.safering.android.service.StatusIcon
 import online.db1k.safering.android.MainActivity
 import online.db1k.safering.android.service.PhoneRoles
 import online.db1k.safering.android.service.SignalChannel
@@ -63,7 +64,10 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
     ) { setupTick++ }
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { setupTick++ }
+    ) {
+        setupTick++
+        StatusIcon.show(context)
+    }
     var trustedName by remember { mutableStateOf(household.trustedContactName) }
     var trustedNumber by remember { mutableStateOf(household.trustedContactNumber) }
     var password by remember { mutableStateOf("") }
@@ -193,6 +197,42 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
             }
             Spacer(modifier = Modifier.height(24.dp))
         }
+
+        Text("Home and lock screen", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Call safety", style = MaterialTheme.typography.titleSmall)
+                Text(
+                    "Press and hold the home screen, then Widgets, then HumanAnswer. On a newer phone the same widget can sit on the lock screen. It opens the app. It does not listen.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                var topBar by remember { mutableStateOf(StatusIcon.isOn(context)) }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Icon on the top bar")
+                        Text(
+                            "Quiet. No sound. The phone may ask to allow alerts once.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = topBar,
+                        onCheckedChange = { on ->
+                            topBar = on
+                            StatusIcon.setOn(context, on)
+                            if (on && !StatusIcon.allowed(context)) {
+                                permissionLauncher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text("Your person", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))

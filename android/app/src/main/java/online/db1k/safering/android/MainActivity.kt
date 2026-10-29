@@ -73,12 +73,29 @@ class MainActivity : ComponentActivity() {
     private var pendingCheckIn by mutableStateOf(false)
     private var pendingHelp by mutableStateOf(false)
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 41) {
+            online.db1k.safering.android.service.StatusIcon.show(this)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
         enableEdgeToEdge()
         consumeIntent(intent)
         online.db1k.safering.android.ui.theme.Appearance.load(this)
+        online.db1k.safering.android.service.StatusIcon.show(this)
+        if (android.os.Build.VERSION.SDK_INT >= 33 &&
+            !online.db1k.safering.android.service.StatusIcon.allowed(this)
+        ) {
+            requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 41)
+        }
 
         setContent {
             SafeRingTheme {
