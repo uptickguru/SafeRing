@@ -33,6 +33,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -113,7 +114,7 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Ivory)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 20.dp)
             .padding(top = 10.dp, bottom = 10.dp)
     ) {
@@ -135,7 +136,7 @@ fun HomeScreen(
                     text = "Protection",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Normal,
-                    color = Ink
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
             StatusChip(text = statusLine, ok = statusOk)
@@ -385,6 +386,6 @@ private fun ToolTile(
     ) {
         icon()
         Spacer(Modifier.width(10.dp))
-        Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Ink)
+        Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onBackground)
     }
 }

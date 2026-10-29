@@ -1,5 +1,6 @@
 package online.db1k.safering.android.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -16,6 +17,23 @@ val CallSage = Color(0xFF47665C)
 val Ink = Color(0xFF1F1E1C)
 val Mute = Color(0xFF6B6560)
 val SurfaceCard = Color(0xFFFFFFFF)
+
+object Appearance {
+    val forceLight = androidx.compose.runtime.mutableStateOf(false)
+    private const val PREFS = "humananswer_appearance"
+    private const val KEY = "force_light"
+
+    fun load(context: android.content.Context) {
+        forceLight.value = context.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE)
+            .getBoolean(KEY, false)
+    }
+
+    fun setForceLight(context: android.content.Context, value: Boolean) {
+        forceLight.value = value
+        context.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE)
+            .edit().putBoolean(KEY, value).apply()
+    }
+}
 
 val SafeGreen = CallSage
 val WarningYellow = UnsureBronze
@@ -45,17 +63,26 @@ private val LightColorScheme = lightColorScheme(
 
 private val DarkColorScheme = darkColorScheme(
     primary = SoftGold,
+    onPrimary = Color(0xFF1C1915),
     secondary = CallSage,
+    onSecondary = Color.White,
     error = Color(0xFFC9898C),
-    background = BackgroundDark,
-    surface = SurfaceDark,
+    onError = Color(0xFF1C1915),
+    background = Color(0xFF161412),
+    onBackground = Color(0xFFF4EFE6),
+    surface = Color(0xFF221F1C),
+    onSurface = Color(0xFFF4EFE6),
+    surfaceVariant = Color(0xFF2C2824),
+    onSurfaceVariant = Color(0xFFC8BEB2),
+    outline = Color(0x33FFFFFF),
 )
 
 @Composable
 fun SafeRingTheme(
-    darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val forceLight = Appearance.forceLight.value
+    val darkTheme = !forceLight && isSystemInDarkTheme()
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
     MaterialTheme(
         colorScheme = colorScheme,

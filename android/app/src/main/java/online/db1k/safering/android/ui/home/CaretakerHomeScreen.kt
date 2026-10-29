@@ -43,14 +43,14 @@ fun CaretakerHomeScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Ivory)
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .padding(20.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("HUMANANSWER", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 2.sp, color = SoftGold)
-                Text("Trusted contact", fontSize = 24.sp, color = Ink)
+                Text("Trusted contact", fontSize = 24.sp, color = MaterialTheme.colorScheme.onBackground)
             }
             AssistChip(
                 onClick = {},
@@ -68,7 +68,7 @@ fun CaretakerHomeScreen() {
                 Text(
                     if (mode.isFree) "Call safety · one person" else "Family plan",
                     fontWeight = FontWeight.Medium,
-                    color = Ink
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
         }
@@ -129,7 +129,7 @@ private fun UpgradeNotice() {
     if (!open) return
     Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.White)) {
         Column(Modifier.padding(16.dp)) {
-            Text("New features are coming", fontWeight = FontWeight.SemiBold, color = Ink)
+            Text("New features are coming", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
             Spacer(Modifier.height(6.dp))
             Text(
                 "Safety check-ins — a fall, no movement, a crash — will be an upgrade on this phone only. Their phone stays free. No price today.",

@@ -74,6 +74,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         consumeIntent(intent)
+        online.db1k.safering.android.ui.theme.Appearance.load(this)
 
         setContent {
             SafeRingTheme {
@@ -156,10 +157,10 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     modifier = Modifier.semantics { testTagsAsResourceId = true },
-                    containerColor = Ivory,
+                    containerColor = MaterialTheme.colorScheme.background,
                     bottomBar = {
                         NavigationBar(
-                            containerColor = Ivory,
+                            containerColor = MaterialTheme.colorScheme.background,
                             contentColor = SoftGold,
                             tonalElevation = NavigationBarDefaults.Elevation
                         ) {

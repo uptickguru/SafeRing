@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.testTag
 import androidx.core.content.ContextCompat
 import online.db1k.safering.android.service.AppModeStore
+import online.db1k.safering.android.ui.theme.Appearance
 import online.db1k.safering.android.service.HouseholdStore
 import online.db1k.safering.android.service.FilterRulesStore
 import online.db1k.safering.android.service.SafeCallCaretaker
@@ -142,7 +143,14 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                     }
                     }
                     Text("Display", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 12.dp))
-                    Text("Free.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Follows the phone. Turn this on if the dark screen is hard to see.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                        Text("Keep this phone light", modifier = Modifier.weight(1f))
+                        Switch(
+                            checked = Appearance.forceLight.value,
+                            onCheckedChange = { Appearance.setForceLight(context, it) }
+                        )
+                    }
                     AppModeStore.DisplayDensity.entries.forEach { d ->
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                             RadioButton(

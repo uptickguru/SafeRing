@@ -57,7 +57,7 @@ fun CallHistoryScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Ivory)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Text(
@@ -65,7 +65,7 @@ fun CallHistoryScreen() {
             modifier = Modifier.testTag("history_title"),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            color = Ink
+            color = MaterialTheme.colorScheme.onBackground
         )
         Text(
             text = "Labels only — numbers stay private on this phone.",
@@ -80,7 +80,7 @@ fun CallHistoryScreen() {
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("No activity yet", style = MaterialTheme.typography.titleMedium, color = Ink)
+                    Text("No activity yet", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
                     Spacer(Modifier.height(8.dp))
                     Text(
                         "Screened calls and message checks appear here.",
@@ -96,7 +96,7 @@ fun CallHistoryScreen() {
             ) {
                 if (calls.isNotEmpty()) {
                     item {
-                        Text("Calls", fontWeight = FontWeight.SemiBold, color = Ink)
+                        Text("Calls", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
                     }
                     items(calls, key = { "c${it.id}" }) { row ->
                         CallRow(row)
@@ -105,7 +105,7 @@ fun CallHistoryScreen() {
                 if (sms.isNotEmpty()) {
                     item {
                         Spacer(Modifier.height(8.dp))
-                        Text("Message checks", fontWeight = FontWeight.SemiBold, color = Ink)
+                        Text("Message checks", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
                     }
                     items(sms, key = { "s${it.id}" }) { row ->
                         SmsRow(row)
@@ -138,7 +138,7 @@ private fun CallRow(row: CallLogEntity) {
             )
             Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(row.callerName ?: "Caller", fontWeight = FontWeight.SemiBold, color = Ink)
+                Text(row.callerName ?: "Caller", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
                 Text(
                     "${row.riskLabel} · ${formatTime(row.timestamp)}",
                     style = MaterialTheme.typography.bodySmall,
@@ -175,7 +175,7 @@ private fun SmsRow(row: SmsLogEntity) {
             Text(row.riskLabel, fontWeight = FontWeight.SemiBold, color = accent)
             Text(formatTime(row.timestamp), style = MaterialTheme.typography.bodySmall, color = Mute)
             row.scamType?.let {
-                Text(it, style = MaterialTheme.typography.bodySmall, color = Ink)
+                Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground)
             }
             Text(
                 "ref ${row.numberHash.take(8)}…",
