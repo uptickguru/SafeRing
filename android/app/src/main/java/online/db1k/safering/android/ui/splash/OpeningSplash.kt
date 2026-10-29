@@ -33,7 +33,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import online.db1k.safering.android.R
 
 private const val PREFS = "humananswer_splash"
@@ -58,11 +60,16 @@ fun OpeningSplash(onDone: () -> Unit) {
     }
     val settle = remember { Animatable(if (reduceMotion) 1f else 0f) }
     val name = remember { Animatable(if (reduceMotion) 1f else 0f) }
+    val cover = remember { Animatable(1f) }
+    val scope = rememberCoroutineScope()
     var finished by remember { mutableStateOf(false) }
     fun finish() {
         if (finished) return
         finished = true
-        onDone()
+        scope.launch {
+            if (!reduceMotion) cover.animateTo(0f, tween(800))
+            onDone()
+        }
     }
     LaunchedEffect(Unit) {
         val start = System.currentTimeMillis()
@@ -77,6 +84,7 @@ fun OpeningSplash(onDone: () -> Unit) {
     Box(
         Modifier
             .fillMaxSize()
+            .alpha(cover.value)
             .background(Color(0xFF161412))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
