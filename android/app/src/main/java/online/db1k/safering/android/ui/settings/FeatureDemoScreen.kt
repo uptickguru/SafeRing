@@ -38,8 +38,8 @@ private val ink = Color(0xFF292624)
 private val burgundy = Color(0xFF7A383D)
 
 val gmgDemoPages = listOf(
-    DemoPage("What Shield watches", "HumanAnswer watches for scams on this phone — unknown callers, suspicious SMS, and HELP to your person. It does not take over the dialer while a call is ringing.", "Open the app once after every update."),
-    DemoPage("Call screening (Android strength)", "When Shield is the Caller ID and spam app, unknown callers can be silenced while contacts still ring. This is stronger than iPhone for stopping the first ring.", "Settings → Apps → Special app access → Caller ID and spam → HumanAnswer."),
+    DemoPage("What Shield watches", "GMG Shield watches for scams on this phone — unknown callers, suspicious SMS, and HELP to your person. It does not take over the dialer while a call is ringing.", "Open the app once after every update."),
+    DemoPage("Call screening (Android strength)", "When Shield is the Caller ID and spam app, unknown callers can be silenced while contacts still ring. This is stronger than iPhone for stopping the first ring.", "Settings → Apps → Special app access → Caller ID and spam → GMG Shield."),
     DemoPage("SMS tripwire", "Optional Notification access can catch plain SMS senders. Cheap phones often need Allow restricted settings first. Investigate a number always works without NLS.", "Prefer Investigate if the OS blocks notification access."),
     DemoPage("HELP and Call person", "Giant HELP texts your trusted person. Call uses the real phone number so Android and iPhone families both work.", "Set your person under Settings. Tap HELP or Call on Home."),
     DemoPage("Reporting", "Report junk so the family network can log the full message when the phone sends it.", "Use Investigate or report in Settings."),
@@ -108,7 +108,7 @@ fun ProtectionCardScreen(onClose: () -> Unit) {
         Column(Modifier.padding(pad).padding(16.dp).verticalScroll(rememberScrollState())) {
             Surface(shape = RoundedCornerShape(12.dp), color = ivory, tonalElevation = 2.dp, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {
-                    Text("HUMANANSWER", color = gold, fontWeight = FontWeight.SemiBold, letterSpacing = 2.sp, fontSize = 13.sp)
+                    Text("GMG SHIELD", color = gold, fontWeight = FontWeight.SemiBold, letterSpacing = 2.sp, fontSize = 13.sp)
                     Divider(modifier = Modifier.padding(vertical = 8.dp), color = gold.copy(alpha = 0.4f))
                     Text("What this phone watches", fontWeight = FontWeight.SemiBold, color = ink)
                     Spacer(Modifier.height(8.dp))
@@ -122,14 +122,14 @@ fun ProtectionCardScreen(onClose: () -> Unit) {
                     Spacer(Modifier.height(10.dp))
                     Text("Turn on (once)", fontWeight = FontWeight.SemiBold, color = ink)
                     listOf(
-                        "1. Caller ID and spam app = HumanAnswer",
+                        "1. Caller ID and spam app = GMG Shield",
                         "2. Contacts permission ON",
                         "3. Notifications ON",
                         "4. Screen lock PIN/pattern ON",
                         "5. Open Shield once after updates"
                     ).forEach { Text(it, fontSize = 12.sp, color = ink, modifier = Modifier.padding(vertical = 2.dp)) }
                     Spacer(Modifier.height(8.dp))
-                    Text("kevinasbury.com", fontSize = 10.sp, color = Color.Gray)
+                    Text("gulfmeridiangroup.com", fontSize = 10.sp, color = Color.Gray)
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -151,7 +151,7 @@ fun shareProtectionCardPdf(context: android.content.Context) {
     val body = Paint().apply { textSize = 12f; color = android.graphics.Color.rgb(41, 38, 36) }
     var y = 36f
     c.drawColor(android.graphics.Color.rgb(247, 246, 244))
-    c.drawText("HUMANANSWER", 24f, y, title); y += 28f
+    c.drawText("GMG SHIELD", 24f, y, title); y += 28f
     c.drawText("What this phone watches", 24f, y, head); y += 22f
     listOf(
         "Unknown calls silenced when screening ON",
@@ -161,16 +161,16 @@ fun shareProtectionCardPdf(context: android.content.Context) {
         "Reports can send full message to family network",
         "",
         "Turn on once:",
-        "1. Caller ID and spam = HumanAnswer",
+        "1. Caller ID and spam = GMG Shield",
         "2. Contacts permission",
         "3. Notifications ON",
         "4. Screen lock ON",
         "5. Open app after updates",
         "",
-        "kevinasbury.com"
+        "gulfmeridiangroup.com"
     ).forEach { c.drawText(it, 24f, y, body); y += 18f }
     doc.finishPage(page)
-    val file = File(context.cacheDir, "HumanAnswer-protection-card.pdf")
+    val file = File(context.cacheDir, "GMG-Shield-protection-card.pdf")
     FileOutputStream(file).use { doc.writeTo(it) }
     doc.close()
     val uri = FileProvider.getUriForFile(context, context.packageName + ".fileprovider", file)
@@ -178,7 +178,7 @@ fun shareProtectionCardPdf(context: android.content.Context) {
         type = "application/pdf"
         putExtra(Intent.EXTRA_STREAM, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        putExtra(Intent.EXTRA_SUBJECT, "HumanAnswer protection card")
+        putExtra(Intent.EXTRA_SUBJECT, "GMG Shield protection card")
     }
     context.startActivity(Intent.createChooser(intent, "Share / print card"))
 }

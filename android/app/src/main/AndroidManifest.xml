@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
@@ -34,34 +35,26 @@
         android:networkSecurityConfig="@xml/network_security_config">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.home.OpeningActivity"
             android:exported="true"
-            android:launchMode="singleTop"
-            android:screenOrientation="fullSensor"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode"
             android:theme="@style/Theme.SafeRing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.SafeRing">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-
-        <receiver
-            android:name=".widget.CallSafetyWidget"
-            android:exported="true"
-            android:label="Call safety">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/call_safety_widget" />
-        </receiver>
 
         <receiver
             android:name=".service.HelpActionReceiver"
@@ -97,13 +90,11 @@
         </receiver>
 
     
-        <activity android:name=".ui.settings.FilterWordsActivity" android:exported="false" android:label="Filter words" android:screenOrientation="fullSensor" />
-        <activity android:name=".ui.settings.BlockListActivity" android:exported="false" android:label="Block list" android:screenOrientation="fullSensor" />
-        <activity android:name=".ui.settings.TrustedNoticesActivity" android:exported="false" android:label="Notifications" android:screenOrientation="fullSensor" />
-        <activity android:name=".ui.settings.FeatureDemoActivity" android:exported="false" android:label="Feature demo" android:screenOrientation="fullSensor" />
-        <activity android:name=".ui.settings.ProtectionCardActivity" android:exported="false" android:label="Printable card" android:screenOrientation="fullSensor" />
-        <activity android:name=".ui.settings.InvestigateReportActivity" android:exported="false" android:label="Investigate" android:screenOrientation="fullSensor" />
-        <activity android:name=".ui.settings.SeniorSafetyActivity" android:exported="false" android:label="Falls and safety" android:screenOrientation="fullSensor" />
+        <activity android:name=".ui.settings.FeatureDemoActivity" android:exported="false" android:label="Feature demo" />
+        <activity android:name=".ui.settings.ProtectionCardActivity" android:exported="false" android:label="Printable card" />
+        <activity android:name=".ui.settings.InvestigateReportActivity" android:exported="false" android:label="Investigate" />
+        <activity android:name=".ui.settings.SeniorSafetyActivity" android:exported="false" android:label="Falls and safety" />
+        <activity android:name=".ui.home.ProtectCallActivity" android:exported="false" android:label="Protect Call" android:theme="@style/Theme.SafeRing" />
     
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -112,6 +103,17 @@
             android:grantUriPermissions="true">
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
         </provider>
+        <receiver
+            android:name=".widget.HelpWidgetProvider"
+            android:exported="true"
+            android:label="HELP">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/help_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

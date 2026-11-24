@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">HumanAnswer</string>
-    <string name="widget_call_safety_desc">Call safety on the home screen and the lock screen. Tap opens HumanAnswer. It does not listen.</string>
+    <string name="app_name">HumanTouch</string>
     <string name="app_description">Scam Call Protection</string>
-    <string name="service_audio_analysis_desc">HumanAnswer does not record calls or listen in the room.</string>
+    <string name="service_audio_analysis_desc">GMG Shield analyzes call audio on-device to detect scam speech patterns. Audio is processed ephemerally and never recorded or transmitted.</string>
 </resources>

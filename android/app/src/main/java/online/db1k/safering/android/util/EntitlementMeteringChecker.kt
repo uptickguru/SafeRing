@@ -77,7 +77,6 @@ class EntitlementMeteringChecker(
      * @return True if the user is on the Plus tier.
      */
     suspend fun isPlusTier(): Boolean {
-        if (online.db1k.safering.android.BuildConfig.FREE_ONLY) return false
         return isEntitled()
     }
 

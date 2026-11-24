@@ -22,7 +22,7 @@ class HelpSignaler(
         val name = household.ownerDisplayName.ifBlank { "Your person" }
         val trusted = household.trustedContactName.ifBlank { "there" }
         return """
-            HumanAnswer alert for $trusted:
+            GMG Shield alert for $trusted:
 
             $name — ${reason.shortLabel}.
 
@@ -34,7 +34,12 @@ class HelpSignaler(
 
     fun send(reason: HelpReason) {
         ShieldAnalytics.event(context, "help_request", mapOf("reason" to reason.name))
-        openSms(reason)
+        when (household.preferredChannel) {
+            SignalChannel.SMS -> openSms(reason)
+            SignalChannel.WHATSAPP -> openWhatsApp(reason)
+            SignalChannel.SIGNAL -> openSignal()
+            SignalChannel.PHONE -> callSaved()
+        }
         household.recordHelpSent()
     }
 

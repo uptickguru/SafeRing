@@ -205,10 +205,10 @@ private fun WelcomePane() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("HumanAnswer", fontSize = 36.sp, fontWeight = FontWeight.Black)
+        Text("GMG Shield", fontSize = 40.sp, fontWeight = FontWeight.Black)
         Spacer(Modifier.height(16.dp))
         Text(
-            "No AI, period, because AI can't be trusted to catch AI.",
+            "Screens junk calls and texts.\nAdd a person only if you want HELP.",
             fontSize = 24.sp,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
@@ -330,7 +330,7 @@ private fun DensityPane(
         Text("How should this phone look?", fontSize = 26.sp, fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(8.dp))
         Text(
-            "Pick what feels easiest. Change anytime in Settings.",
+            "Pick what feels easiest. Change anytime in Settings. Free — not a paid upgrade.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 18.sp
         )
@@ -362,7 +362,7 @@ private fun RolePane(selected: AppModeStore.Role, onSelect: (AppModeStore.Role) 
         Text("Who is this phone for?", fontSize = 26.sp, fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(8.dp))
         Text(
-            "You can switch later in Settings.",
+            "You can switch later in Settings. Free includes Protect and one trusted contact.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 18.sp
         )

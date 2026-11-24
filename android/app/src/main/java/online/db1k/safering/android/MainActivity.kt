@@ -5,13 +5,11 @@ import online.db1k.safering.android.util.LabCommsFire
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -46,8 +44,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import online.db1k.safering.android.service.HelpReason
@@ -68,39 +64,20 @@ import online.db1k.safering.android.ui.theme.SoftGold
 import online.db1k.safering.android.util.PhoneNumberUtils
 
 class MainActivity : ComponentActivity() {
+    companion object { const val EXTRA_OPEN_EASY = "open_easy" }
 
     private var incomingSharedText by mutableStateOf<String?>(null)
     private var pendingCheckIn by mutableStateOf(false)
     private var pendingHelp by mutableStateOf(false)
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 41) {
-            online.db1k.safering.android.service.StatusIcon.show(this)
-        }
-    }
+    private var pendingEasy by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
         enableEdgeToEdge()
         consumeIntent(intent)
-        online.db1k.safering.android.ui.theme.Appearance.load(this)
-        online.db1k.safering.android.service.StatusIcon.show(this)
-        if (android.os.Build.VERSION.SDK_INT >= 33 &&
-            !online.db1k.safering.android.service.StatusIcon.allowed(this)
-        ) {
-            requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 41)
-        }
 
         setContent {
             SafeRingTheme {
-                var showSplash by remember { mutableStateOf(true) }
-                Box(Modifier.fillMaxSize()) {
                 val household = remember { HouseholdStore.get(this@MainActivity) }
                 val mode = remember { AppModeStore.get(this@MainActivity) }
                 var modeTick by remember { mutableIntStateOf(0) }
@@ -126,7 +103,7 @@ class MainActivity : ComponentActivity() {
                     onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
                 }
 
-                LaunchedEffect(incomingSharedText, pendingCheckIn, pendingHelp, onboarded) {
+                LaunchedEffect(incomingSharedText, pendingCheckIn, pendingHelp, pendingEasy, onboarded) {
                     if (!onboarded) return@LaunchedEffect
                     incomingSharedText?.let { shared ->
                         checkText = shared
@@ -139,6 +116,12 @@ class MainActivity : ComponentActivity() {
                         showAfterCall = true
                         pendingCheckIn = false
                     }
+                    if (pendingEasy) {
+                        pendingEasy = false
+                        mode.displayDensity = online.db1k.safering.android.service.AppModeStore.DisplayDensity.EASY
+                        selectedTab = 0
+                        modeTick++
+                    }
                     if (pendingHelp) {
                         pendingHelp = false
                         signaler.send(HelpReason.AFTER_CALL)
@@ -147,7 +130,10 @@ class MainActivity : ComponentActivity() {
 
                 if (!onboarded) {
                     OnboardingScreen(onFinished = { onboarded = true })
-                } else if (showCheck) {
+                    return@SafeRingTheme
+                }
+
+                if (showCheck) {
                     PasteCheckScreen(
                         trustedName = household.trustedContactName,
                         initialText = checkText,
@@ -170,12 +156,15 @@ class MainActivity : ComponentActivity() {
                             checkSender = ""
                         }
                     )
-                } else Scaffold(
+                    return@SafeRingTheme
+                }
+
+                Scaffold(
                     modifier = Modifier.semantics { testTagsAsResourceId = true },
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = Ivory,
                     bottomBar = {
                         NavigationBar(
-                            containerColor = MaterialTheme.colorScheme.background,
+                            containerColor = Ivory,
                             contentColor = SoftGold,
                             tonalElevation = NavigationBarDefaults.Elevation
                         ) {
@@ -283,20 +272,6 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
-                if (showSplash) {
-                    Dialog(
-                        onDismissRequest = { },
-                        properties = DialogProperties(
-                            dismissOnBackPress = false,
-                            dismissOnClickOutside = false,
-                            usePlatformDefaultWidth = false,
-                            decorFitsSystemWindows = false
-                        )
-                    ) {
-                        online.db1k.safering.android.ui.splash.OpeningSplash(onDone = { showSplash = false })
-                    }
-                }
-                }
             }
         }
     }
@@ -322,6 +297,9 @@ class MainActivity : ComponentActivity() {
         }
         if (intent.getStringExtra(TripwireNotifier.EXTRA_HELP_REASON) != null) {
             pendingHelp = true
+        }
+        if (intent.getBooleanExtra(EXTRA_OPEN_EASY, false)) {
+            pendingEasy = true
         }
         intent.removeExtra(Intent.EXTRA_TEXT)
         intent.removeExtra(TripwireNotifier.EXTRA_SHARED_TEXT)

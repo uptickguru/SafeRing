@@ -77,7 +77,7 @@ fun PasteCheckScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Ivory)
             .padding(20.dp)
             .verticalScroll(rememberScrollState())
     ) {

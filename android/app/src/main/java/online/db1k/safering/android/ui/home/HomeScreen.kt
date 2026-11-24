@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,7 +33,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -92,6 +93,13 @@ fun HomeScreen(
         Manifest.permission.READ_CONTACTS
     ) == PackageManager.PERMISSION_GRANTED
 
+    val roleLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { tick++ }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { tick++ }
+
     val person = household.trustedContactName.ifBlank { "my person" }
     val ready = household.isConfigured
     val setupDone = screeningOn && contactsOn && notifyOn
@@ -105,7 +113,7 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Ivory)
             .padding(horizontal = 20.dp)
             .padding(top = 10.dp, bottom = 10.dp)
     ) {
@@ -117,7 +125,7 @@ fun HomeScreen(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "HUMANANSWER",
+                    text = "GMG SHIELD",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 2.sp,
@@ -127,7 +135,7 @@ fun HomeScreen(
                     text = "Protection",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = Ink
                 )
             }
             StatusChip(text = statusLine, ok = statusOk)
@@ -135,7 +143,7 @@ fun HomeScreen(
 
         if (mode.isFree) {
             Text(
-                "Call safety · one person",
+                "Free · Protect + 1 trusted contact",
                 color = SoftGold,
                 fontWeight = FontWeight.Medium,
                 fontSize = 13.sp,
@@ -146,17 +154,28 @@ fun HomeScreen(
         Divider(
             modifier = Modifier.padding(vertical = 12.dp),
             thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outline
+            color = Color.Black.copy(alpha = 0.08f)
         )
 
         if (!mode.isEasyHome) {
             Text(
                 "${mode.displayDensity.title} · ${mode.role.title}",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Mute,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
+            Button(
+                onClick = {
+                    context.startActivity(Intent(context, ProtectCallActivity::class.java))
+                    tick++
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = CallSage, contentColor = Color.White),
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier.fillMaxWidth().height(52.dp)
+            ) {
+                Text("Protect Call", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            }
             Spacer(Modifier.height(10.dp))
         }
 
@@ -235,6 +254,21 @@ fun HomeScreen(
         }
 
         Spacer(Modifier.height(10.dp))
+        Button(
+            onClick = {
+                context.startActivity(Intent(context, ProtectCallActivity::class.java))
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = HelpBurgundy, contentColor = Color.White),
+            shape = RoundedCornerShape(14.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp)
+                .testTag("home_protect")
+        ) {
+            Text("Protect Call", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        }
+
+        Spacer(Modifier.height(10.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -254,9 +288,35 @@ fun HomeScreen(
             )
         }
 
+        if (!setupDone || !ready) {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "Phone setup → Settings",
+                fontSize = 15.sp,
+                color = Mute,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .clickable(onClick = onOpenSettings)
+                    .padding(6.dp)
+            )
+            if (!screeningOn) {
+                TextButton(onClick = {
+                    roleLauncher.launch(PhoneRoles.requestCallScreeningIntent(context))
+                }) { Text("Make GMG Shield the spam app") }
+            }
+            val needed = buildList {
+                if (!contactsOn) add(Manifest.permission.READ_CONTACTS)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notifyOn) {
+                    add(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+            if (needed.isNotEmpty()) {
+                TextButton(onClick = { permissionLauncher.launch(needed.toTypedArray()) }) {
+                    Text("Allow contacts / notifications")
+                }
+            }
+        }
     }
-
-    SetupGate(trustedContactHome = false)
 
     if (showPassword) {
         AlertDialog(
@@ -325,6 +385,6 @@ private fun ToolTile(
     ) {
         icon()
         Spacer(Modifier.width(10.dp))
-        Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onBackground)
+        Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Ink)
     }
 }

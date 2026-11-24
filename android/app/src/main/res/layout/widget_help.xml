@@ -3,24 +3,27 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_call_safety_bg"
-    android:gravity="center_vertical"
+    android:background="#F6F1E7"
+    android:gravity="center"
     android:orientation="vertical"
     android:padding="12dp">
-
+    <ImageView
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:contentDescription="HumanTouch logo"
+        android:src="@drawable/logo_icon" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Call safety"
-        android:textColor="#FF2A2622"
-        android:textSize="18sp"
+        android:layout_marginTop="6dp"
+        android:text="HELP"
+        android:textColor="#2A2622"
+        android:textSize="28sp"
         android:textStyle="bold" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="2dp"
-        android:text="Opens HumanAnswer"
-        android:textColor="#FF6E675F"
-        android:textSize="13sp" />
+        android:text="Opens the big button"
+        android:textColor="#7A736C"
+        android:textSize="12sp" />
 </LinearLayout>

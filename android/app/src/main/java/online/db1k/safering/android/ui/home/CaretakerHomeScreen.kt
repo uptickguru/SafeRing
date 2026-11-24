@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,14 +43,14 @@ fun CaretakerHomeScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Ivory)
             .verticalScroll(rememberScrollState())
             .padding(20.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("HUMANANSWER", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 2.sp, color = SoftGold)
-                Text("Trusted contact", fontSize = 24.sp, color = MaterialTheme.colorScheme.onBackground)
+                Text("GMG SHIELD", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 2.sp, color = SoftGold)
+                Text("Trusted contact", fontSize = 24.sp, color = Ink)
             }
             AssistChip(
                 onClick = {},
@@ -61,32 +60,30 @@ fun CaretakerHomeScreen() {
         Spacer(Modifier.height(12.dp))
         Surface(
             shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = Color.White.copy(alpha = 0.7f),
             tonalElevation = 0.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    if (mode.isFree) "Call safety · one person" else "Family plan",
+                    if (mode.isFree) "Free · Protect + 1 trusted contact" else "Family plan",
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = Ink
                 )
             }
         }
         Spacer(Modifier.height(16.dp))
-        UpgradeNotice()
-        Spacer(Modifier.height(12.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp)) {
                 Text("Their phone", fontWeight = FontWeight.SemiBold)
-                Text("$seniorName · this phone is Trusted contact mode. Call safety includes one person.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("$seniorName · this phone is Trusted contact mode. Free = Protect + one trusted contact.", color = Mute)
             }
         }
         Spacer(Modifier.height(12.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp)) {
                 Text("Waiting for alerts", fontWeight = FontWeight.SemiBold)
-                Text("When SafeCall is live, unknown attempts show for Approve / Deny. Until then, they use HELP and Protect on their phone.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("When SafeCall is live, unknown attempts show for Approve / Deny. Until then, they use HELP and Protect on their phone.", color = Mute)
             }
         }
         Spacer(Modifier.height(16.dp))
@@ -105,31 +102,19 @@ fun CaretakerHomeScreen() {
             shape = RoundedCornerShape(14.dp)
         ) { Text("Text check-in") }
 
-        Spacer(Modifier.height(16.dp))
-        Text("Switch to Personal mode in Settings if this is their everyday phone.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
-    }
-    SetupGate(trustedContactHome = true)
-}
-
-@Composable
-private fun UpgradeNotice() {
-    val context = LocalContext.current
-    val prefs = remember { context.getSharedPreferences("humananswer_notice", android.content.Context.MODE_PRIVATE) }
-    var open by remember { mutableStateOf(!prefs.getBoolean("upgrade_notice_dismissed", false)) }
-    if (!open) return
-    Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-        Column(Modifier.padding(16.dp)) {
-            Text("New features are coming", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
-            Spacer(Modifier.height(6.dp))
-            Text(
-                "Safety check-ins — a fall, no movement, a crash — will be an upgrade on this phone only. Their phone stays free. No price today.",
-                color = Mute
-            )
-            Spacer(Modifier.height(10.dp))
-            TextButton(onClick = {
-                prefs.edit().putBoolean("upgrade_notice_dismissed", true).apply()
-                open = false
-            }) { Text("Got it") }
+        Spacer(Modifier.height(10.dp))
+        if (mode.protectIncluded) {
+            Button(
+                onClick = {
+                    context.startActivity(Intent(context, ProtectCallActivity::class.java))
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = HelpBurgundy),
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = RoundedCornerShape(14.dp)
+            ) { Text("Protect Call") }
         }
+
+        Spacer(Modifier.height(16.dp))
+        Text("Switch to Personal mode in Settings if this is their everyday phone.", color = Mute, fontSize = 13.sp)
     }
 }

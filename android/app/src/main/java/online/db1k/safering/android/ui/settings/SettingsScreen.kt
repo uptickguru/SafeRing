@@ -23,15 +23,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.testTag
 import androidx.core.content.ContextCompat
 import online.db1k.safering.android.service.AppModeStore
-import online.db1k.safering.android.ui.theme.Appearance
 import online.db1k.safering.android.service.HouseholdStore
-import online.db1k.safering.android.service.SubscriptionGate
+import online.db1k.safering.android.service.FilterRulesStore
 import online.db1k.safering.android.service.SafeCallCaretaker
-import online.db1k.safering.android.service.StatusIcon
 import online.db1k.safering.android.MainActivity
 import online.db1k.safering.android.service.PhoneRoles
 import online.db1k.safering.android.service.SignalChannel
 import online.db1k.safering.android.service.TripwireNotifier
+import online.db1k.safering.android.service.SmsNotificationListener
+import online.db1k.safering.android.util.AppConfig
 import online.db1k.safering.android.util.ShieldAnalytics
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,18 +64,24 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
     ) { setupTick++ }
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) {
-        setupTick++
-        StatusIcon.show(context)
-    }
+    ) { setupTick++ }
     var trustedName by remember { mutableStateOf(household.trustedContactName) }
     var trustedNumber by remember { mutableStateOf(household.trustedContactNumber) }
     var password by remember { mutableStateOf("") }
     var channel by remember { mutableStateOf(household.preferredChannel) }
     val scope = rememberCoroutineScope()
+    var keywordDraft by remember { mutableStateOf("") }
+    var blockDraft by remember { mutableStateOf("") }
+    var keywords by remember { mutableStateOf(FilterRulesStore.keywords(context)) }
+    var blocks by remember { mutableStateOf(FilterRulesStore.blockDigits(context).toList().sorted()) }
     var safeCallSummary by remember { mutableStateOf("Tap refresh") }
     var safeCallBusy by remember { mutableStateOf(false) }
     var showResetConfirm by remember { mutableStateOf(false) }
+    fun reloadFilters() {
+        keywords = FilterRulesStore.keywords(context)
+        blocks = FilterRulesStore.blockDigits(context).toList().sorted()
+        setupTick++
+    }
 
     Column(
         modifier = Modifier
@@ -123,7 +129,6 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    if (SubscriptionGate.enabled && role == AppModeStore.Role.CARETAKER) {
                     Text("Plan")
                     AppModeStore.Plan.entries.forEach { pl ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -134,16 +139,8 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                             }
                         }
                     }
-                    }
                     Text("Display", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 12.dp))
-                    Text("Follows the phone. Turn this on if the dark screen is hard to see.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                        Text("Keep this phone light", modifier = Modifier.weight(1f))
-                        Switch(
-                            checked = Appearance.forceLight.value,
-                            onCheckedChange = { Appearance.setForceLight(context, it) }
-                        )
-                    }
+                    Text("Chosen at signup. Free — not a paid upgrade.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     AppModeStore.DisplayDensity.entries.forEach { d ->
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                             RadioButton(
@@ -198,42 +195,6 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        Text("Home and lock screen", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-        Spacer(modifier = Modifier.height(8.dp))
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Call safety", style = MaterialTheme.typography.titleSmall)
-                Text(
-                    "Press and hold the home screen, then Widgets, then HumanAnswer. On a newer phone the same widget can sit on the lock screen. It opens the app. It does not listen.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                var topBar by remember { mutableStateOf(StatusIcon.isOn(context)) }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Icon on the top bar")
-                        Text(
-                            "Quiet. No sound. The phone may ask to allow alerts once.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = topBar,
-                        onCheckedChange = { on ->
-                            topBar = on
-                            StatusIcon.setOn(context, on)
-                            if (on && !StatusIcon.allowed(context)) {
-                                permissionLauncher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
-                            }
-                        }
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
         Text("Your person", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
@@ -245,15 +206,19 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                 OutlinedTextField(value = trustedNumber, onValueChange = { trustedNumber = it; household.trustedContactNumber = it }, label = { Text("Trusted person number") }, modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(8.dp))
                 Text("How to reach them", style = MaterialTheme.typography.titleSmall)
-                Text(
-                    "Text only. The message opens in the phone's text app. No other apps.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                LaunchedEffect(Unit) {
-                    if (household.preferredChannel != SignalChannel.SMS) {
-                        household.preferredChannel = SignalChannel.SMS
-                        channel = SignalChannel.SMS
+                SignalChannel.entries.forEach { option ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = channel == option,
+                            onClick = {
+                                channel = option
+                                household.preferredChannel = option
+                            }
+                        )
+                        Column {
+                            Text(option.title)
+                            Text(option.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                 }
                 OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("New family password") }, modifier = Modifier.fillMaxWidth())
@@ -271,9 +236,89 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
         Spacer(modifier = Modifier.height(8.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
-                SettingToggle("HumanAnswer is call screening app", "Contacts ring. Unknown is silenced.", household.callScreeningConfirmed) { household.callScreeningConfirmed = it }
+                SettingToggle("GMG Shield is call screening app", "Contacts ring. Unknown is silenced.", household.callScreeningConfirmed) { household.callScreeningConfirmed = it }
                 SettingToggle("Carrier scam block is on", "T-Mobile Scam Shield, AT&T ActiveArmor, Verizon Call Filter", household.carrierProtectionConfirmed) { household.carrierProtectionConfirmed = it }
                 SettingToggle("Silence unknown is OK", "Unknown callers should not ring", household.silenceUnknownConfirmed) { household.silenceUnknownConfirmed = it }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("Text alerts (Android) — optional", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                val nlsOn = SmsNotificationListener.isEnabled(context)
+                // Keep local flag true only when OS actually granted access
+                LaunchedEffect(nlsOn) {
+                    if (!nlsOn && household.smsNotificationCaptureEnabled) {
+                        household.smsNotificationCaptureEnabled = false
+                    }
+                }
+                Text(
+                    "GMG Shield works without this. Call screening, HELP, Protect, and Investigate do not need Notification access.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    if (nlsOn) "Notification access: ON — optional SMS sender capture active"
+                    else "Notification access: OFF (normal on sideload / Firebase installs)",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Android often blocks “Notification read / reply” for apps not from Play until you unlock restricted settings:",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    "1) Tap Allow restricted settings → Apps → GMG Shield → ⋮ → Allow restricted settings\n" +
+                        "2) Tap Open Notification access → turn GMG Shield ON\n" +
+                        "3) If the pink “denied access” screen appears, do step 1 first, then try again",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Button(
+                    onClick = {
+                        SmsNotificationListener.openAppDetails(context)
+                        setupTick++
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("1. Allow restricted settings") }
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = {
+                        // Only mark enabled after user returns with NLS on (checked on next recomposition)
+                        SmsNotificationListener.openSettings(context)
+                        setupTick++
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("2. Open Notification access") }
+                Spacer(modifier = Modifier.height(8.dp))
+                if (nlsOn) {
+                    SettingToggle(
+                        "Use notification capture",
+                        "When ON, we may fingerprint sender numbers from Messages alerts. Not required for Protect or HELP.",
+                        household.smsNotificationCaptureEnabled
+                    ) { on ->
+                        household.smsNotificationCaptureEnabled = on
+                        setupTick++
+                    }
+                } else {
+                    Text(
+                        "Skip this section if Android won’t allow it. Use Settings → Investigate a number for shady texts instead.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    OutlinedButton(
+                        onClick = {
+                            context.startActivity(Intent(context, InvestigateReportActivity::class.java))
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Investigate a number (no Notification access)") }
+                }
             }
         }
 
@@ -292,17 +337,15 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(if (screeningOn) "Caller ID & spam: on" else "Caller ID & spam: off")
                 Text(
-                    "Settings → Default apps → Caller ID & spam → HumanAnswer. Contacts still ring. Unknown is silenced.",
+                    "Settings → Default apps → Caller ID & spam → GMG Shield. Contacts still ring. Unknown is silenced.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
-                    onClick = {
-                        PhoneRoles.requestCallScreeningIntent(context)?.let { roleLauncher.launch(it) }
-                    },
+                    onClick = { roleLauncher.launch(PhoneRoles.requestCallScreeningIntent(context)) },
                     modifier = Modifier.fillMaxWidth()
-                ) { Text(if (screeningOn) "Change spam app" else "Make HumanAnswer the spam app") }
+                ) { Text(if (screeningOn) "Change spam app" else "Make GMG Shield the spam app") }
 
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(if (contactsOn) "Contacts: allowed" else "Contacts: needed")
@@ -336,7 +379,7 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
 
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    "Suspicious texts: in Messages, tap Share → HumanAnswer. We do not read your SMS inbox.",
+                    "Suspicious texts: in Messages, tap Share → GMG Shield. We do not read your SMS inbox.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -346,20 +389,65 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
         
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Filter words", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Text("Filter words (like iOS Message Filter)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
-        Button(
-            onClick = { context.startActivity(Intent(context, FilterWordsActivity::class.java)) },
-            modifier = Modifier.fillMaxWidth()
-        ) { Text("Open filter words") }
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    "Used on shared texts and notification snippets. Android has no system Junk folder for third-party apps.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                keywords.take(40).forEach { w ->
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                        Text(w, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { FilterRulesStore.removeKeyword(context, w); reloadFilters() }) { Text("Remove") }
+                    }
+                }
+                OutlinedTextField(value = keywordDraft, onValueChange = { keywordDraft = it }, label = { Text("Add filter word") }, modifier = Modifier.fillMaxWidth())
+                Button(
+                    onClick = {
+                        FilterRulesStore.addKeyword(context, keywordDraft)
+                        keywordDraft = ""
+                        reloadFilters()
+                        ShieldAnalytics.event(context, "filter_keyword_add")
+                    },
+                    enabled = keywordDraft.trim().length >= 2,
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Add word") }
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Block list", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Text("Block list (calls)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
-        Button(
-            onClick = { context.startActivity(Intent(context, BlockListActivity::class.java)) },
-            modifier = Modifier.fillMaxWidth()
-        ) { Text("Open block list") }
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    "Silences these when GMG Shield is Caller ID & spam app (Android Call Screening ≈ iOS Call Directory).",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text("Blocked: ${blocks.size}", style = MaterialTheme.typography.titleSmall)
+                blocks.take(30).forEach { d ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(d, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { FilterRulesStore.removeBlockDigits(context, d); reloadFilters() }) { Text("Remove") }
+                    }
+                }
+                OutlinedTextField(value = blockDraft, onValueChange = { blockDraft = it }, label = { Text("Add number to block") }, modifier = Modifier.fillMaxWidth())
+                Button(
+                    onClick = {
+                        FilterRulesStore.addBlockDigits(context, blockDraft)
+                        blockDraft = ""
+                        reloadFilters()
+                        ShieldAnalytics.event(context, "block_list_add")
+                    },
+                    enabled = blockDraft.filter { it.isDigit() }.length >= 10,
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Add to block list") }
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
         Text("Investigate & report", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
@@ -446,21 +534,13 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                     onClick = { ShieldAnalytics.event(context, "print_card_open"); context.startActivity(Intent(context, ProtectionCardActivity::class.java)) },
                     modifier = Modifier.fillMaxWidth()
                 ) { Text("Print protection card") }
-                if (role == AppModeStore.Role.CARETAKER) {
-                    OutlinedButton(
-                        onClick = {
-                            ShieldAnalytics.event(context, "falls_tips_open")
-                            context.startActivity(Intent(context, SeniorSafetyActivity::class.java))
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text("Fall check-in") }
-                    OutlinedButton(
-                        onClick = {
-                            context.startActivity(Intent(context, TrustedNoticesActivity::class.java))
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text("Notifications") }
-                }
+                OutlinedButton(
+                    onClick = {
+                        ShieldAnalytics.event(context, "falls_tips_open")
+                        context.startActivity(Intent(context, SeniorSafetyActivity::class.java))
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text("Falls & senior safety") }
                 Text(
                     "Cheap Android: screen lock ON, Caller ID role ON, Play Protect ON, install only from family.",
                     style = MaterialTheme.typography.bodySmall,
@@ -496,14 +576,20 @@ fun SettingsScreen(peopleOnly: Boolean = false, onModeChanged: () -> Unit = {}) 
                     context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.0.21"
                 } catch (_: Exception) { "1.0.21" }
                 InfoRow("Version", ver)
-                InfoRow("Support", "kevinasbury.com")
+                InfoRow("Edge", "safering.gulfmeridiangroup.com")
                 InfoRow("Privacy", "Family password and trusted number stay on this phone. Help texts are redacted.")
                 Spacer(modifier = Modifier.height(8.dp))
                 Text("Human in the loop: Approve / HELP / money decisions stay with people.", style = MaterialTheme.typography.bodySmall)
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedButton(onClick = {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://kevinasbury.com")))
-                }, modifier = Modifier.fillMaxWidth()) { Text("Privacy, terms, and help") }
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppConfig.LEGAL_PRIVACY)))
+                }, modifier = Modifier.fillMaxWidth()) { Text("Privacy Policy") }
+                OutlinedButton(onClick = {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppConfig.LEGAL_TERMS)))
+                }, modifier = Modifier.fillMaxWidth()) { Text("Terms of Use") }
+                OutlinedButton(onClick = {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppConfig.LEGAL_SUPPORT)))
+                }, modifier = Modifier.fillMaxWidth()) { Text("Help & Support") }
             }
         }
     }
@@ -644,7 +730,7 @@ private fun openCallScreeningSettings(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS).apply {
             // On most devices, this opens the default apps settings
-            // Users need to navigate to Call Screening > HumanAnswer
+            // Users need to navigate to Call Screening > GMG Shield
         }
         context.startActivity(intent)
     }

@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 /**
- * Unified logging system for HumanAnswer Android.
+ * Unified logging system for GMG Shield Android.
  *
  * Mirrors the iOS Logger.swift — same categories, same severity levels.
  * All logs go to Logcat (debug) and non-debug levels are forwarded to
@@ -25,7 +25,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
  */
 object Logger {
 
-    private const val TAG = "HumanAnswer"
+    private const val TAG = "GMG Shield"
 
     enum class Category(val tag: String) {
         APP("App"),
